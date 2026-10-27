@@ -189,6 +189,28 @@ body.dragmode{overscroll-behavior:none}
 .bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
 
+/* zakupy */
+.shadd{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.shrow{display:flex;gap:8px;align-items:center}
+#sh-prio button{font-size:.78rem;padding:9px 2px}
+#sh-prio button[aria-pressed="true"][data-v="4"]{background:var(--p4);color:var(--accent-ink);border-color:var(--p4)}
+.slist{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.slist .list .sitem{border:0;background:var(--bg)}
+.slhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.slhead b{font-family:var(--display);font-weight:800;font-size:1.05rem}
+.slbtns{display:flex;gap:6px;flex:none}
+.sitem{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px}
+.sitem .check{margin:0}
+.sitem.bought .qt{text-decoration:line-through;color:var(--muted)}
+.sitem.bought .check{background:var(--accent);border-color:var(--accent)}
+.sitem .qty{color:var(--muted);font-weight:500}
+[data-editshop]{cursor:pointer}
+.spr{font-weight:700;font-size:.74rem;padding:1px 7px;border-radius:999px;border:1px solid currentColor}
+.spr4{color:var(--p4)}.spr3{color:var(--p3)}.spr2{color:var(--p2)}.spr1{color:var(--p1)}
+.paid{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.paid input{width:82px;padding:6px 8px;text-align:right}
+nav button{font-size:.82rem;padding:8px 2px}
+
 /* peek / forecast */
 .peek{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
 .peek-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
@@ -318,6 +340,20 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
     <div class="list" id="w-hist"></div>
   </section>
 
+  <section id="v-shop" hidden>
+    <div class="daysum" id="sh-sum" style="margin-top:6px"></div>
+    <form class="shadd" id="sh-add">
+      <div class="shrow"><input id="sh-name" placeholder="Dodaj produkt, np. Mleko x2" autocomplete="off" aria-label="Nazwa produktu"><button class="btn primary" style="flex:none;padding:10px 16px">Dodaj</button></div>
+      <div class="shrow">
+        <div class="seg" id="sh-prio" role="group" aria-label="Pilność" style="flex:1"><button type="button" data-v="4">Na cito</button><button type="button" data-v="3">Ważne</button><button type="button" data-v="2" aria-pressed="true">Za jakiś czas</button><button type="button" data-v="1">Może czekać</button></div>
+      </div>
+      <div class="shrow"><label class="label" for="sh-list" style="flex:none">Lista</label><select id="sh-list"></select></div>
+    </form>
+    <div class="chips" id="sh-filter" style="margin-top:14px"></div>
+    <div id="sh-lists" style="display:flex;flex-direction:column;gap:14px;margin-top:12px"></div>
+    <div id="sh-bought" style="margin-top:16px"></div>
+  </section>
+
   <section id="v-cal" hidden>
     <div class="calhead">
       <b id="c-title"></b>
@@ -363,6 +399,7 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
   <button role="tab" id="t-day" aria-selected="true">Dziś</button>
   <button role="tab" id="t-quests" aria-selected="false">Questy</button>
   <button role="tab" id="t-cal" aria-selected="false">Kalendarz</button>
+  <button role="tab" id="t-shop" aria-selected="false">Zakupy</button>
   <button role="tab" id="t-wallet" aria-selected="false">Portfel</button>
 </nav>
 

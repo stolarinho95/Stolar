@@ -19,7 +19,19 @@ const parseAmt = v => parseFloat(String(v).replace(/\s/g,"").replace(",","."));
 const round2 = v => Math.round(v*100)/100;
 
 function sample(){
-  return { demo:true, v6:true, cats:[...DEF_CATS],
+  return { demo:true, v7:true,
+    shop:{lists:DEF_LISTS(), items:[
+      {id:uid(),name:"Mleko 3,2%",qty:2,prio:4,list:"l-super",bought:false},
+      {id:uid(),name:"Chleb razowy",qty:1,prio:3,list:"l-super",bought:false},
+      {id:uid(),name:"Banany",qty:1,prio:2,list:"l-super",bought:false},
+      {id:uid(),name:"Pasta do zębów",qty:1,prio:3,list:"l-drog",bought:false},
+      {id:uid(),name:"Szampon",qty:1,prio:2,list:"l-drog",bought:false},
+      {id:uid(),name:"Kabel USB-C",qty:1,prio:1,list:"l-elek",price:35,bought:false},
+      {id:uid(),name:"Taśma kinezjologiczna",qty:2,prio:2,list:"l-hobby",bought:false},
+      {id:uid(),name:"Baterie AA",qty:1,prio:1,list:"",bought:false},
+      {id:uid(),name:"Kurczak filet",qty:1,prio:3,list:"l-super",bought:true,boughtAt:addDays(-4),paid:21.99}
+    ]},
+    prices:{"mleko":[{p:3.49,d:addDays(-4),s:"Biedronka"},{p:3.29,d:addDays(-11),s:"Lidl"}],"chleb razowy":[{p:5.99,d:addDays(-4),s:"Biedronka"}],"banany":[{p:5.94,d:addDays(-4),s:"Biedronka"}],"pasta do zebow":[{p:9.49,d:addDays(-20),s:"Rossmann"}],"szampon":[{p:14.99,d:addDays(-20),s:"Rossmann"}],"kurczak filet":[{p:21.99,d:addDays(-4),s:"Biedronka"}],"tasma kinezjologiczna":[{p:24.9,d:addDays(-40),s:"Decathlon"}]}, cats:[...DEF_CATS],
     quests:[
       {id:uid(),title:"Oddać rozdział pracy o lądowaniu CMJ",cat:"Studia",prio:4,deadline:addDays(3),date:"",done:false,dur:240},
       {id:uid(),title:"Wysłać ofertę do klubu",cat:"Praca",prio:3,deadline:addDays(1),date:addDays(0),time:"10:30",done:false,dur:45},
@@ -56,11 +68,13 @@ function sample(){
       {id:uid(),type:"inc",amount:3200,method:"card",cat:"Wynagrodzenie",note:"Wypłata",next:addDays(18),freq:"month",to:""}
     ]};
 }
-const emptyState = () => ({demo:false,v6:true,cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[]});
+const DEF_LISTS = () => [{id:"l-super",name:"Supermarket",exp:"Jedzenie"},{id:"l-drog",name:"Drogeria",exp:"Zakupy"},{id:"l-elek",name:"Elektronika",exp:"Zakupy"},{id:"l-hobby",name:"Hobby",exp:"Rozrywka"}];
+const emptyState = () => ({demo:false,v7:true,cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch(e){ S = sample(); }
-if(S.demo && !S.v6) S = sample();
-S.v6 = true; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
+// Aktualizacja NIGDY nie nadpisuje danych. Do starszych danych dokładamy tylko brakujące części.
+if(S.demo && !S.v7 && !(S.shop && S.shop.items)){ const smp=sample(); S.shop=smp.shop; S.prices={...smp.prices,...(S.prices||{})}; }
+S.v7 = true; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
 S.events.forEach(e=>{ e.skip ||= []; e.over ||= {}; });
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
 S.quests.forEach(q=>{ if("due" in q){ if(q.time){ q.date ||= q.due; } else { q.deadline ||= q.due; } delete q.due; } q.date ||= ""; q.deadline ||= ""; });
@@ -165,7 +179,7 @@ function questCard(q, extra=""){
   return `<div class="quest ${q.done?"done":""}">
       <button class="check" data-toggle="${q.id}" aria-label="${q.done?"Przywróć":"Ukończ"} quest">${q.done?"✓":""}</button>
       <div style="min-width:0" data-editq="${q.id}"><div class="qt">${esc(q.title)}</div>
-        <div class="meta">${prioBars(q.prio)}<span>${esc(q.cat)}</span>${q.dur?`<span class="num">⏳ ${fmtDur(q.dur)}</span>`:""}${q.cost?`<span class="cost num">−${zl(q.cost)}${q.method==="cash"?" · gotówka":""}${q.expCat?" · "+esc(q.expCat):""}</span>`:""}${dueInfo(q)}${extra}</div></div>
+        <div class="meta">${prioBars(q.prio)}<span>${esc(q.cat)}</span>${q.shopList?`<span>🛒 ${shopOpen(q.shopList).length} do kupienia</span>`:""}${q.dur?`<span class="num">⏳ ${fmtDur(q.dur)}</span>`:""}${q.cost?`<span class="cost num">−${zl(q.cost)}${q.method==="cash"?" · gotówka":""}${q.expCat?" · "+esc(q.expCat):""}</span>`:""}${dueInfo(q)}${extra}</div></div>
       <button class="del" data-delq="${q.id}" aria-label="Usuń quest">×</button></div>`;
 }
 const dragCard = (q,extra) => questCard(q,extra).replace('<div class="quest ',`<div data-drag="${q.id}" class="quest drag `).replace('<button class="del"','<span class="grip" aria-hidden="true">⋮⋮</span><button class="del"');
@@ -351,7 +365,7 @@ function renderDay(){
     if(e.e){ const x=e.e;
       return `<button class="blk event" data-evday="${x.id}" data-orig="${x.orig}" style="${pos}" aria-label="${esc(x.title)}, ${x.time}"><span class="bt">${esc(x.title)}</span><span class="bm num">${instLine(x)}</span></button>`; }
     const q=e.q, clash=!q.done && clashes(q.date,q.time,q.dur,q.id).length;
-    return `<div class="blk ${q.done?"done":""} ${clash?"clash":""}" style="--pc:var(--p${q.prio});${pos}">
+    return `<div class="blk ${q.done?"done":""} ${clash?"clash":""}" ${q.done?"":`data-drag="${q.id}"`} style="--pc:var(--p${q.prio});${pos}">
       <button class="check" data-toggle="${q.id}" aria-label="${q.done?"Przywróć":"Ukończ"} quest">${q.done?"✓":""}</button>
       <div style="min-width:0;flex:1;align-self:stretch" data-editq="${q.id}"><div class="bt">${esc(q.title)}</div><div class="bm num">${q.time}–${hhmm(toMin(q.time)+(q.dur||30))}${q.cost?" · −"+zl(q.cost):""} · ${esc(q.cat)}</div></div></div>`;
   }).join("");
@@ -392,7 +406,7 @@ function previewAt(y){
   const tl=document.getElementById("d-tl"), r=tl.getBoundingClientRect();
   if(y<r.top-20 || y>r.bottom+20) return null;
   const {sH,eH,H}=dayRange;
-  let m = sH*60 + (y-r.top)/H*60 - 15;
+  let m = sH*60 + (y-drag.off-r.top)/H*60;
   m = Math.round(m/15)*15;
   return Math.max(sH*60, Math.min(m, eH*60-15));
 }
@@ -405,7 +419,9 @@ function beginDrag(el,x,y){
   document.getElementById("d-tl").classList.add("droptarget");
   document.body.classList.add("dragmode");
   try{ navigator.vibrate && navigator.vibrate(15); }catch(e){}
-  drag={q,el,g,pv,dur:q.dur||30,x,y,m:null,raf:0};
+  const isBlk = el.classList.contains("blk");
+  const off = isBlk ? Math.max(0, y - el.getBoundingClientRect().top) : 15;
+  drag={q,el,g,pv,dur:q.dur||30,x,y,m:null,raf:0,off,moved:isBlk};
   moveDrag(x,y); autoScroll();
 }
 function moveDrag(x,y){
@@ -567,10 +583,174 @@ function render(){
   document.getElementById("v-wallet").hidden = tab!=="wallet";
   document.getElementById("v-cal").hidden = tab!=="cal";
   document.getElementById("v-day").hidden = tab!=="day";
-  ["day","quests","cal","wallet"].forEach(t=>document.getElementById("t-"+t).setAttribute("aria-selected",tab===t));
+  ["day","quests","cal","shop","wallet"].forEach(t=>document.getElementById("t-"+t).setAttribute("aria-selected",tab===t));
   document.getElementById("demo").hidden = !S.demo;
-  renderDay(); renderQuests(); renderWallet(); renderCal();
+  document.getElementById("v-shop").hidden = tab!=="shop";
+  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop();
 }
+
+/* ---------- zakupy ---------- */
+const SHOP_PRIO = {4:"Na cito",3:"Ważne",2:"Potrzebne za jakiś czas",1:"Może poczekać"};
+const SHOP_PRIO_SHORT = {4:"Na cito",3:"Ważne",2:"Za jakiś czas",1:"Może poczekać"};
+let shopFilter = "all";
+const shopItem = id => S.shop.items.find(i=>i.id===id);
+const shopList = id => S.shop.lists.find(l=>l.id===id);
+const shopOpen = listId => S.shop.items.filter(i=>!i.bought && (i.list||"")===(listId||""));
+const normName = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l")
+  .replace(/[^a-z0-9 ]/g," ").replace(/\b\d+([.,]\d+)?\s*(l|ml|g|kg|dag|szt|op|x)?\b/g," ").replace(/\s+/g," ").trim();
+function recordPrice(name, price, src){
+  const k=normName(name); price=Number(price);
+  if(!k || k.length<2 || !(price>0) || price>100000) return;
+  (S.prices[k] ||= []).unshift({p:round2(price),d:TODAY,s:String(src||"").slice(0,30)});
+  S.prices[k] = S.prices[k].slice(0,8);
+}
+function priceHistory(name){
+  const k=normName(name); if(!k) return null;
+  if(S.prices[k]) return S.prices[k];
+  const kt=k.split(" ");
+  let best=null, score=0;
+  for(const [key,arr] of Object.entries(S.prices)){
+    const t=key.split(" "); const common=kt.filter(w=>w.length>2 && t.includes(w)).length;
+    const sc = common/Math.max(kt.length,t.length) + (t[0]===kt[0]&&kt[0].length>3?0.3:0);
+    if(sc>score && sc>=0.5){ score=sc; best=arr; }
+  }
+  return best;
+}
+const median = a => { const b=[...a].sort((x,y)=>x-y); const m=Math.floor(b.length/2); return b.length%2?b[m]:(b[m-1]+b[m])/2; };
+function estimate(it){
+  const q=it.qty||1;
+  if(it.price>0) return {v:round2(it.price*q), src:"Twoja cena"};
+  const h=priceHistory(it.name);
+  if(h && h.length){ const v=median(h.slice(0,5).map(x=>x.p)); return {v:round2(v*q), src:h[0].s?`ostatnio ${h[0].s}, ${fmtDate(h[0].d)}`:`z historii, ${fmtDate(h[0].d)}`}; }
+  return null;
+}
+function listEstimate(items){
+  let sum=0, unknown=0; items.forEach(i=>{ const e=estimate(i); if(e) sum+=e.v; else unknown++; });
+  return {sum:round2(sum), unknown};
+}
+const estLine = ({sum,unknown}) => sum? `≈ ${zl(sum)}${unknown?` + ${unknown} bez ceny`:""}` : unknown? `${unknown} bez ceny` : "";
+
+function syncShopQuest(listId){
+  const l=shopList(listId); if(!l || !l.questId) return;
+  const q=S.quests.find(x=>x.id===l.questId);
+  if(!q){ delete l.questId; return; }
+  if(q.done) return;
+  const items=shopOpen(listId), est=listEstimate(items);
+  q.cost=est.sum; q.title=`Zakupy: ${l.name}`; q.prio=Math.max(1,...items.map(i=>i.prio));
+  save();
+}
+function listToQuest(listId){
+  const l=shopList(listId), items=shopOpen(listId);
+  if(!items.length){ toast("Ta lista jest pusta. Dodaj produkty, zanim zrobisz z niej questa."); return; }
+  if(l.questId){ const q=S.quests.find(x=>x.id===l.questId); if(q && !q.done){ questSheet({id:q.id}); return; } }
+  if(!S.cats.includes("Zakupy")) S.cats.push("Zakupy");
+  const prio=Math.max(...items.map(i=>i.prio)), est=listEstimate(items);
+  const q={id:uid(),title:`Zakupy: ${l.name}`,cat:"Zakupy",prio,date:"",time:"",deadline:prio===4?TODAY:prio===3?addDays(3):"",done:false,cost:est.sum,method:"card",expCat:l.exp||"Zakupy",dur:items.length>6?60:30,shopList:l.id};
+  S.quests.push(q); l.questId=q.id; save(); render();
+  toast("Dodano jako luźny quest. Wrzucisz go w plan w zakładce Dziś.");
+}
+
+function shopRow(it){
+  const e=estimate(it);
+  return `<div class="sitem${it.bought?" bought":""}">
+    <button class="check" data-${it.bought?"unbuy":"buy"}="${it.id}" aria-label="${it.bought?"Cofnij kupione":"Oznacz jako kupione"}">${it.bought?"✓":""}</button>
+    <div style="min-width:0" data-editshop="${it.id}"><div class="qt">${esc(it.name)}${(it.qty||1)>1?` <span class="qty">×${it.qty}</span>`:""}</div>
+      <div class="meta"><span class="spr spr${it.prio}">${SHOP_PRIO_SHORT[it.prio]}</span>${it.bought?`<span>kupione ${fmtDate(it.boughtAt||TODAY)}</span>`:e?`<span class="num">≈ ${zl(e.v)} · ${esc(e.src)}</span>`:`<span>brak ceny</span>`}</div></div>
+    ${it.bought?`<label class="paid"><span class="label">zapłacone</span><input data-paid="${it.id}" inputmode="decimal" value="${it.paid?String(it.paid).replace(".",","):""}" placeholder="zł" aria-label="Zapłacona kwota"></label>`:""}
+  </div>`;
+}
+function renderShop(){
+  const open=S.shop.items.filter(i=>!i.bought);
+  const total=listEstimate(open), urgent=open.filter(i=>i.prio===4).length;
+  document.getElementById("sh-sum").innerHTML = `
+    <div><span class="label">Do kupienia</span><b class="num">${open.length}</b></div>
+    <div><span class="label">Szacowany koszt</span><b class="num">${total.sum?"≈ "+zl(total.sum):"—"}</b></div>
+    <div><span class="label">Na cito</span><b class="num" style="color:${urgent?"var(--exp)":"inherit"}">${urgent}</b></div>`;
+  const lists=S.shop.lists;
+  document.getElementById("sh-filter").innerHTML = [["all","Wszystkie"],...lists.map(l=>[l.id,l.name]),["none","Bez listy"]]
+    .map(([id,n])=>`<button class="chip" data-shopf="${id}" aria-pressed="${shopFilter===id}">${esc(n)}</button>`).join("") + `<button class="chip" data-newlist="">+ Nowa lista</button>`;
+  const sel=document.getElementById("sh-list"), cur=sel.value;
+  sel.innerHTML = `<option value="">Bez listy</option>`+lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join("");
+  sel.value = shopFilter!=="all"&&shopFilter!=="none" ? shopFilter : (lists.some(l=>l.id===cur)?cur:"");
+  const groups = [...lists.map(l=>({l,id:l.id,name:l.name})), {l:null,id:"",name:"Bez listy"}]
+    .filter(g=> shopFilter==="all" || (shopFilter==="none"? g.id==="" : g.id===shopFilter));
+  const sortP=(a,b)=>b.prio-a.prio || a.name.localeCompare(b.name,"pl");
+  document.getElementById("sh-lists").innerHTML = groups.map(g=>{
+    const items=open.filter(i=>(i.list||"")===g.id).sort(sortP);
+    if(!items.length && (shopFilter==="all" || !g.l)) return shopFilter==="all"?"":`<div class="empty">Ta lista jest pusta.</div>`;
+    const q = g.l && g.l.questId ? S.quests.find(x=>x.id===g.l.questId && !x.done) : null;
+    return `<section class="slist">
+      <div class="slhead"><div style="min-width:0"><b>${esc(g.name)}</b><span class="meta" style="margin:2px 0 0">${items.length} ${items.length===1?"produkt":"produkty"} · ${estLine(listEstimate(items))||"pusta"}</span></div>
+        <div class="slbtns">${g.l?(q?`<button class="mini" data-openquest="${q.id}">W queście ✓</button>`:`<button class="mini" data-shopquest="${g.id}">Jako quest</button>`)+`<button class="mini" data-editlist="${g.id}" aria-label="Edytuj listę ${esc(g.name)}" style="color:var(--muted)">⋯</button>`:""}</div></div>
+      <div class="list">${items.map(shopRow).join("")||`<div class="empty">Pusto. Dodaj produkt powyżej.</div>`}</div></section>`;
+  }).join("") || `<div class="empty">Lista zakupów jest pusta. Wpisz produkt powyżej i wybierz, na ile jest pilny.</div>`;
+  const bought=S.shop.items.filter(i=>i.bought).sort((a,b)=>(b.boughtAt||"").localeCompare(a.boughtAt||"")).slice(0,30);
+  document.getElementById("sh-bought").innerHTML = bought.length ? `<details><summary>Kupione (${bought.length})</summary><div class="list" style="margin-top:8px">${bought.map(shopRow).join("")}</div><button class="btn ghost" data-clearbought="" style="width:100%;margin-top:8px">Usuń kupione z listy</button></details>` : "";
+}
+function addShopQuick(){
+  const inp=document.getElementById("sh-name"), name=inp.value.trim(); if(!name){ inp.focus(); return; }
+  const m=name.match(/^(.*?)\s*(?:x|×)\s*(\d{1,3})$/i);
+  const it={id:uid(),name:m?m[1]:name,qty:m?+m[2]:1,prio:+document.querySelector("#sh-prio [aria-pressed=true]").dataset.v,list:document.getElementById("sh-list").value,bought:false};
+  S.shop.items.push(it); inp.value=""; save(); syncShopQuest(it.list); renderShop(); renderQuests(); inp.focus();
+}
+function shopItemSheet(id){
+  const it = id ? shopItem(id) : {name:"",qty:1,prio:2,list:shopFilter!=="all"&&shopFilter!=="none"?shopFilter:"",price:0};
+  const h = it.name ? priceHistory(it.name) : null;
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${id?"Edytuj produkt":"Nowy produkt"}"><h3>${id?"Edytuj produkt":"Nowy produkt"}</h3><form id="f">
+    <div class="row">
+      <div class="field" style="grid-column:span 1"><label class="label" for="si-name">Produkt</label><input id="si-name" required value="${esc(it.name)}" placeholder="np. Mleko"></div>
+      <div class="field"><label class="label" for="si-qty">Ilość</label><input id="si-qty" type="number" min="1" max="999" inputmode="numeric" value="${it.qty||1}"></div>
+    </div>
+    <div class="field"><span class="label">Jak pilne?</span>${seg("sprio",[[4,"Na cito"],[3,"Ważne"],[2,"Za jakiś czas"],[1,"Może poczekać"]],it.prio)}</div>
+    <div class="row">
+      <div class="field"><label class="label" for="si-list">Lista</label><select id="si-list"><option value="">Bez listy</option>${S.shop.lists.map(l=>`<option value="${l.id}" ${l.id===it.list?"selected":""}>${esc(l.name)}</option>`).join("")}</select></div>
+      <div class="field"><label class="label" for="si-price">Cena za szt. (opcj.)</label><input id="si-price" inputmode="decimal" value="${it.price?String(it.price).replace(".",","):""}" placeholder="${h?String(median(h.slice(0,5).map(x=>x.p))).replace(".",","):"0,00"}"></div>
+    </div>
+    <p class="hint" style="margin:0">${h?`Historia cen: ${h.slice(0,4).map(x=>`${zl(x.p)}${x.s?" ("+esc(x.s)+")":""}`).join(", ")}. Puste pole = apka szacuje z historii.`:"Brak historii cen. Apka uczy się z kwot wpisanych przy kupionych produktach i z pozycji na zeskanowanych paragonach."}</p>
+    <div class="err" id="err"></div>
+    <div class="actions">${id?`<button type="button" class="btn ghost" id="si-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
+  </form></div>`;
+  ov.hidden=false; bindSeg(ov);
+  ov.querySelector("#cancel").onclick=close;
+  if(id) confirmBtn(ov.querySelector("#si-del"),()=>{ const l=it.list; S.shop.items=S.shop.items.filter(x=>x.id!==id); save(); syncShopQuest(l); close(); render(); });
+  ov.querySelector("#f").onsubmit=e=>{e.preventDefault();
+    const name=ov.querySelector("#si-name").value.trim(); if(!name){ ov.querySelector("#err").textContent="Wpisz nazwę produktu."; return; }
+    const pr=ov.querySelector("#si-price").value.trim(), price=pr?parseAmt(pr):0;
+    if(pr && !(price>0)){ ov.querySelector("#err").textContent="Cena musi być liczbą, np. 4,99."; return; }
+    const oldList=it.list;
+    const data={name,qty:Math.max(1,parseInt(ov.querySelector("#si-qty").value)||1),prio:+segVal(ov,"sprio"),list:ov.querySelector("#si-list").value,price:round2(price)};
+    if(id) Object.assign(it,data); else S.shop.items.push({id:uid(),bought:false,...data});
+    save(); syncShopQuest(oldList); syncShopQuest(data.list); close(); render();
+  };
+  if(!id) setTimeout(()=>ov.querySelector("#si-name")?.focus(),50);
+}
+function listSheet(id){
+  const l = id ? shopList(id) : {name:"",exp:"Zakupy"};
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Lista zakupów"><h3>${id?"Edytuj listę":"Nowa lista zakupów"}</h3><form id="f">
+    <div class="field"><label class="label" for="sl-name">Nazwa</label><input id="sl-name" required value="${esc(l.name)}" placeholder="np. Apteka, Budowlany"></div>
+    <div class="field"><label class="label" for="sl-exp">Kategoria wydatku (dla questa i portfela)</label><select id="sl-exp">${TX_CATS.filter(c=>c!=="Wynagrodzenie").map(c=>`<option ${c===l.exp?"selected":""}>${c}</option>`).join("")}</select></div>
+    <div class="err" id="err"></div>
+    <div class="actions">${id?`<button type="button" class="btn ghost" id="sl-del" style="color:var(--exp)">Usuń listę</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Utwórz"}</button></div>
+  </form>${id?`<p class="hint" style="margin:10px 0 0">Po usunięciu listy jej produkty trafią do „Bez listy”.</p>`:""}</div>`;
+  ov.hidden=false;
+  ov.querySelector("#cancel").onclick=close;
+  if(id) confirmBtn(ov.querySelector("#sl-del"),()=>{ S.shop.items.forEach(i=>{ if(i.list===id) i.list=""; }); const q=l.questId&&S.quests.find(x=>x.id===l.questId); if(q) delete q.shopList; S.shop.lists=S.shop.lists.filter(x=>x.id!==id); if(shopFilter===id) shopFilter="all"; save(); close(); render(); });
+  ov.querySelector("#f").onsubmit=e=>{e.preventDefault();
+    const name=ov.querySelector("#sl-name").value.trim(); if(!name){ ov.querySelector("#err").textContent="Wpisz nazwę listy."; return; }
+    if(id){ l.name=name; l.exp=ov.querySelector("#sl-exp").value; syncShopQuest(id); }
+    else { const nl={id:"l-"+uid(),name,exp:ov.querySelector("#sl-exp").value}; S.shop.lists.push(nl); shopFilter=nl.id; }
+    save(); close(); render();
+  };
+}
+document.getElementById("sh-add").onsubmit=e=>{ e.preventDefault(); addShopQuick(); };
+document.getElementById("sh-prio").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; document.querySelectorAll("#sh-prio button").forEach(x=>x.setAttribute("aria-pressed",x===b)); };
+document.getElementById("v-shop").addEventListener("change",e=>{
+  const inp=e.target.closest("[data-paid]"); if(!inp) return;
+  const it=shopItem(inp.dataset.paid), v=parseAmt(inp.value);
+  if(inp.value.trim()==="" ){ delete it.paid; save(); return; }
+  if(!(v>0)){ toast("Wpisz kwotę, np. 4,99."); return; }
+  it.paid=round2(v); recordPrice(it.name, v/(it.qty||1), shopList(it.list)?.name||""); save(); toast("Zapisano cenę. Następnym razem apka oszacuje ją sama.");
+});
 
 /* ---------- arkusze ---------- */
 const ov = document.getElementById("overlay");
@@ -685,6 +865,7 @@ function txSheet(id, list, pre){
     const base={id:src?src.id:uid(),type,amount:round2(amount),note:ov.querySelector("#t-note").value.trim()};
     if(type==="trf"){ base.dir=segVal(ov,"dir"); base.cat=""; } else { base.method=segVal(ov,"method"); base.cat=ov.querySelector("#t-cat").value; }
     if(src && src.fromQuest) base.fromQuest=src.fromQuest;
+    if(pre && Array.isArray(pre.items)) pre.items.forEach(i=>recordPrice(i.name,i.price,pre.store||base.note));
     removeSrc();
     if(freq!=="none"){ const to=ov.querySelector("#t-to").value; S.recur.push({...base,next:date,freq,day:new Date(date+"T00:00").getDate(),to}); }
     else (date>TODAY?S.plan:S.tx).push({...base,date});
@@ -829,7 +1010,7 @@ async function scanReceipt(file){
       <details><summary>Odczytany tekst</summary><pre style="white-space:pre-wrap;font:11px ui-monospace,monospace;margin:6px 0 0;color:var(--muted)">${esc(text.slice(0,3000))}</pre></details>
       ${r.items.length>2 && r.items.length<15 && Math.abs(sumItems-r.total)>0.05 ? `<div class="hint" style="margin:4px 0 0">Suma pozycji (${zl(sumItems)}) różni się od kwoty. Rabaty potrafią to tłumaczyć, ale sprawdź kwotę.</div>`:""}
       <div class="hint" style="margin:4px 0 0">Odczyt na telefonie bywa niedokładny. Sprawdź kwotę i datę przed zapisem.</div>`;
-    txSheet(null,null,{type:"exp",amount:r.total,method:r.payment==="cash"?"cash":"card",cat,note:String(r.store||"").slice(0,40),date,receiptInfo:info});
+    txSheet(null,null,{type:"exp",amount:r.total,method:r.payment==="cash"?"cash":"card",cat,note:String(r.store||"").slice(0,40),date,receiptInfo:info,items:r.items,store:r.store||""});
   }catch(e){
     if(worker) try{ await worker.terminate(); }catch(_){}
     if(scanAbort) return;
@@ -900,11 +1081,12 @@ document.getElementById("settings").onclick=settingsSheet;
 if(IS_PWA && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 
 /* ---------- zdarzenia ---------- */
-document.getElementById("fab").onclick=()=> tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
+document.getElementById("fab").onclick=()=> tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
 document.getElementById("t-quests").onclick=()=>{tab="quests";render();};
 document.getElementById("t-cal").onclick=()=>{tab="cal";render();};
 document.getElementById("t-day").onclick=()=>{tab="day";render();};
 document.getElementById("t-wallet").onclick=()=>{tab="wallet";render();};
+document.getElementById("t-shop").onclick=()=>{tab="shop";render();};
 document.getElementById("c-addev").onclick=()=>eventSheet();
 document.getElementById("d-addev").onclick=()=>eventSheet();
 document.getElementById("d-prev").onclick=()=>shiftDay(-1);
@@ -926,6 +1108,7 @@ document.addEventListener("click",e=>{
   if(!b){
     const eq=e.target.closest("[data-editq]"); if(eq){ questSheet({id:eq.dataset.editq}); return; }
     const et=e.target.closest("[data-edittx]"); if(et){ txSheet(et.dataset.edittx, et.dataset.list); return; }
+    const es=e.target.closest("[data-editshop]"); if(es){ shopItemSheet(es.dataset.editshop); return; }
     return;
   }
   const d=b.dataset;
@@ -939,7 +1122,17 @@ document.addEventListener("click",e=>{
   if(d.plan){ if(tab!=="day") dayDate=TODAY; timeSheet(d.plan,true);}
   if(d.totoday){const q=S.quests.find(x=>x.id===d.totoday);q.date=TODAY;q.time="";save();render();toast("Przeniesiono na dziś. Przeciągnij na godzinę, jeśli chcesz.");}
   if(d.setdue){const q=S.quests.find(x=>x.id===d.setdue);q.date=selDay;save();render();}
-  if(d.toggle){const q=S.quests.find(x=>x.id===d.toggle);q.done=!q.done;syncQuestTx(q);save();render();}
+  if(d.buy){ const it=shopItem(d.buy); it.bought=true; it.boughtAt=TODAY; delete it.viaQuest; save(); syncShopQuest(it.list); renderShop(); renderQuests(); renderDay(); toast("Kupione ✓ Wpisz cenę na liście „Kupione”, żeby apka lepiej szacowała."); }
+  if(d.unbuy){ const it=shopItem(d.unbuy); it.bought=false; delete it.boughtAt; delete it.paid; delete it.viaQuest; save(); syncShopQuest(it.list); renderShop(); renderQuests(); renderDay(); }
+  if(d.shopf){ shopFilter=d.shopf; renderShop(); }
+  if(d.newlist!==undefined){ listSheet(); }
+  if(d.editlist){ listSheet(d.editlist); }
+  if(d.shopquest){ listToQuest(d.shopquest); }
+  if(d.openquest){ questSheet({id:d.openquest}); }
+  if(d.clearbought!==undefined){ S.shop.items=S.shop.items.filter(i=>!i.bought); save(); renderShop(); }
+  if(d.toggle){const q=S.quests.find(x=>x.id===d.toggle);q.done=!q.done;
+    if(q.shopList){ if(q.done){ shopOpen(q.shopList).forEach(it=>{it.bought=true;it.boughtAt=TODAY;it.viaQuest=q.id;}); } else { S.shop.items.forEach(it=>{ if(it.viaQuest===q.id){ it.bought=false; delete it.viaQuest; delete it.boughtAt; } }); } }
+    syncQuestTx(q);save();render(); if(q.done&&q.shopList) toast("Produkty z listy oznaczone jako kupione. Kwotę wydatku możesz poprawić w Portfelu.");}
   if(d.delq){S.quests=S.quests.filter(x=>x.id!==d.delq);save();render();}
   if(d.delt){S.tx=S.tx.filter(x=>x.id!==d.delt);save();render();}
   if(d.real){
