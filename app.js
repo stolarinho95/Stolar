@@ -20,6 +20,14 @@ const round2 = v => Math.round(v*100)/100;
 
 function sample(){
   return { demo:true, v7:true,
+    routines:[
+      {id:"r1",title:"Witamina D3 + K2",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"do śniadania",from:addDays(-14)},
+      {id:"r2",title:"Kreatyna 5 g",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"",from:addDays(-14)},
+      {id:"r3",title:"2 l wody",pora:"poludnie",days:[1,2,3,4,5,6,7],time:"",note:"",from:addDays(-14)},
+      {id:"r4",title:"Rozciąganie 10 min",pora:"wieczor",days:[1,3,5],time:"21:30",note:"",from:addDays(-14)},
+      {id:"r5",title:"Magnez",pora:"wieczor",days:[1,2,3,4,5,6,7],time:"",note:"przed snem",from:addDays(-14)}
+    ],
+    routineLog:(()=>{ const l={}; for(let i=1;i<=6;i++) l[addDays(-i)]=["r1","r2","r5"].concat(i%2?["r3"]:[]); l[addDays(0)]=["r1"]; return l; })(),
     shop:{lists:DEF_LISTS(), items:[
       {id:uid(),name:"Mleko 3,2%",qty:2,prio:4,list:"l-super",bought:false},
       {id:uid(),name:"Chleb razowy",qty:1,prio:3,list:"l-super",bought:false},
@@ -69,12 +77,12 @@ function sample(){
     ]};
 }
 const DEF_LISTS = () => [{id:"l-super",name:"Supermarket",exp:"Jedzenie"},{id:"l-drog",name:"Drogeria",exp:"Zakupy"},{id:"l-elek",name:"Elektronika",exp:"Zakupy"},{id:"l-hobby",name:"Hobby",exp:"Rozrywka"}];
-const emptyState = () => ({demo:false,v7:true,cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
+const emptyState = () => ({demo:false,v7:true,routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch(e){ S = sample(); }
 // Aktualizacja NIGDY nie nadpisuje danych. Do starszych danych dokładamy tylko brakujące części.
 if(S.demo && !S.v7 && !(S.shop && S.shop.items)){ const smp=sample(); S.shop=smp.shop; S.prices={...smp.prices,...(S.prices||{})}; }
-S.v7 = true; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
+S.v7 = true; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
 S.events.forEach(e=>{ e.skip ||= []; e.over ||= {}; });
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
 S.quests.forEach(q=>{ if("due" in q){ if(q.time){ q.date ||= q.due; } else { q.deadline ||= q.due; } delete q.due; } q.date ||= ""; q.deadline ||= ""; });
@@ -322,6 +330,7 @@ const opRow = t => `<div class="tx" data-edittx="${t.id}" data-list="${t.list}">
 let dayDate = TODAY;
 function shiftDay(n){ dayDate=plusDays(dayDate,n); renderDay(); }
 function renderDay(){
+  renderRoutines();
   const dt = new Date(dayDate+"T00:00");
   const rel = dayDate===TODAY?"Dziś":dayDate===addDays(1)?"Jutro":dayDate===addDays(-1)?"Wczoraj":"";
   const wd = dt.toLocaleDateString("pl-PL",{weekday:"long"});
@@ -574,9 +583,8 @@ function renderWallet(){
       <span style="display:flex;flex-direction:column;gap:4px"><button class="mini" data-real="${t.id}" data-list="${t.list}">Zrealizuj</button>${t.list==="recur"?`<button class="mini" data-skiprec="${t.id}" style="color:var(--muted)">Pomiń</button>`:""}</span></div>`;
   }).join("") : `<div class="empty">Nic nie zaplanowane. Dodaj przyszły wydatek albo rachunek co miesiąc, np. czynsz.</div>`;
   const hist = [...S.tx].sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById("w-hist").innerHTML = hist.length ? hist.map(t=>`<div class="tx"><div class="t" data-edittx="${t.id}" data-list="tx"><strong>${esc(txTitle(t))}</strong>
-      <span class="meta" style="margin:0">${fmtDate(t.date)} · ${t.type==="trf"?"":esc(t.cat)+" · "}${methodLabel(t)}${t.fromQuest?" · z questa":""}</span></div>
-      ${amtHTML(t)}<button class="del" data-delt="${t.id}" aria-label="Usuń transakcję">×</button></div>`).join("") : `<div class="empty">Brak transakcji.</div>`;
+  document.getElementById("w-hist").innerHTML = hist.length ? hist.slice(0,4).map(txRow).join("") : `<div class="empty">Brak transakcji.</div>`;
+  document.getElementById("w-allhist").textContent = hist.length>4 ? `Cała historia (${hist.length}) →` : "Szukaj i filtruj →";
 }
 function render(){
   document.getElementById("v-quests").hidden = tab!=="quests";
@@ -586,7 +594,9 @@ function render(){
   ["day","quests","cal","shop","wallet"].forEach(t=>document.getElementById("t-"+t).setAttribute("aria-selected",tab===t));
   document.getElementById("demo").hidden = !S.demo;
   document.getElementById("v-shop").hidden = tab!=="shop";
-  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop();
+  document.getElementById("v-hist").hidden = tab!=="hist";
+  if(tab==="hist") document.getElementById("t-wallet").setAttribute("aria-selected","true");
+  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop(); renderHist();
 }
 
 /* ---------- zakupy ---------- */
@@ -751,6 +761,163 @@ document.getElementById("v-shop").addEventListener("change",e=>{
   if(!(v>0)){ toast("Wpisz kwotę, np. 4,99."); return; }
   it.paid=round2(v); recordPrice(it.name, v/(it.qty||1), shopList(it.list)?.name||""); save(); toast("Zapisano cenę. Następnym razem apka oszacuje ją sama.");
 });
+
+/* ---------- rutyny dnia ---------- */
+const PORY = [["rano","Rano"],["poludnie","W ciągu dnia"],["wieczor","Wieczór"],["any","Kiedykolwiek"]];
+const poraLabel = k => (PORY.find(p=>p[0]===k)||PORY[3])[1];
+const routinesOn = s => S.routines.filter(r=>r.days.includes(wdOf(s)) && (!r.from || s>=r.from));
+const doneOn = s => S.routineLog[s] || [];
+function streak(r){
+  let n=0, d=TODAY;
+  if(!doneOn(d).includes(r.id)) d=plusDays(d,-1);           // dzisiejsza jeszcze nie odhaczona nie zrywa serii
+  for(let i=0;i<400;i++){
+    if(r.from && d<r.from) break;
+    if(r.days.includes(wdOf(d))){ if(doneOn(d).includes(r.id)) n++; else break; }
+    d=plusDays(d,-1);
+  }
+  return n;
+}
+function toggleRoutine(id, s){
+  const arr = S.routineLog[s] ||= [];
+  const i = arr.indexOf(id); if(i>=0) arr.splice(i,1); else arr.push(id);
+  if(!arr.length) delete S.routineLog[s];
+  // sprzątanie: trzymamy ~13 miesięcy historii
+  const cut = plusDays(TODAY,-400); for(const k of Object.keys(S.routineLog)) if(k<cut) delete S.routineLog[k];
+  save();
+}
+function renderRoutines(){
+  const box=document.getElementById("d-rout");
+  const list=routinesOn(dayDate), done=doneOn(dayDate);
+  const future = dayDate>TODAY;
+  if(!S.routines.length){
+    box.innerHTML=`<div class="rcard"><div class="rhead"><b>Rutyny dnia</b><button class="mini" data-newrout="">+ Rutyna</button></div><p class="hint" style="margin:0">Dodaj codzienne czynności, np. suplementy, rozciąganie czy 2 l wody, i odhaczaj je każdego dnia.</p></div>`;
+    return;
+  }
+  if(!list.length){ box.innerHTML=`<div class="rcard"><div class="rhead"><b>Rutyny dnia</b><button class="mini" data-newrout="">+ Rutyna</button></div><p class="hint" style="margin:0">Na ten dzień tygodnia nie masz rutyn.</p></div>`; return; }
+  const n=list.filter(r=>done.includes(r.id)).length, pct=Math.round(n/list.length*100);
+  const groups=PORY.map(([k,l])=>[l,list.filter(r=>(r.pora||"any")===k).sort((a,b)=>(a.time||"99").localeCompare(b.time||"99")||a.title.localeCompare(b.title,"pl"))]).filter(g=>g[1].length);
+  const open = routOpen ?? (dayDate===TODAY ? n<list.length : true);
+  box.innerHTML=`<details class="rcard" ${open?"open":""} id="rout-det"><summary class="rhead"><span><b>Rutyny dnia</b> <span class="rprog num">${n}/${list.length}</span></span><span class="rbar" aria-hidden="true"><i style="width:${pct}%"></i></span></summary>
+    ${future?`<p class="hint" style="margin:0 0 6px">To przyszły dzień, odhaczysz je, kiedy przyjdzie.</p>`:""}
+    ${groups.map(([l,rs])=>`<div class="rgroup"><span class="label">${l}</span>${rs.map(r=>{ const ok=done.includes(r.id), st=streak(r);
+      return `<div class="ritem ${ok?"done":""}"><button class="check" data-rout="${r.id}" ${future?"disabled":""} aria-label="${ok?"Cofnij":"Odhacz"} ${esc(r.title)}">${ok?"✓":""}</button>
+        <div style="min-width:0" data-editrout="${r.id}"><span class="rt">${esc(r.title)}</span>${r.time||r.note?`<span class="meta" style="margin:0">${r.time?r.time:""}${r.time&&r.note?" · ":""}${esc(r.note||"")}</span>`:""}</div>
+        ${st>=2?`<span class="streak num" title="Seria dni z rzędu">🔥 ${st}</span>`:""}</div>`; }).join("")}</div>`).join("")}
+    <button class="mini" data-newrout="" style="align-self:flex-start">+ Rutyna</button>
+  </details>`;
+  document.getElementById("rout-det").addEventListener("toggle",e=>{ routOpen=e.target.open; });
+}
+let routOpen = null;
+function routineSheet(id){
+  const r = id ? S.routines.find(x=>x.id===id) : {title:"",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:""};
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Rutyna"><h3>${id?"Edytuj rutynę":"Nowa rutyna"}</h3><form id="f">
+    <div class="field"><label class="label" for="r-title">Czynność</label><input id="r-title" required value="${esc(r.title)}" placeholder="np. Kreatyna 5 g, Witamina D, Rozciąganie"></div>
+    <div class="field"><span class="label">Pora dnia</span>${seg("pora",PORY,r.pora||"any")}</div>
+    <div class="field"><span class="label">Dni tygodnia</span><div class="seg dayseg" id="r-days" role="group" aria-label="Dni tygodnia">${WD.map((w,i)=>`<button type="button" data-d="${i+1}" aria-pressed="${r.days.includes(i+1)}">${w}</button>`).join("")}</div>
+      <div class="quick" id="r-dq"><button type="button" data-set="1234567">Codziennie</button><button type="button" data-set="12345">Pn–Pt</button><button type="button" data-set="67">Weekend</button></div></div>
+    <div class="row">
+      <div class="field"><label class="label" for="r-time">Godzina (opcj.)</label><input id="r-time" type="time" step="300" value="${r.time||""}"></div>
+      <div class="field"><label class="label" for="r-note">Notatka (opcj.)</label><input id="r-note" value="${esc(r.note||"")}" placeholder="np. po śniadaniu"></div>
+    </div>
+    ${id?`<p class="hint" style="margin:0">Seria: ${streak(r)} dni z rzędu. Usunięcie rutyny kasuje też jej historię odhaczeń.</p>`:""}
+    <div class="err" id="err"></div>
+    <div class="actions">${id?`<button type="button" class="btn ghost" id="r-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
+  </form></div>`;
+  ov.hidden=false; bindSeg(ov);
+  ov.querySelector("#r-days").onclick=e=>{const b=e.target.closest("button");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");};
+  ov.querySelector("#r-dq").onclick=e=>{const b=e.target.closest("button");if(!b)return;ov.querySelectorAll("#r-days button").forEach(x=>x.setAttribute("aria-pressed",b.dataset.set.includes(x.dataset.d)));};
+  ov.querySelector("#cancel").onclick=close;
+  if(id) confirmBtn(ov.querySelector("#r-del"),()=>{ S.routines=S.routines.filter(x=>x.id!==id); for(const k of Object.keys(S.routineLog)){ S.routineLog[k]=S.routineLog[k].filter(x=>x!==id); if(!S.routineLog[k].length) delete S.routineLog[k]; } save(); close(); render(); });
+  ov.querySelector("#f").onsubmit=e=>{e.preventDefault();
+    const err=ov.querySelector("#err");
+    const title=ov.querySelector("#r-title").value.trim(); if(!title){err.textContent="Wpisz nazwę czynności.";return;}
+    const days=[...ov.querySelectorAll("#r-days button[aria-pressed=true]")].map(b=>+b.dataset.d); if(!days.length){err.textContent="Zaznacz przynajmniej jeden dzień.";return;}
+    const data={title,pora:segVal(ov,"pora"),days,time:ov.querySelector("#r-time").value,note:ov.querySelector("#r-note").value.trim()};
+    if(id) Object.assign(r,data); else S.routines.push({id:uid(),from:TODAY,...data});
+    routOpen=true; save(); close(); render();
+  };
+  if(!id) setTimeout(()=>ov.querySelector("#r-title")?.focus(),50);
+}
+
+/* ---------- historia transakcji ---------- */
+const HF = {q:"",type:"all",method:"all",cat:"all",period:"month",from:"",to:""};
+const txRow = t => `<div class="tx"><div class="t" data-edittx="${t.id}" data-list="tx"><strong>${esc(txTitle(t))}</strong>
+      <span class="meta" style="margin:0">${fmtDate(t.date)} · ${t.type==="trf"?"":esc(t.cat)+" · "}${methodLabel(t)}${t.fromQuest?" · z questa":""}</span></div>
+      ${amtHTML(t)}<button class="del" data-delt="${t.id}" aria-label="Usuń transakcję">×</button></div>`;
+function periodRange(){
+  const y=d0.getFullYear(), m=d0.getMonth();
+  switch(HF.period){
+    case "month": return [iso(new Date(y,m,1)), TODAY];
+    case "prev": return [iso(new Date(y,m-1,1)), iso(new Date(y,m,0))];
+    case "3m": return [iso(new Date(y,m-2,1)), TODAY];
+    case "year": return [`${y}-01-01`, TODAY];
+    case "custom": return [HF.from||"0000-01-01", HF.to||"9999-12-31"];
+    default: return ["0000-01-01","9999-12-31"];
+  }
+}
+function filteredTx(){
+  const [a,b]=periodRange();
+  const q=normName(HF.q), qAmt=parseAmt(HF.q);
+  return S.tx.filter(t=>{
+    if(t.date<a || t.date>b) return false;
+    if(HF.type!=="all" && t.type!==HF.type) return false;
+    if(HF.method!=="all"){ if(t.type==="trf") return false; if(t.method!==HF.method) return false; }
+    if(HF.cat!=="all" && t.cat!==HF.cat) return false;
+    if(HF.q){
+      const hay=normName(`${t.note||""} ${t.cat||""} ${txTitle(t)}`);
+      const textHit = !!q && hay.includes(q);
+      const amtHit = qAmt>0 && Math.abs(t.amount-qAmt)<0.005;
+      if(!textHit && !amtHit) return false;
+    }
+    return true;
+  }).sort((x,y)=>y.date.localeCompare(x.date));
+}
+function renderHist(){
+  const list=filteredTx();
+  const inc=list.filter(t=>t.type==="inc").reduce((s,t)=>s+t.amount,0), exp=list.filter(t=>t.type==="exp").reduce((s,t)=>s+t.amount,0);
+  document.getElementById("h-sum").innerHTML=`
+    <div><span class="label">Transakcje</span><b class="num">${list.length}</b></div>
+    <div><span class="label">Wpływy</span><b class="num" style="color:var(--inc)">+${zl(inc)}</b></div>
+    <div><span class="label">Wydatki</span><b class="num" style="color:var(--exp)">−${zl(exp)}</b></div>
+    <div><span class="label">Bilans</span><b class="num">${zl(inc-exp)}</b></div>`;
+  // kategorie wydatków (top) jako szybki podgląd
+  const byCat={}; list.filter(t=>t.type==="exp").forEach(t=>byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
+  const top=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById("h-cats").innerHTML = top.length>1 ? top.map(([c,v])=>`<button class="hcat" data-hcat="${esc(c)}" aria-pressed="${HF.cat===c}"><span>${esc(c)}</span><span class="hbar"><i style="width:${Math.round(v/top[0][1]*100)}%"></i></span><b class="num">${zl(v)}</b></button>`).join("") : "";
+  let html="", cur="";
+  for(const t of list){
+    if(t.date!==cur){ cur=t.date; const dayTot=list.filter(x=>x.date===cur).reduce((s,x)=>s+totalDelta(x),0);
+      html+=`<div class="hday"><span>${new Date(cur+"T00:00").toLocaleDateString("pl-PL",{weekday:"short",day:"numeric",month:"long",year:cur.slice(0,4)!==TODAY.slice(0,4)?"numeric":undefined})}</span><span class="num">${dayTot?(dayTot>0?"+":"")+zl(dayTot):""}</span></div>`; }
+    html+=txRow(t);
+  }
+  document.getElementById("h-list").innerHTML = html || `<div class="empty">Brak transakcji dla tych filtrów. ${S.tx.length?"Zmień okres albo wyczyść filtry.":"Dodaj pierwszą przyciskiem +."}</div>`;
+  const active = HF.q||HF.type!=="all"||HF.method!=="all"||HF.cat!=="all"||HF.period!=="month";
+  document.getElementById("h-reset").hidden=!active;
+  document.getElementById("h-custom").hidden = HF.period!=="custom";
+}
+function syncHistControls(){
+  document.getElementById("h-q").value=HF.q;
+  document.getElementById("h-period").value=HF.period;
+  document.getElementById("h-from").value=HF.from; document.getElementById("h-to").value=HF.to;
+  const cs=document.getElementById("h-cat");
+  cs.innerHTML=`<option value="all">Każda kategoria</option>`+[...new Set([...TX_CATS,...S.tx.map(t=>t.cat).filter(Boolean)])].map(c=>`<option ${c===HF.cat?"selected":""}>${esc(c)}</option>`).join("");
+  document.querySelectorAll("#h-type button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===HF.type));
+  document.querySelectorAll("#h-method button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===HF.method));
+}
+function openHist(){ tab="hist"; syncHistControls(); render(); scrollTo(0,0); }
+(function wireHist(){
+  let t;
+  document.getElementById("h-q").addEventListener("input",e=>{ clearTimeout(t); t=setTimeout(()=>{ HF.q=e.target.value.trim(); renderHist(); },150); });
+  document.getElementById("h-period").onchange=e=>{ HF.period=e.target.value; renderHist(); };
+  document.getElementById("h-from").onchange=e=>{ HF.from=e.target.value; renderHist(); };
+  document.getElementById("h-to").onchange=e=>{ HF.to=e.target.value; renderHist(); };
+  document.getElementById("h-cat").onchange=e=>{ HF.cat=e.target.value; renderHist(); };
+  document.getElementById("h-type").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; HF.type=b.dataset.v; syncHistControls(); renderHist(); };
+  document.getElementById("h-method").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; HF.method=b.dataset.v; syncHistControls(); renderHist(); };
+  document.getElementById("h-reset").onclick=()=>{ Object.assign(HF,{q:"",type:"all",method:"all",cat:"all",period:"month",from:"",to:""}); syncHistControls(); renderHist(); };
+  document.getElementById("h-back").onclick=()=>{ tab="wallet"; render(); scrollTo(0,0); };
+  document.getElementById("w-allhist").onclick=openHist;
+})();
 
 /* ---------- arkusze ---------- */
 const ov = document.getElementById("overlay");
@@ -1081,7 +1248,7 @@ document.getElementById("settings").onclick=settingsSheet;
 if(IS_PWA && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 
 /* ---------- zdarzenia ---------- */
-document.getElementById("fab").onclick=()=> tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
+document.getElementById("fab").onclick=()=> tab==="hist"?txSheet():tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
 document.getElementById("t-quests").onclick=()=>{tab="quests";render();};
 document.getElementById("t-cal").onclick=()=>{tab="cal";render();};
 document.getElementById("t-day").onclick=()=>{tab="day";render();};
@@ -1109,6 +1276,7 @@ document.addEventListener("click",e=>{
     const eq=e.target.closest("[data-editq]"); if(eq){ questSheet({id:eq.dataset.editq}); return; }
     const et=e.target.closest("[data-edittx]"); if(et){ txSheet(et.dataset.edittx, et.dataset.list); return; }
     const es=e.target.closest("[data-editshop]"); if(es){ shopItemSheet(es.dataset.editshop); return; }
+    const er=e.target.closest("[data-editrout]"); if(er){ routineSheet(er.dataset.editrout); return; }
     return;
   }
   const d=b.dataset;
@@ -1122,6 +1290,9 @@ document.addEventListener("click",e=>{
   if(d.plan){ if(tab!=="day") dayDate=TODAY; timeSheet(d.plan,true);}
   if(d.totoday){const q=S.quests.find(x=>x.id===d.totoday);q.date=TODAY;q.time="";save();render();toast("Przeniesiono na dziś. Przeciągnij na godzinę, jeśli chcesz.");}
   if(d.setdue){const q=S.quests.find(x=>x.id===d.setdue);q.date=selDay;save();render();}
+  if(d.rout){ toggleRoutine(d.rout, dayDate); renderRoutines(); const r=S.routines.find(x=>x.id===d.rout); if(doneOn(dayDate).includes(d.rout)){ const st=streak(r); if(dayDate===TODAY && st>=3) toast(`🔥 ${r.title}: ${st} dni z rzędu!`); if(routinesOn(dayDate).every(x=>doneOn(dayDate).includes(x.id))) toast("Wszystkie rutyny na dziś odhaczone 💪"); } }
+  if(d.newrout!==undefined){ routineSheet(); }
+  if(d.hcat){ HF.cat = HF.cat===d.hcat ? "all" : d.hcat; syncHistControls(); renderHist(); }
   if(d.buy){ const it=shopItem(d.buy); it.bought=true; it.boughtAt=TODAY; delete it.viaQuest; save(); syncShopQuest(it.list); renderShop(); renderQuests(); renderDay(); toast("Kupione ✓ Wpisz cenę na liście „Kupione”, żeby apka lepiej szacowała."); }
   if(d.unbuy){ const it=shopItem(d.unbuy); it.bought=false; delete it.boughtAt; delete it.paid; delete it.viaQuest; save(); syncShopQuest(it.list); renderShop(); renderQuests(); renderDay(); }
   if(d.shopf){ shopFilter=d.shopf; renderShop(); }

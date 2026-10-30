@@ -211,6 +211,40 @@ body.dragmode{overscroll-behavior:none}
 .paid input{width:82px;padding:6px 8px;text-align:right}
 nav button{font-size:.82rem;padding:8px 2px}
 
+/* rutyny */
+.rcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.rcard[open]{display:flex}
+.rhead{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer}
+.rhead::-webkit-details-marker{display:none}
+.rhead b{font-family:var(--display);font-weight:800;font-size:1.05rem}
+.rprog{color:var(--muted);font-weight:600;margin-left:4px}
+.rbar{flex:1;max-width:140px;height:6px;border-radius:999px;background:var(--line);overflow:hidden}
+.rbar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.rcard[open] .rhead{margin-bottom:6px}
+.rgroup{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
+.ritem{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:6px 2px}
+.ritem+.ritem{border-top:1px solid var(--line)}
+.ritem .check{margin:0}
+.ritem .check:disabled{opacity:.4}
+.ritem.done .check{background:var(--accent);border-color:var(--accent)}
+.ritem.done .rt{text-decoration:line-through;color:var(--muted)}
+.ritem .rt{font-weight:600;display:block;overflow-wrap:anywhere}
+[data-editrout]{cursor:pointer}
+.streak{font-size:.78rem;font-weight:700;color:var(--gold)}
+
+/* historia */
+.hfilters{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.hfilters .seg button{font-size:.8rem;padding:8px 2px}
+#h-q{font-size:16px}
+.hcats{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.hcat{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;border:1px solid transparent;background:transparent;color:var(--ink);padding:4px 6px;border-radius:8px;text-align:left;font-size:.84rem}
+.hcat[aria-pressed="true"]{border-color:var(--exp);background:color-mix(in srgb,var(--exp) 8%,transparent)}
+.hcat span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+.hbar i{display:block;height:100%;background:var(--exp);opacity:.75}
+.hday{display:flex;justify-content:space-between;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 2px 2px}
+h2 .mini{font-family:var(--body)}
+
 /* peek / forecast */
 .peek{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
 .peek-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
@@ -279,6 +313,7 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
       </div>
     </div>
     <div class="daysum" id="d-sum"></div>
+    <div id="d-rout" style="margin-top:12px"></div>
     <div id="d-cancel"></div>
     <h2 id="d-lateh" hidden style="color:var(--exp)">Zaległe <small>przeciągnij na godzinę albo przenieś na dziś</small></h2>
     <div class="list" id="d-late"></div>
@@ -336,8 +371,29 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
     </div>
     <h2>Zaplanowane <small>przyszłe i cykliczne</small></h2>
     <div class="list" id="w-plan"></div>
-    <h2>Historia</h2>
+    <h2>Ostatnie transakcje <button class="mini" id="w-allhist" type="button">Cała historia →</button></h2>
     <div class="list" id="w-hist"></div>
+  </section>
+
+  <section id="v-hist" hidden>
+    <div class="dayhead"><b>Historia transakcji</b><button class="mini" id="h-back" type="button">← Portfel</button></div>
+    <div class="hfilters">
+      <input id="h-q" type="search" placeholder="Szukaj: opis, kategoria albo kwota" autocomplete="off" aria-label="Szukaj transakcji">
+      <div class="seg" id="h-type" role="group" aria-label="Typ"><button type="button" data-v="all">Wszystko</button><button type="button" data-v="exp">Wydatki</button><button type="button" data-v="inc">Wpływy</button><button type="button" data-v="trf">Transfery</button></div>
+      <div class="seg" id="h-method" role="group" aria-label="Forma płatności"><button type="button" data-v="all">Każda forma</button><button type="button" data-v="card">Karta</button><button type="button" data-v="cash">Gotówka</button></div>
+      <div class="row">
+        <select id="h-period" aria-label="Okres"><option value="month">Ten miesiąc</option><option value="prev">Poprzedni miesiąc</option><option value="3m">Ostatnie 3 miesiące</option><option value="year">Ten rok</option><option value="all">Cały okres</option><option value="custom">Własny zakres…</option></select>
+        <select id="h-cat" aria-label="Kategoria"></select>
+      </div>
+      <div class="row" id="h-custom" hidden>
+        <div class="field"><label class="label" for="h-from">Od</label><input id="h-from" type="date"></div>
+        <div class="field"><label class="label" for="h-to">Do</label><input id="h-to" type="date"></div>
+      </div>
+      <button class="mini" id="h-reset" type="button" hidden style="align-self:flex-start">Wyczyść filtry</button>
+    </div>
+    <div class="daysum" id="h-sum"></div>
+    <div class="hcats" id="h-cats"></div>
+    <div class="list" id="h-list" style="margin-top:12px"></div>
   </section>
 
   <section id="v-shop" hidden>
