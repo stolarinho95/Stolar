@@ -27,18 +27,18 @@ html{overscroll-behavior-y:none}
 /* Layout: one-column phone app, sticky header + bottom tab bar, cards only for quests/transactions */
 :root{
   --bg:#EEF2F1; --surface:#FFFFFF; --ink:#13201E; --muted:#5E6E6B; --line:#D6DFDD;
-  --accent:#0F7A6C; --accent-ink:#FFFFFF; --gold:#C98A12;
+  --accent:#0F7A6C; --accent-ink:#FFFFFF; --gold:#C98A12; --trv:#6A52D6;
   --inc:#1C8A4A; --exp:#C2412D; --p1:#8A9794; --p2:#3C82C4; --p3:#C98A12; --p4:#C2412D;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Figtree",ui-sans-serif,system-ui,-apple-system,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0D1413; --surface:#16201F; --ink:#E7EFED; --muted:#93A4A0; --line:#263432;
-  --accent:#3CC2AE; --accent-ink:#06201C; --gold:#E9B04A;
+  --accent:#3CC2AE; --accent-ink:#06201C; --gold:#E9B04A; --trv:#A491FF;
   --inc:#4FC97E; --exp:#F07A64; --p1:#6E7C79; --p2:#6AA8E6; --p3:#E9B04A; --p4:#F07A64; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0D1413; --surface:#16201F; --ink:#E7EFED; --muted:#93A4A0; --line:#263432;
-  --accent:#3CC2AE; --accent-ink:#06201C; --gold:#E9B04A;
+  --accent:#3CC2AE; --accent-ink:#06201C; --gold:#E9B04A; --trv:#A491FF;
   --inc:#4FC97E; --exp:#F07A64; --p1:#6E7C79; --p2:#6AA8E6; --p3:#E9B04A; --p4:#F07A64; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -294,6 +294,70 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .err{color:var(--exp);font-size:.85rem;min-height:1em}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(30px);opacity:.6}}}
+
+/* podróże */
+.blk.travel{--pc:var(--trv);background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--trv) 17%,var(--surface)) 0 7px,color-mix(in srgb,var(--trv) 9%,var(--surface)) 7px 14px);text-align:left;font:inherit;font-size:.82rem;cursor:pointer;flex-direction:column;gap:1px}
+.dots i.trv{border-radius:2px;background:var(--trv)}
+.trvt{font-weight:600}
+.trvcities{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end}
+.trvcities .iconbtn{margin-bottom:4px}
+#tr-mode button{font-size:.8rem}
+#tr-mode button[aria-pressed="true"]{background:var(--trv);border-color:var(--trv);color:#fff}
+.fuel summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--accent)}
+.fuelrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.retbox{display:flex;flex-direction:column;gap:12px;padding:12px;border:1px dashed var(--line);border-radius:12px}
+.choose{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.chbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:12px;text-align:left;min-width:0}
+.chbtn span{font-size:1.25rem;line-height:1.2}
+.chbtn b{font-weight:700}
+.chbtn small{color:var(--muted);font-size:.78rem}
+/* ukończone */
+.donebox{margin-top:22px}
+.donebox>summary{list-style:none;cursor:pointer;font-family:var(--display);font-weight:600;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center;padding:6px 0 10px}
+.donebox>summary::-webkit-details-marker{display:none}
+.donebox>summary::after{content:"›";display:inline-block;transform:rotate(90deg);transition:transform .2s;color:var(--muted);font-size:1.4rem;line-height:1}
+.donebox[open]>summary::after{transform:rotate(-90deg)}
+.donebox #done-n{color:var(--muted);font-family:var(--body);font-weight:500;font-size:.9rem}
+/* praca */
+.jcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.jhead{display:flex;gap:8px;align-items:flex-start;padding-bottom:6px}
+.jname{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);text-align:left;padding:0;display:flex;flex-direction:column;gap:3px;cursor:pointer}
+.jname b{font-family:var(--display);font-weight:800;font-size:1.1rem}
+.jsub{display:grid;grid-template-columns:1fr auto auto 10px;gap:10px;align-items:center;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);padding:10px 2px;text-align:left;font-size:.92rem;cursor:pointer}
+.jsub>span:first-child{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.jsub small{font-weight:500;color:var(--muted)}
+.jsub .num{color:var(--muted);font-size:.8rem}
+.jsub b.num{color:var(--ink);font-size:.9rem}
+.chev{color:var(--muted)}
+.wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.wbtns .btn{flex:1 1 auto;padding:10px 12px;font-size:.88rem}
+.wlist{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 12px}
+.wrow{display:grid;grid-template-columns:58px 1fr auto auto;gap:8px;align-items:center;width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:10px 0;text-align:left;font-size:.88rem;cursor:pointer}
+.wrow:last-child{border-bottom:0}
+.wrow .wdate{color:var(--muted);font-size:.78rem}
+.wrow .wt{min-width:0;display:flex;flex-direction:column}
+.wrow .wt b{font-weight:600;overflow-wrap:anywhere}
+.wrow small{color:var(--muted);font-size:.74rem}
+.wrow .wh{font-size:.82rem;color:var(--muted)}
+.wrow .wz{font-weight:700;min-width:62px;text-align:right}
+.wrow.st-plan .wt b,.wrow.st-plan .wh{color:var(--muted)}
+.wrow.st-skip{opacity:.55}
+.wrow.st-skip .wt b{text-decoration:line-through}
+.wrow.st-miss small{color:var(--gold)}
+.subs{display:flex;flex-direction:column;gap:8px}
+.subrow{display:grid;grid-template-columns:1fr 68px 68px auto;gap:6px;align-items:center}
+.kind{display:inline-block;min-width:18px;text-align:center;font-size:.68rem;font-weight:800;border-radius:5px;padding:1px 4px;margin-right:2px;vertical-align:1px}
+.kind.kT{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.kind.kM{background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold)}
+.blk.event.match{--pc:var(--gold);background:color-mix(in srgb,var(--gold) 14%,var(--surface))}
+.blk.event.match .bt::before{content:""}
+.wbtns .btn:disabled{opacity:.45}
+.extxt{width:100%;font:12px/1.45 ui-monospace,Menlo,monospace;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:10px;white-space:pre;overflow:auto}
+/* pasek zakładek z ikonami */
+nav{gap:0;padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.66rem;font-weight:600;padding:5px 0 4px;max-width:96px;min-width:0;letter-spacing:.01em;border-radius:12px}
+nav button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button span{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -338,8 +402,10 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
     <div class="list" id="q-open"></div>
     <h2 id="h-loose" hidden>Luźne <small>bez ustalonego dnia, wg deadline'u</small></h2>
     <div class="list" id="q-loose"></div>
-    <h2 id="h-done">Ukończone</h2>
-    <div class="list" id="q-done"></div>
+    <details id="h-done" class="donebox"><summary><span>Ukończone <span class="num" id="done-n"></span></span></summary>
+      <div class="list" id="q-done"></div>
+      <button class="mini" id="done-clear" type="button" style="margin-top:10px">Usuń ukończone starsze niż 30 dni</button>
+    </details>
   </section>
 
   <section id="v-wallet" hidden>
@@ -396,6 +462,33 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
     <div class="list" id="h-list" style="margin-top:12px"></div>
   </section>
 
+  <section id="v-work" hidden>
+    <div class="calhead"><b id="wk-title"></b>
+      <div class="calnav"><button id="wk-prev" aria-label="Poprzedni miesiąc">‹</button><button id="wk-now" class="todaybtn">Teraz</button><button id="wk-next" aria-label="Następny miesiąc">›</button></div>
+    </div>
+    <div class="daysum" id="wk-sum"></div>
+    <div id="wk-jobs" style="display:flex;flex-direction:column;gap:12px;margin-top:14px"></div>
+    <div id="wk-un"></div>
+    <button class="btn ghost" id="wk-addjob" style="width:100%;margin-top:14px">+ Dodaj pracę</button>
+  </section>
+
+  <section id="v-workd" hidden>
+    <div class="dayhead"><b id="wd-title" style="min-width:0;overflow-wrap:anywhere"></b><button class="mini" id="wd-back" type="button" style="flex:none">← Praca</button></div>
+    <div class="calhead" style="margin-top:4px"><span id="wd-month" style="text-transform:capitalize;font-weight:600;color:var(--muted)"></span>
+      <div class="calnav"><button id="wd-prev" aria-label="Poprzedni miesiąc">‹</button><button id="wd-next" aria-label="Następny miesiąc">›</button></div>
+    </div>
+    <div class="daysum" id="wd-sum"></div>
+    <div class="wbtns">
+      <button class="btn primary" id="wd-doc" type="button">📄 Zestawienie (Word)</button>
+      <button class="btn ghost" id="wd-export" type="button">📋 Jako tekst</button>
+      <button class="btn ghost" id="wd-pay" type="button">Zaplanuj wypłatę</button>
+      <button class="btn ghost" id="wd-match" type="button">⚽ + Mecz</button>
+      <button class="btn ghost" id="wd-add" type="button">+ Wpis ręczny</button>
+    </div>
+    <p class="hint" id="wd-dochint" hidden style="margin:8px 0 0">Zestawienie Word generuje się osobno dla każdej podgrupy. Wróć i wybierz podgrupę.</p>
+    <div class="wlist" id="wd-list" style="margin-top:12px"></div>
+  </section>
+
   <section id="v-shop" hidden>
     <div class="daysum" id="sh-sum" style="margin-top:6px"></div>
     <form class="shadd" id="sh-add">
@@ -426,6 +519,7 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
       <span><i style="background:var(--p2)"></i>Średni</span>
       <span><i style="background:var(--p1)"></i>Niski</span>
       <span><i style="background:var(--accent);opacity:.7;border-radius:2px"></i>stałe</span>
+      <span><i style="background:var(--trv);border-radius:2px"></i>podróż</span>
       <span style="color:var(--gold);font-weight:700">⚑</span><span style="margin-left:-8px">deadline</span>
       <span><i style="background:var(--exp);border-radius:2px;height:3px;width:12px"></i>po terminie</span>
     </div>
@@ -452,11 +546,12 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
 <button class="fab" id="fab" aria-label="Dodaj">+</button>
 
 <nav role="tablist">
-  <button role="tab" id="t-day" aria-selected="true">Dziś</button>
-  <button role="tab" id="t-quests" aria-selected="false">Questy</button>
-  <button role="tab" id="t-cal" aria-selected="false">Kalendarz</button>
-  <button role="tab" id="t-shop" aria-selected="false">Zakupy</button>
-  <button role="tab" id="t-wallet" aria-selected="false">Portfel</button>
+  <button role="tab" id="t-day" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg><span>Dziś</span></button>
+  <button role="tab" id="t-quests" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="m8 12.4 2.7 2.7L16.2 9.4"/></svg><span>Questy</span></button>
+  <button role="tab" id="t-cal" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Kalendarz</span></button>
+  <button role="tab" id="t-work" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7.5" width="18" height="12.5" rx="3"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M3 13h18"/></svg><span>Praca</span></button>
+  <button role="tab" id="t-shop" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2.3l2.2 11.2h10.2l2.1-8H6.4"/><circle cx="9.2" cy="19.6" r="1.4"/><circle cx="16.6" cy="19.6" r="1.4"/></svg><span>Zakupy</span></button>
+  <button role="tab" id="t-wallet" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6.5" width="18" height="13.5" rx="3"/><path d="M3 10.5h18M15.5 15h2.5M6.5 6.5 15 3.8l1.2 2.7"/></svg><span>Portfel</span></button>
 </nav>
 
 <div class="overlay" id="overlay" hidden></div>

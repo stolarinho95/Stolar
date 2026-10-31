@@ -1,4 +1,5 @@
 const PRIO = {1:"Niski",2:"Średni",3:"Wysoki",4:"Krytyczny"};
+const Z5_TPL = "UEsDBBQAAAAIADNyX10h0530VgEAAB8FAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbLWUTU/DMAyG7/yKqpce0JqNA0Jo3Q58HGES4wdkidtGJHaUeFv371G7DyE0KDB2ycX2+zz2IeNp42yyghANYZGN8mGWACrSBqsie50/Dm6yJLJELS0hFNkGYjadXIznGw8xaZzFWKQ1s78VIqoanIw5ecDG2ZKCkxxzCpXwUr3JCsTVcHgtFCED8oDbjHQyvodSLi0nDw0DdiJpABvT5G7b2LKKVHpvjZJsCMUK9SfKYEfIA9iuJ9bGx8vG2VQcJbSVrwG7uecVhGA0JDMZ+Ek6KFKhSc0C+Sik9/n3KUc0qSyNAk1q6QA5h1ZIgx74QB4CGzg4f8tWFOD38P2N2ukfEtcUtDjonrpum+YDKYjRYOVsfqg4abDXoyTkuVzYP6zeJ3KI7pWIwGywiv/vsE/uV+CNhXMIdLm9eK7BwfYdnSzRxfQi17B4OdvdP4TvRUT3v03eAVBLAwQUAAAACAAzcl9dOdh8XuoAAABNAgAACwAAAF9yZWxzLy5yZWxzrZLBSgMxEIbvPkXIJafubCuISLO9SKE3kfUBhmR2N5hkQpLq9u1FUHShlh68Dj/ffDP8290cvHijXBxHrdZNqwRFw9bFUauXfr+6V6JUjBY9R9LqREXtupvtM3msjmOZXCpiDj4WLada0wNAMRMFLA0ninPwA+eAtTScR0hoXnEk2LTtHeTfDNktmOJgtcwHeytFf0p0DZuHwRl6ZHMMFOuZFUBzpWjJrlLmRLk6KlL0mEeqWlo2T5lTAUypmYOXcN5oc73R39dCoIoWK4LhTJd9PhOXhNb/+aJl4sfmnbMF+zX+toFFC7oPUEsDBBQAAAAIADNyX11TSvtccwEAAMYCAAAQAAAAZG9jUHJvcHMvYXBwLnhtbJ1SwW7bMAy9D9g/GLo3ctItKwpGxZBg2KHbAsRtz4RM28JkURDVIv77wXXreNhtt/ceyYdHgnB37n3xQkkch51ar0pVULBcu9Du1EP17epGFZIx1Og50E4NJOrOfPwAx8SRUnYkxbn3QXaqyzneai22ox5lxZHCufcNpx6zrDi1mpvGWTqwfe4pZL0py62mc6ZQU30VZ0M1Od6+5P81rdmO+eSxGiKJMlBRHz1mMj/HSQ96FqDijL5yPZkS9IXAEVsSswY9AXjiVItZbzagJwj7DhPaTEnMl+tr0AsOX2P0zmJ2HMwPZxMLN7n49Zq1GOdBL1vgwPZE9jm5PIw5lhTuXSAxW9ATgCMmbBPG7i3ezOBk0dM+cTQNeiHQFwH23EcMgwE9o3sXfstDrPgwXuJt5G9xseSTy90poiUxN58/LdddVODUYaL6wHaOMAvwfYiU/Oi/7zC0VL/3/FsYD/g4vaVZb1dlWZavF3vXQF8e0PwBUEsDBBQAAAAIADNyX13Y2S3lkQEAABsDAAARAAAAZG9jUHJvcHMvY29yZS54bWydkk1u2zAQRvc9heCNVhIpuQgKQVbQpsimDZCiLlpkx5AThxb/wBlHci/QM/Q+OVgg2VLSJtlkSc77HobDqU97a5I7iKi9W6VFztMEnPRKu80q/bE+zz6kCZJwShjvYJXuAdPT5l0tQyV9hMvoA0TSgElvjcNKhtXilihUjKG8BSsw9wFcb82Nj1YQ5j5uWBCyFRtgJecnzAIJJUiwQZiF2bg4KpWclWEXzShQkoEBC46QFXnBHlmCaPHFwFh5QlpN+wAvolNxpnvUM9h1Xd4tR7TkvGC/Lr5+H5+aaTeMSsKiqZWsSJOB5gqQRKfBaUi2oJxHgjb5Lbb3f+//1GzmhgTurrcgiY0HGUGQj823HSAZvxnZ6XKYfwv7zkeFB1wByqgDae/YWDYC6cIrfaNBfdo3X6JAp2Wrk48GWhROQazZc26IRrjTw0I05UjMx0l7GbUjUE3Jy5Os4Bkv10VRvV9WnF/Nzgmqj39y6B1U0qOuDpOfKj+XZ5/X54tXfP/lH4X22PWbjZOgGZv+d5+bB1BLAwQUAAAACAAzcl9dTy8nyC0LAADJaAAAEQAAAHdvcmQvZG9jdW1lbnQueG1s7V1bb9s4Fn7fX0H4pTODaXW/2Kg70M2tZ5I0SNINmpcBLTE2G0kUKLqKHRRYDDC7P2Bfdv7LPqZ/ZH/JQhffFUd24thp7YfIoshPFM/5DnkO5ZPXv1wHPviMaIxJ2HwhvOJfABS6xMNht/niw1nrpf4CxAyGHvRJiJovBih+8cubv71OGh5x+wEKGbgO/DBuJJHbrPUYixocF7s9FMD4VYBdSmJyyV65JODI5SV2EZcQ6nEiL/DZt4gSF8UxDrsWDD/DuFbAudfV0DwKExx2U0CZc3uQMnQ9wRBWBlG4OqcvAolrAAk8JwqLUNLKUCqX9moBSF4LSOAXkZT1kEoeTl0PSVxE0tZDkhaR9PWQFtQpWFRwEqHwOvAvCQ0gi18R2uUCSK/60UuXBBFkuIN9zAacyPPqCAbi8GqNHuHwaowQSN7KCBoXEA/5kjdCIc1an4aNov3Lcfu06428fXEYt0B+tduKvFDn0DXzYzZqS6uMXd7cLgxLNmocRT5kmIRxD0dj6xCsixZA1huBfF42AJ8Dvza2bEJFqt1l2uxcDBPAKt0vZBf4ec+XIwp8BWmmEOMWVbowe89RTwKIw8mN1xqaqcEVKhqfEYC4AKC6qOJkMcLQCwzOnbA7xcEVaTXCUcc42JvCWa8zUwBefyUIURr1Iz2kzaewYo95vdXgRjLi0raQwR6Me7OIlxUNwQhRnkLMFcwn7tU0Jlpt0JQx4CCYkmHUfRhR31LSjyZo+GFo7YnJTsLVHpBX57Uiih/WmdMejFANBG6j3Q0JhR0fNWuJIINEUEAmAZBTID2AnFVgpD9gJHaQaSdITWLtzeuk0SHeID1GIBHkRgQpbHvNmuxIumOIfC0rZeiapaVa8amBpEFj7J00azyvi4ptquOiY5oWqiLfkuVxoY0uYd9ni9WPp4qyXhzT7GB6NO8cYyQASeMz9Ju1dBB8lDaNh81ahh5H0EXNmpB+d4lPaLMG+4zUuDevuQkMzVFpi4QsTmvGrIcC1KwFOCT0nRHGOG2RNDpWnB0zqNFt+eyT3iFrZeW3ScdEyFvFw1FVQR2VWPFsGVf0ghs/Y4eQq3SpccogZSBppKYru0sI0679/s6/EnlZkmWpXqDS0jHesQdMGuzNBfz6x+2f7jDEVyCkQAEeAR8CkgzA0EcuCjFMq7O8UT4miyqo6Zph2oa8JRVMNQuHXZA0fJxSX1KzEUpPTvop80Z6ljRw6KVX0CVr1mRRyQs/uaPx6RDWKwS4fTEljR7u9nzc7bHRhQHyfZKUKWm5YATNMkTTmLMNisYbqiDXH1kwisDrllEuGHjJUIo4P+AuChmi5UOOYMyMGMNm7QwHKAZHKAEnJIBhMfAbH34fZn2f9CPyXx4flJuI6oR/Bo+VGQbn9Mw4bztHbQcctK0L8yP41bGP3p+eOb+BC+PX2//c/hNcnDjGQfvi/blx9NF6V8FSKC1DNRVtXiEF0ZQcWZ9RSMORVNl8XIVcqnhToyeWjJ74nQj+HJwYh4b1Dnw4fH/+EVwcOJZz1DbA0Qm4uUnLjC9fKkhadEzb4m1zVtKibCqOWHd2aU6obOrXWzw8wlJg5Uk9n7pJBxPqQvADoyhE9McGuLlpH7adSvKT+bqlOC11Vn68IUiObTz21LGX34z8hhAEGMX49k8X3Nwctp3TtmF9+UJfVZFbvSVZLUmclZsstHRBMqy93DYpt1MGkysIhhB8Ql5IYnZ1+xcYwk+3f93+KyVfOqP+Znz5Mvz6B+jQPmOkiiGtq7wuC/asQCXTVmynxe8FukmBvqX9CKaSe3vy4fiueY91/OJQNOv45yBJg351XlWyWXsQoWbNu4b5PVnHt5DvH8KseuqM5NU1vqQyLdb/5de5eTTW8Q8IuRqvHORs8d+4xDRmJyQp/G8fFmeTixbx+0E4dX1UkDu65J0Jw7HbS/6enwmTPoyf/S3FXvq1S7FnET/vuizr+ePMlIqiVC8pFnRZLKut1uUltbmZuzNanRjTnqyo26bR0pd7smdZe90WJF6s5XcrHp++Q9P+msrro66Narj539HZ+WR8ShTFNQn1EI2zExKVR1cEcSq8wpeEV8Y6tl7jZZGdCs3p9ICs2JqbG4OQnFMYFb6xhw4hvRrVKqJRs9JUzTovOs6TxCVsUdR1Ydp0VncAlgYY7vULnsSm7kznUwt8EJUthbgJvUpJlpmbJ2JZiP1Ns0feLHkk0RSVlnmPKdwYeR4aI9pTajVK2ZCVhXrv41Q2++45VZFTPM87js6be059F5w6Id4Qfho7gxj8cMYd/vTjOlNXuvbd06wizRTV0Q1zPsq8p9k3SrNDjD7FLuKO6RC5OAnx1X4i27RrJWm8YrbUbblWe4o9LcVSavk4e03gbm5lYY43C8GXuiJZrVaF4Iuiy5bMz0c6y4Mvoi0qan1p8EXKH/axgy9j8m4sqHLf7Lgx4n82fNwNp16GYCSoVTYJsigbppNFPO8zCctVYsEkzFY/nip6IpPwzIzAo9H+5ubguDTq/cihllJOVZolH8SVByxD76LK3ezQNbVlm9YsOwRD0WTbbj2EHaolGHX1G2LHjvUsJ4JtnJVvAD3ywvI7oIKgtfiWosxRQRQVSdB1Y0+FXafCyXv7Yr1ZYbUoxnOjwt0Kn/4kSDfmQumKJKiirpp7hd91hT9sO7+eWuXvTX0b5n8TXsPd4TlbczRT1uaWQrJQV5W5VwP3dNipnuV0OD65cA6WkeGOQEBL0eqSc5cwp9fKlt4yDP6x3sIQ6xsJBGyRQaJet0zFqbKPtHzQFxg0W/14qug5MujZvBcwLp6x0UXpo669nZZpiYaw15zH0Jwd2DQo15wt2ibJVFXZkapsvu01bKc2fr+RNwNnNXaiBXevRx1bVB1e2rrGZgOy38ra7FbWaT8Yv5+Prsav5+/4lvH3yk25bkuKpc2tdGXR0OqSpDyEmyW+4tPOJpsl5073M/cjTz8cLg2pP9SNFA3L1iRT3UE3cpdcAsnRDNvSquzb7hds29z5fDKN4A1Vl1uVdvL3GrHNCPDOOX+KYxp1xa6SCWSvOXvnbwcWmJImiLZY6V3hvfP37J2/80EIu5R4QxRitPf5dnN/UNWFlqOKc9s/gskLrZZmPoSSGs+LzqzPx8uqxkt7n++JfL7zj0fG25MsBcK9jh83/m393O6XrCi2UK9XMNlL3P+ZK/cmP+igS0JReu9M+4t8VoJYDMR8XjGQNHow7KaJnSd5xjaaH+GO5BGqbVmKaMyHT2RJFPinTB6x8+O3lfwSP81w4FG6gPO/BXNX7dAZ+N8//g3SfEE47P4MDrPTALlD4OMuSQY/gziCNLvW94YYfv0DJID1aYjRpz7w+x0whAnxoNsDcUQoI8nA7ZUQfeGX+o4um7lGbjeD4AqJ6p4i8+S9CrHZ7JC/r/SpIGdZ0jVJ0629nHdKzj+kmYcBBu5wwJAfDkBEvAjHYCaR2KDsh6sL7pSiGrYpaFsX8D0Tzvcj23OAA4xC3B9L04OJOwBDyBKMqDeEAYhIMvj633iIwBDFDCZpfVQl25jSUiVL5o0tifvJpHhHelVBlQ3VuucHa3tr9txnLd6wZUGeT4UiG44pSPLsDxasOq8Z8pycNVtWDOmbl3PxmFuftSI6RF5mxlyMfDhr92YnsUlubyfzQPLM3txEEWLksmNaVcKZ0LqnwyJWJNT5TLa9tPe6VKRAi7qHMEVkJMrees4NRRp7mZzmUZLJee4Zjc56CHqpHmjZK7KNS0LY1Gm3z6a1xCV+PIndaHzRC4+4aa60IpXfMWZuL0/ulz98/tzZ1zztPDf5J0Rv/g9QSwMEFAAAAAgAM3JfXU9sgJDvAAAAMAMAABwAAAB3b3JkL19yZWxzL2RvY3VtZW50LnhtbC5yZWxzrdK/TsMwEAbwnaewvHgiTsofoapOF4TUFcIDuMklsbDPke+A5O2RioBUVFWHjPcN3/cbbrMdgxcfkMhFNKrIciUA69g47Ix6rZ6uH5QgtthYHxGMmoDUtrzaPIO37CJS7wYSY/BIRvbMw1prqnsIlrI4AI7BtzEFy5TF1OnB1m+2A73K83ud5h2yPOoUu8bItGtupKimAS7pjm3raniM9XsA5BMT+hP2L8DssCMpKps6YCNnYTYGL/VpyGpJCP1T0AWEYlECTx7mgMN9bv5uyXnuIcDf+uH8DotzhtslDW1Eruzezxy/0Q9CHz16+QVQSwMEFAAAAAgAM3JfXSbe+khoAQAALQQAABQAAAB3b3JkL3dlYlNldHRpbmdzLnhtbJ3TUUvDMBAA4HfB/xDy7tLObUhZJ4govoig/oAsvbbBXK4kmen89dJunR2+WJ8uBO7jcndZ37Zo2Cc4r8nmPJ0lnIFVVGhb5fz97eHqhjMfpC2kIQs534Pnt5vLi3XMImxfIQRtK89aNNZnqHJeh9BkQnhVA0o/owZsi6YkhzL4GblKoHQfu+ZKETYy6K02OuzFPElW/Mi4vyhUllrBPakdgg19vnBgZNBkfa0bP2jxL1okVzSOFHivbYXm4KHU9sSki18QauXIUxlmivBYUU+JeZIm/QnND7CcBsx/ASsF7TTj5mgIBe3Y0cU0Z3VydDFy/lfMCCh2k4j59VBHF7r0keWLUNTTuGFGosuVQdbS1+diaaaJi5F4WDBD6mNswrSmLU/gHrsZosqeKktObg3kPKYLFtMl62F2mGwX2GFZ2NAWNryG9U3nm3XMqAka9Rc8kLtzFD040V1LYyi+PD+KzVqcffLNN1BLAwQUAAAACAAzcl9dJxIZM8MEAACvDgAAEQAAAHdvcmQvc2V0dGluZ3MueG1stVdZb9tGEH7vryD44pfK4k2KNV1YV5PAboLIRYG+rcihuPBe2F2KUor+94LHSnLMBnaKPHE138w3xw6Ho5tfD5RYe5AKc5ZdudfOlQUs5wVmu+zqj8f1JLmylEasQIQzyK6OoK5+vf3ppkkVaI3ZTlkHSphKaZ7ZldYinU5VXgFF6poLYAdKSi4p0uqay92UIvlUi0nOqUAabzHB+jj1HCeyBxqe2bVk6UAxoTiXXPFStyYpL0ucw/AwFvI1fnuTJc9rCkx3HqcSCNKYM1VhoQwb/V42inRlSPbfSmJPidFrXOcV6TZcFieL14TXGgjJc1AKsx0lJkDMzo6DF0Qn39c5p0OKHdXUc1ynO11GHr6NwHtBEOVweBtHMnBMczhc8uDibTzRiQcXFzzfF8wFQVG/icLzTRztozW/4FKFLqq30Zk7mra2SKMKqeo5Y0nexhhcMPYNRnj+dMkJbytaeCI80vMdqpdhjXR1D93jrUTyeNnSNE/f7xiXaEsgsxs3sBo3tLrorL492ofVd5xlamuZkljdzdm3N036hXNqNakAmQPTme06jj1tASE5LzcaabCaVAkgpJ2Pdk4AsV6jgBLVRD+i7UZzYTXpHpHMjp2kh6ujqIB14+YvzsDggRf2eF4hiXINciNQjtluwZmWnBi9gv/O9YJTIUGpwaIboefTph/HVpMyRCGzn43YB16AbTVpLfHrL8w23t3w0uXXjvgepMQFPLb13+gjgTVneoO/wB0rPtRK4xLnXeb/I4JvBQCs9fxRAHs8ClgD0rUE9YOcdTexJlg8YCm5fM8KYPqHOcNlCRKYxkjDQ000lrzp6vwOUAHyR/mtFfzJZeE5rv8oUf4051pz+u7cw9/vt3uhppftKxUulDl85lyfVJ3EC5fzqI+0Rc+I44S+648iQRQ7o4gb+fFqMYrMnSBejSFeFPjhcgwJXSdZ3I0iieOsZ2NI5DnrIBhFFu7dbDTT2HG81TjieWt3NOp4GYR3ozX474omS9d3vDFkFvqL9XoMuVv5UTAfRdZ+4o9mOg/8IB69hcXMie9GbZZR6K5H81nGXpC4o8jKDZaj97MO45m/Gvpw6D6atvvbJ2lO7QizaG+xQHQrMbIe2g1v2mps5dMcM4NvoeQSLpFNvTXgZNIDiiJC1hLlBnB6eYGVWELZnckDkrsz76AhR6UFlB9OXO3XCuRvkteiRxuJRD+ajIobBIMlZvoeUyNX9XZjrBiSxwuoZsXHvezqdC5Pk+oKaDfi71E3MjpdQSaf7oeRQuSmHQfwgITop8p252Y2wbtKu+0g0G5mF0g+dT+2O2/AvA7zeqz7gfI2Mzezh8NZ5hnZhZ5vZP5ZFhhZcJaFRhaeZZGRRa2sOgqQBLOnzD4dW3nJCeENFO/O+AtRXwRVIQHLfidQtze8FwxLgrL2KRx0ZkOBtW0pgQuKDu264XWv5qBN0JHX+plui7XK4jlDu+0NI336zLhr8a9iaXeVHFNENke6Pa8YP/eBE6z0BgSSSHNpsF86zA3Sgufv220q6OVeFARxmPRTww27LUZ3XwzMdp+hnCMFxYAZ07A3/TtOEi+IZ8vJar6MJkG88CZJ5M0mfjBf+KvVauGHyT/DS2r+at7+C1BLAwQUAAAACAAzcl9dbwC15fQPAAA8qwAADwAAAHdvcmQvc3R5bGVzLnhtbOVdXXPbuBV976/g6CXtQyLrW/assmM7SZOpk3hjp5npG0RCEtYkoJJQZOVx/1J/Qmf/V4cgKVG6BMkLwoqSTmZ2LUr3EMQ55xIXoIRffn0MfOcrDSMm+ORZ58XZM4dyV3iMzyfPPt+/eT5+5kSScI/4gtPJsw2Nnv368i+/rC8iufFp5DwGPo8uAnfSWki5vGi3I3dBAxK9EEvKHwN/JsKAyOiFCOftgIQPq+VzVwRLItmU+Uxu2t2zs2ErhQnroIjZjLn0lXBXAeVSxbdD6hPJBI8WbBllaOs6aGsRestQuDSKGJ8HfoIXEMa3MJ0+AAqYG4pIzOQLVwRpixRUu3vWOVN/Bf4OYIAD6AKAoUsfcRjjFKPt0sc8DvNwOMMtDvNyOGaNyQF4KxREt5e1I/5fHJ7DijzpLXBwGUftOJZIsiDRYh9x5uMQ+znERGC+cB/ymBTXaYMt4CaIOQzci3dzLkIy9emkte70nXVn4ChgJ2E2/p+TiMXJusXJrsZRnd56+cv6whPuKzojK19G8cvwNkxfpq/U/94ILiNnfUEil7H7BQ3opBUwLsK3lzxiLWd9QUkkLyNGCt9cxH8UvuNGMnf4inms1Y7P+EBD7qwvvhJ/0uomh6Jv2wPbI9fR4TGf8Hl2bOk/v73JN27Sovz557v40JR5bNIi4fO7SxXY6V/4bE7kKqSRE79SCEm2C71rwSV9lCvixx9upx3TPuyu5eEr1colcZlqFJlJGk5aneFZ3AKfcTppdQfn2YtPq5hLspIiPckyPUketg0Y84mkXN4lGXh94dHZjXAfqHcniaSTljqXR2ef392GTIRMbiat8/P04B0N2FvmeZTnPsgXzKNfFpR/jqi3O/7bGyXk9IArVlxOWr3RUKnIj7zXjy5dxnnXWV9wEnP6IQ7w40+v2O7kKvzfGVgnpa0ofkFJfO9xOocQ52iIbhwR5a62GHN1cO0d9Il6xzpR/1gnGhzrRMNjnWh0rBONj3Wi86c+EeMefUyMCE8DUKtwNG5E42jMhsbReAmNo7EKGkfjBDSORuhoHI2O0TgamSJwpHB1KsyJvadRezlu9T3CDLf6lmCGW30HMMOtTvhmuNX53Qy3Op2b4VZnbzPc6mSNx02GWs477lEuG7tsJoTkQlInHvQ2RiOcC6kqcjt48U2PhlYu0gJMktnSG3FjNJeo19UKGTS7n8u4cHTEzJmxeVzyNG445V+pL5bUIZ4X0sgiYEjlKtT0iImmQzqjIeUutSlse6BxJejwVTC1oM0lmVvDotyz3H0ZopWksBU0WclFbBJmQdQBcUNhYcxCrOWHGxY176sYxLla+T61hPXBjsQUVvPaQME0Lw0UTPPKQME0LwxynNnqohTNUk+laJY6LEWz1G+JPm31W4pmqd9SNEv9lqI177d7Jn16OOro1J+7u/ZFZCPh3bE5V7OyjZHSOVPnloRkHpLlwolntStHWujzXAlv49zbuKdtkWyN65VE4rlsxlfNO3QPzZa5tniW7LXFs2SwLV5zi72nURQP0N7aqWfuVlNZaNr6VcEd8VfJgLa524hsrrCdAd6wMLJmg2JYCwr+EA9n31oa6u1a2bxhO6zmtjrMSlabl0JaaGW84GonDb/dLGnoM/7QGOmN8H2xpp49xDsZikRrect3u7Ut/zpYLkjEIgBR/1afPX3hvCfLxhd06xPG7fD2+nlAmO/YG0G8vX9/49yLZVxmxh1jB/BKSCkCa5jpTOBfv9Dp3+w08NINBd9YutpLS9NDCuyaWbjJJEjCs4T0is4YZ1buoQrvH3QzFST07KDdhjR5HkVSS4h3JFj6try1WdJ1yGxMyyq8f5KQxfNCtkx1bwUsN20Yraa/U7d5qvsgHCszQx9XUs0/qqFu89XePbjmw4Q9uOZDBMWmc8di/Vq42D245he7B2frYq99EkVMu4RqjGfrcjM829fbvPhL8YQvwtnKt9eBGaC1HswArXWh8FcBj2xescKzeMEKz/b1WpSMwrMwJafw/h4yzxoZCswWEwrMFg0KzBYHCswqAc2f0MmBNX9MJwfW/FmdBMzSECAHZktnVm//llZ5cmC2dKbAbOlMgdnSmQKzpbPeK4fOZtSV9m4xOUhbmstB2rvRcEmDpQhJuLEE+dqnc2JhgjRBuw3FLP4mjODJQ9w2hrOrqbQ52E7gbJH8hU6tNS3GstkuCzOixPeFsDS3trvhtA6fTDqvDFPfBGnchFufuHQhfI+GmmsqrZfvkq9lHDa//mLJDZsvpHO32M7252GGZ5WRWcG+F1Z9wqI+H3ZLwt5Tj62CrKHwyxTDXv3gLgjuVwfvRhJ7kYOakfCcw+rI3Sh5L3JUMxKec1wzsgciy/zwioQPhUIYlelnW+NpxDcqXZjPggtPWyakbWSRBEdlKtqzinPpuvFqAWSnnmf08fXMo4/HuEiPgrGTHqW2r/QQZQb7RL+yqHCOumL9e/v0BMj7/dqZ87eVkGCZulv/S13vuKQ8ok4hTq/+wtVeltH3Y+10o4eonXf0ELUTkB6iVibShqNSkh6ldm7SQ9ROUnoIdLaCdwRctoLxuGwF402yFUQxyVYNRgF6iNrDAT0E2qgQAm3UBiMFPQTKqCDcyKgQBW1UCIE2KoRAGxUOwHBGhfE4o8J4E6NCFBOjQhS0USEE2qgQAm1UCIE2KoRAG9VwbK8NNzIqREEbFUKgjQoh0EbtNzQqjMcZFcabGBWimBgVoqCNCiHQRoUQaKNCCLRRIQTaqBACZVQQbmRUiII2KoRAGxVCoI06aGhUGI8zKow3MSpEMTEqREEbFUKgjQoh0EaFEGijQgi0USEEyqgg3MioEAVtVAiBNiqEQBt12NCoMB5nVBhvYlSIYmJUiII2KoRAGxVCoI0KIdBGhRBoo0IIlFFBuJFRIQraqBACbVQIUabPdIlS95h9Bz/rqX1iH/E9n6RRn/Jf5d6bQ60PlbVKj1X/uwhXQjw4hV887PXqg7Cpz4SaotYsq+dxR+iFz4/X5d/wqfEzHnUvJf0uhFozBeD9upFgTqVfJvl8JCjy+mVKz0eCUWe/LPvmI8FtsF+WdJUvs4dS5guwntUvSzO54I4mvCxb58JhF5fl6Fwg7OGyzJwLhB1clo9zgQMnTs6H0YOa/TTcPl8KEMrkmEMY6RHKZAm50s7t1yZNj1CXPT1CXRr1CCg+tTB4YvVQaIb1UGZUQ5thqTY3qh4BSzVEMKIawJhTDaGMqYZQZlTDxIilGiJgqTZPznoEI6oBjDnVEMqYaghlRjW8lWGphghYqiECluqGN2QtjDnVEMqYaghlRjUc3GGphghYqiEClmqIYEQ1gDGnGkIZUw2hzKgGVTKaaoiApRoiYKmGCEZUAxhzqiGUMdUQqoxqNYtiXi3lwnGDsFwg7oacC8Ql51ygQbWUizaslnIIhtUS5MqsWsqTZlYt5dkzq5byNJpVS4BPs2qpkFizaqmQYbNqSU81rloqotrcqGbVUhHVuGpJSzWuWiqlGlctlVKNq5b0VOOqpSKqcdVSEdXmydmsWtJSjauWSqnGVUulVOOqJT3VuGqpiGpctVRENa5aKqK64Q3ZrFoqpRpXLZVSjauW9FTjqqUiqnHVUhHVuGqpiGpctaSlGlctlVKNq5ZKqcZVS3qqcdVSEdW4aqmIaly1VEQ1rlrSUo2rlkqpxlVLpVTjqqX3lEsbPwF1F5BQOvZ+L+4tiRaSNP9xws88pJHwv1LPsXupN6irbO9vf/Uy24rQWV/IzVL9Anru60pe8guwKaD64Dsv+3EnvlEbWcVtyfYPS/evUk1OF2zV32EUb6+WfObsbNwdvLpK7Zrul5bfvSzRbvH2Ylxw2trfUEy1quI6di0n8zV96ICG7zbOUq2akoh6H/n+ZfFN8iaPf3ax8J1YcNt3kjP9i5OH5M2dE7KPnGM6apl1FF1+oI/Jp+MXN4zTSL3abZs2jX+yjE5avWTftHQXtXGaFETyo1A3X/29Hm9vz1G6hx35vWQPu/jN1+mx1uE2dnuRu23s4sO7bezcOIls2/WmPxoq6akPqwQzaRGVXnaH42de4scY3rTah1ICG+Fly9v5jfD6ZYKr3M/OQH5drfy6luXXrSG/Xd5IPreXNZ5YoJ2aAu383wi0V7BTY3rseALtaQXasyzQ3k8i0G65QKtk+J3E1h1DsaXHjie2vlZsfcti65+42MZ5rfW1Wus9jdZY8t/r6MmUdzxNDbSaGljW1ODn0FT/x8lfx1PRUKuioWUVDU9cRf28irQiGhw9MQ3O43+HkooFsBPUPYu3Xb4cfn89jbR6GlnW0+in0NPwCEnpx1LQWKugsWUFjU9UQVWaGR09B3VH8b86Cno1/v4KOtcq6Nyygs5/UAWNj5B1Tk8z7oKExE33EdBM+74SwcbnxP3mMsEfCHkgSyZXQFCabcM0SujUU4K+5Wofy5JW36U9Ita6+ep0lwKdVGtrVU79RCxy6r/jsVTXsc62LfUeSSv74DX1/fck+bRY6j/q05lM3u2cjQvenyZ7oWjjQ7VopgVo7zemvb0IfX8nu6Om3+bS9PkV/eazSBZ1ePIreg37uqaO3VUkRaBWOsASRm56HjSSzP/847//WdMHp+PssthBZtS4QZMNOxWZsHKF5Aed7Kwz9Y7MTpWsdqtY7dpitYu7v/38JOunr22T3KsiuWeL5N5Tkfz9ZlXqTAHbJqxfRVjfFmH9UyPM7tSqbWIGVcQMbBEzODViTo2KYRUVQ1tUDE+NCouzfLZZGVWxMrLFyujUWDkpHsZVPIxt8TA+NR4szj/ZZuW8ipVzW6ycnxorT8xD8Tze/aZgziX5DRhbE3jxKcpm7zppKYeanAMzcMnSZDz7Nml1+9sXn1ax0shKiqyTs5msdAOKk3kUaHdF6qqfZ92yN1e3HV9vs+gQjrjTY084pVdi4y3bQFQbufrzj+buVYqtkNJplsa2GTb1/K3wZJHttzvY23J+eqJS83cMzM9XQfIH8+FTfembJ7fSd8B+Z6Cbiv8ej1TVdXee0UP5pO/Z8Him0ArRnPiIVcu5nQmTYnNfbySRgJtkqw5bvlbnKHN11+Rh9OLnJdUnfnezyLh8pmGr6K5dMqrtn8X/6jB3rCeF6hpu19WHlKp3mlst0UsFj5VGs9j3psK/VFeoVopAXx1snVPtA9gVvb6BpJlat4tX3eJfujxDDEGPqr9tH37ZhJxRzihTPyu5WXMK+hL8DiZWfQUyQw0CqiX3JHNvJel221twiXJ/rySrCXh31rJU3DOprpZXXm4xOREa4/NkZTz6Fj/h6SQJm6pBt5MSYLiAsF12fuIztXdXVvX1pl5268lbeDxUrVGr4MkrK3enk3yUFXWDOpBi8a1q9yFLd62c7SrEf3LJpDj9fvTWgtTLvrvf+22efrNlVlT6nSbnTXssCojvX5OlLXUfDJwHxb2a/RW9/B9QSwMEFAAAAAgAM3JfXYr8qPSpBgAA6iAAABUAAAB3b3JkL3RoZW1lL3RoZW1lMS54bWztWc+P28YVvhfo/zDgXRZJkRS1MDfQzzj2rr3wyi5yfEuOyLGGM8TMaHeJwEDgnHopUCANcinQWw5B0QANkCCX/jEGYrTpH1GQ0kocaeS143VroCsdpBl+35uP771580De/egyp+gcC0k4iyznjm0hzGKeEJZG1pPppBVaSCpgCVDOcGSVWFofHf72N3fhQGU4x+gyp0weQGRlShUH7baMM5yDvMMLzC5zOuMiByXvcJG2EwEXhKU5bbu2HbRzIMxCDHIcWcdclReogDnBaoEezWYkxtbh1SJjinPMlKwmYipO43rlJfOk5jQpydypfmQph1Sgc6CRdUFYwi+m+FJZiIJUQyoiy64/VvvwbntNomoPt8Gb1J8Vb0VI5m7NE+nZmmiP3dBz1vbdpf1d3Disvmt7NQDiGLOVlibW8QM7dFfYBmj512C713U6Or5hv7NrvxcMXE/DdzZ4b/ceJ73xyNfw3gbv7+D7tjvodTS8v8EHO3hv3O+6Yw1fgzJK2HwXHXTDMFih15AZp/eM8F4Q2N3RCr5BtRtJtuQzdU3K5fCMiwlnqo4xKMKQKgs8gxhHVr9QXKIRkQWF0kIFMC5xZNmu49i27dnu+ls7Hg4wNNjLqVjuTFWykIwFKVRk3S+AWQ3Izz/++PLF9y9f/PDyiy9evvgbOiJppgy8e8DSJu+Xb/747z9/jv7197/88uWfzHjZxL/66+9f/fSP15lXmqyvvnv1/Xc/f/2Hf377pQHeF3DWhE9JjiV6iC/QY54DMy2Az8TbMaYZkCajz1IJDCqOAT1WmYZ+WAIFA26AdT8+FYQlJuDHi2ea4NNMLBQxAB9kuQY85pwOuDDe04NqraYXFiw1Ly4WTdxjgHPT2sOtKI8XRYZzYjI5zLAm84QCU5BihhWqrvE5xgbap4Rofj0mseCSzxT6lKABEKNLpuRMmUn3SA4USpPAaQaab46fogGnJvMjfK4jgaVATSYx1dz4MSwU5EbFkNMm8ghUZhJ5WopYc7hUAliKKUfjBEtp4jwSpSb3AVBiDvsxLXMdKRSZm5BHwHkTOeLzYQZ5YdRMWNbEfiLnnFNAJ1wZRXB9h1RjTgmwveF+SrB6u739hKSZOUGqKwth2hKY6/uxpDPAJuN9kWslti+IMTsGi1RL7SOMKVxAgjF68okJzwtuFn0/wyy9h02+uQ96rlZjhiVGdY9jCCyRWsqe4pTv0XNcbhWeElgOYp/lh3M9ZcZnguTGfKXxXCulRFSb1izikczhjayeZKClVTWW5nwtBXvbPXZaime/goPfmsMFvLFvpkCxOWGmQNCRqdxOQa9YG0q1nWrawsib6Zt2E4b2VtOTE3ZNB/S/6XzeW89z893OvoKy3ePsw213NkMuEvLhNzYjWLATzLLbvua2r/m/7Gv27efbbua2m7ntZv5r3cymgWk3n/nUVvLrHgDNCKWnqqT4SNYdkOSUJBNCaT2ouevHTkU2pGK1qoZLBdT/keDqd0RlpxkUOLKceoVUrkynEhVcRpZt7bVd92CL/Jgnq6d6ztWTTjiQoDbztr+eV4Sp5WzQ3TwWXZuvR6lsCvBro28uorGYLqJjENHtvJkIx74pFT2DitB5nYp2IyqUMATVM3PfWypCMgaKkypOS/5VdG880vucqd+2a7i9nndjkdZENNJNF9FIwwwSvD19w7Hu9cyhdo0yuuH7iHV7tzZQpo/QRWQFHd+2UAxFZM0oKAvFeZFElqwKFtCURVasVo7+NZWlEFKNQGZLWH1pef85UVggSvLICpthoGyjzXG79ocrrmd/eJ5rbwcZz2Y4VntmNsMjqZZGjFffEVwN+EJhcZolF+iMLsRjSCLL7zqVAxMi1dqbCRGN5N54catcrbai9j5os0WBFhmsTpRmMV/C6/9rOY37qJVu31Xb5MKzdHITp+71pK2iuecA6e6tYu/vkG+o6phV+cZa1wuvOSXe/UBoSAvN0jpmafvOjhtsCBrLBXv85r72THqH02A7a9uN9rIe7bzx5mfPcKxGeAYLquTyOdmlEjC8ekm5rAT17FV1uVRoIUhkfWb7fW/o+sOWHfrjltfx7Fbo9zutvu93nLHv2KOB+9w6vKuy3PGXa08gJ7Rcvdiv53de7udXHfedmOdtXvfB7Zpcv9x3XO3l/rJPRtPquoVIElmfBe6k1+kNglav05+0vNEgbPWGwaA1Cobd0WQ09MPe5LmFzmuw1+8MvWActgJnOGx5gV3JD3utrue6fa/bD8de//nK1/hSXf1eubfWdfgfUEsDBBQAAAAIADNyX12VIvQaAwIAANUGAAASAAAAd29yZC9mb250VGFibGUueG1s3ZPPjpswEMbvlfoOlu8bBhKyWRSyaruJ1EsP1fYBHGOCtf6DPE5I3r7CQJbdVOrSY7nY/sbz08w3Zv141oqchENpTU7jGVAiDLeFNIec/nre3a0oQc9MwZQ1IqcXgfRx8/nTuslKazySs1YGM81zWnlfZ1GEvBKa4czWwpy1Kq3TzOPMukOkmXs51nfc6pp5uZdK+kuUACxpj3EfodiylFw8WX7UwviQHzmhmJfWYCVrHGjNR2iNdUXtLBeI0hy06niaSXPFxIsbkJbcWbSln3Gr+4oCKkoghrDT6hWQTgMkN4AlF+dpjFXPiLg4jzmymMZZXjmyGHH+rZgRoDhOQiTzoY52adNHLCx8UU3DDTOK2lzmWcWwekss1TTiYkTsHpiy/GXMFNNMS6/Ai25nqHn2/WCsY3slctrEC9LEKQlg0k22XUj3WMhgCxm6IcF0uun/XNJkhmmR0y+1txhkXjGHoo2cmMopAI3CbaalugwqNhKxC9TS82rQT8zJtrIuhPJAmuyIe8hpAgCQrO5pp8QtOXzzXkmuCvTK/K3CAycc44ddr8SjO9FmHXVt3bT3LLVA8kM05KfVzIRGa2YsivjaaPseljCHFBaQQgJzWHRtvHNku/2TIy5wpziybQ3Z7navjnwDgPtV+vXGkYe/O7Kb6EgYOHmSWCt2+Y8G329w8xtQSwECFAMUAAAACAAzcl9dIdOd9FYBAAAfBQAAEwAAAAAAAAAAAAAAgAEAAAAAW0NvbnRlbnRfVHlwZXNdLnhtbFBLAQIUAxQAAAAIADNyX1052Hxe6gAAAE0CAAALAAAAAAAAAAAAAACAAYcBAABfcmVscy8ucmVsc1BLAQIUAxQAAAAIADNyX11TSvtccwEAAMYCAAAQAAAAAAAAAAAAAACAAZoCAABkb2NQcm9wcy9hcHAueG1sUEsBAhQDFAAAAAgAM3JfXdjZLeWRAQAAGwMAABEAAAAAAAAAAAAAAIABOwQAAGRvY1Byb3BzL2NvcmUueG1sUEsBAhQDFAAAAAgAM3JfXU8vJ8gtCwAAyWgAABEAAAAAAAAAAAAAAIAB+wUAAHdvcmQvZG9jdW1lbnQueG1sUEsBAhQDFAAAAAgAM3JfXU9sgJDvAAAAMAMAABwAAAAAAAAAAAAAAIABVxEAAHdvcmQvX3JlbHMvZG9jdW1lbnQueG1sLnJlbHNQSwECFAMUAAAACAAzcl9dJt76SGgBAAAtBAAAFAAAAAAAAAAAAAAAgAGAEgAAd29yZC93ZWJTZXR0aW5ncy54bWxQSwECFAMUAAAACAAzcl9dJxIZM8MEAACvDgAAEQAAAAAAAAAAAAAAgAEaFAAAd29yZC9zZXR0aW5ncy54bWxQSwECFAMUAAAACAAzcl9dbwC15fQPAAA8qwAADwAAAAAAAAAAAAAAgAEMGQAAd29yZC9zdHlsZXMueG1sUEsBAhQDFAAAAAgAM3JfXYr8qPSpBgAA6iAAABUAAAAAAAAAAAAAAIABLSkAAHdvcmQvdGhlbWUvdGhlbWUxLnhtbFBLAQIUAxQAAAAIADNyX12VIvQaAwIAANUGAAASAAAAAAAAAAAAAACAAQkwAAB3b3JkL2ZvbnRUYWJsZS54bWxQSwUGAAAAAAsACwDBAgAAPDIAAAAA";
 const DEF_CATS = ["Praca","Studia","Trening","Dom","Zdrowie","Inne"];
 const TX_CATS = ["Jedzenie","Transport","Rachunki","Rozrywka","Sport","Zakupy","Zdrowie","Edukacja","Wynagrodzenie","Inne"];
 const CAT_TO_EXP = {Trening:"Sport",Studia:"Edukacja",Dom:"Rachunki",Zdrowie:"Zdrowie"};
@@ -19,7 +20,13 @@ const parseAmt = v => parseFloat(String(v).replace(/\s/g,"").replace(",","."));
 const round2 = v => Math.round(v*100)/100;
 
 function sample(){
-  return { demo:true, v7:true,
+  return { demo:true, v7:true, v8:true,
+    me:{name:""},
+    jobs:[{id:"j-marc",name:"Marcovia Marki",rateType:"unit",rate:85,matchRate:0,place:"Marki",subs:[{id:"s-2015b",name:"2015B",rate:85,matchRate:170,contract:"",docGroup:"2015b"},{id:"s-2020",name:"2020",rate:90,matchRate:null,contract:"",docGroup:"2020"}]},
+          {id:"j-sgm",name:"SG Motoryka",rateType:"unit",rate:150,matchRate:0,place:"",subs:[]}],
+    workLog:[{id:uid(),work:"j-marc|s-2015b",date:addDays(-5),time:"10:00",dur:180,note:"Zastępstwo",kind:"T",place:"Marki"}],
+    travels:[{id:"tr1",from:"Warszawa",to:"Kraków",mode:"train",date:addDays(0),dep:"13:05",arr:"15:32",cost:89,method:"card",paid:true,paidDate:addDays(-5),note:"IC 5310, wagon 8, miejsce 45",pair:"tr2"},
+             {id:"tr2",from:"Kraków",to:"Warszawa",mode:"train",date:addDays(1),dep:"18:10",arr:"20:40",cost:79,method:"card",paid:false,note:"",pair:"tr1"}],
     routines:[
       {id:"r1",title:"Witamina D3 + K2",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"do śniadania",from:addDays(-14)},
       {id:"r2",title:"Kreatyna 5 g",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"",from:addDays(-14)},
@@ -50,7 +57,8 @@ function sample(){
       {id:uid(),title:"Kupić nowe okularki pływackie",cat:"Trening",prio:2,deadline:addDays(6),date:"",done:false,cost:79,method:"cash",expCat:"Sport",dur:30},
       {id:uid(),title:"Przegląd auta",cat:"Inne",prio:3,deadline:addDays(14),date:addDays(11),time:"08:00",done:false,cost:250,method:"card",expCat:"Transport",dur:120},
       {id:uid(),title:"Prezent urodzinowy dla mamy",cat:"Inne",prio:2,deadline:addDays(9),date:"",done:false,cost:150,method:"card",expCat:"Zakupy",dur:60},
-      {id:uid(),title:"Zrobić zakupy na tydzień",cat:"Dom",prio:2,deadline:"",date:addDays(-2),done:true,dur:60}
+      {id:uid(),title:"Zrobić zakupy na tydzień",cat:"Dom",prio:2,deadline:"",date:addDays(-2),done:true,doneAt:addDays(-2),dur:60},
+      {id:uid(),title:"Diagnostyka motoryczna – klub",cat:"Praca",prio:3,deadline:"",date:addDays(-3),time:"10:00",done:true,doneAt:addDays(-3),dur:120,work:"j-sgm|"}
     ],
     tx:[
       {id:uid(),type:"inc",amount:3200,method:"card",cat:"Wynagrodzenie",note:"Wypłata",date:addDays(-12)},
@@ -64,7 +72,11 @@ function sample(){
       {id:uid(),title:"Trening grupy pływackiej",cat:"Trening",days:[1,3,5],time:"17:00",dur:90,place:"Basen",from:addDays(-30),to:"",every:1,skip:[],over:{}},
       {id:uid(),title:"Biomechanika – wykład",cat:"Studia",days:[2],time:"10:00",dur:90,place:"Sala 112",from:addDays(-20),to:"2027-01-31",every:1,skip:[],over:{}},
       {id:uid(),title:"Fizjologia wysiłku – ćwiczenia",cat:"Studia",days:[4],time:"12:15",dur:90,place:"Lab. 3",from:addDays(-19),to:"2027-01-31",every:2,skip:[],over:{}},
-      {id:uid(),title:"Zajęcia sportowe – praca",cat:"Praca",days:[6],time:"09:00",dur:180,place:"Hala",from:addDays(-30),to:"",every:1,skip:[],over:{}}
+      {id:uid(),title:"Zajęcia sportowe – praca",cat:"Praca",days:[6],time:"09:00",dur:180,place:"Hala",from:addDays(-30),to:"",every:1,skip:[],over:{}},
+      {id:uid(),title:"Trening 2015B",cat:"Praca",days:[2,4],time:"16:30",dur:90,place:"Marki",from:addDays(-60),to:"",every:1,skip:[addDays(-9)],over:{},work:"j-marc|s-2015b"},
+      {id:uid(),title:"Trening 2020",cat:"Praca",days:[1,3],time:"15:30",dur:60,place:"Marki",from:addDays(-60),to:"",every:1,skip:[],over:{},work:"j-marc|s-2020"},
+      {id:uid(),title:"Mecz 2015B",cat:"Praca",days:[(new Date(addDays(-7)+"T00:00").getDay()+6)%7+1],time:"10:00",dur:90,place:"Marki",from:addDays(-7),to:addDays(-7),every:1,skip:[],over:{},work:"j-marc|s-2015b",kind:"M",opponent:"KS Ząbki",once:true},
+      {id:uid(),title:"Mecz 2015B",cat:"Praca",days:[(new Date(addDays(1)+"T00:00").getDay()+6)%7+1],time:"11:00",dur:90,place:"wyjazd",from:addDays(1),to:addDays(1),every:1,skip:[],over:{},work:"j-marc|s-2015b",kind:"M",opponent:"Escola Varsovia",once:true}
     ],
     plan:[
       {id:uid(),type:"inc",amount:600,method:"cash",cat:"Inne",note:"Obóz – zaliczka",date:addDays(14)}
@@ -77,12 +89,12 @@ function sample(){
     ]};
 }
 const DEF_LISTS = () => [{id:"l-super",name:"Supermarket",exp:"Jedzenie"},{id:"l-drog",name:"Drogeria",exp:"Zakupy"},{id:"l-elek",name:"Elektronika",exp:"Zakupy"},{id:"l-hobby",name:"Hobby",exp:"Rozrywka"}];
-const emptyState = () => ({demo:false,v7:true,routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
+const emptyState = () => ({demo:false,v7:true,v8:true,me:{name:""},jobs:[],workLog:[],travels:[],routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch(e){ S = sample(); }
 // Aktualizacja NIGDY nie nadpisuje danych. Do starszych danych dokładamy tylko brakujące części.
 if(S.demo && !S.v7 && !(S.shop && S.shop.items)){ const smp=sample(); S.shop=smp.shop; S.prices={...smp.prices,...(S.prices||{})}; }
-S.v7 = true; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
+S.v7 = true; S.v8 = true; S.jobs ||= []; S.me ||= {name:""}; S.jobs.forEach(j=>{ if(j.rateType==="session") j.rateType="unit"; j.subs ||= []; }); S.workLog ||= []; S.travels ||= []; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
 S.events.forEach(e=>{ e.skip ||= []; e.over ||= {}; });
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
 S.quests.forEach(q=>{ if("due" in q){ if(q.time){ q.date ||= q.due; } else { q.deadline ||= q.due; } delete q.due; } q.date ||= ""; q.deadline ||= ""; });
@@ -91,6 +103,7 @@ const byDeadline = (a,b) => (a.deadline||"9999").localeCompare(b.deadline||"9999
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 
 let tab = "day", filter = "Wszystkie";
+queueMicrotask(()=>{ let ch=false; S.travels.forEach(t=>{ if(t.cost>0 && !t.txId && !t.planId){ syncTravelMoney(t); ch=true; } }); if(ch){ save(); render(); } });
 document.getElementById("today").textContent = d0.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
 
 let toastT;
@@ -201,10 +214,11 @@ function syncQuestTx(q){
 }
 
 /* kolizje */
-function clashes(date, time, dur, exceptQ){
+function clashes(date, time, dur, exceptQ, exceptT){
   if(!date||!time) return [];
   const a=toMin(time), b=a+(dur||30);
   return [...eventsOn(date).filter(e=>{const s=toMin(e.time);return a<s+e.dur && b>s;}).map(e=>e.title),
+          ...S.travels.filter(t=>t.id!==exceptT && t.date===date && t.dep && a<tEnd(t) && b>toMin(t.dep)).map(t=>tLabel(t)),
           ...S.quests.filter(q=>q.id!==exceptQ && !q.done && q.date===date && q.time && a<toMin(q.time)+(q.dur||30) && b>toMin(q.time)).map(q=>q.title)];
 }
 
@@ -231,11 +245,11 @@ function eventsOn(s, withSkipped){
   }
   return out.sort((a,b)=>a.time.localeCompare(b.time));
 }
-const evSummary = e => `${e.days.map(d=>WD[d-1]).join(", ")} · ${e.time}–${hhmm(toMin(e.time)+e.dur)}${e.place?" · "+esc(e.place):""} · ${e.every===2?"co 2 tyg.":"co tydzień"}${e.to?" · do "+fmtDate(e.to):""}`;
-const instLine = i => `${i.time}–${hhmm(toMin(i.time)+i.dur)}${i.place?" · "+esc(i.place):""} · ${esc(i.cat)}${i.moved?` · <span class="evtag">przeniesione z ${fmtDate(i.orig)}</span>`:i.edited?' · <span class="evtag">zmienione</span>':""}`;
+const evSummary = e => `${e.days.map(d=>WD[d-1]).join(", ")} · ${e.time}–${hhmm(toMin(e.time)+e.dur)}${e.place?" · "+esc(e.place):""} · ${e.every===2?"co 2 tyg.":"co tydzień"}${e.to?" · do "+fmtDate(e.to):""}${e.work&&workName(e.work)?" · 💼 "+esc(workName(e.work)):""}`;
+const instLine = i => `${i.kind==="M"?"⚽ ":""}${i.time}–${hhmm(toMin(i.time)+i.dur)}${i.opponent?" · vs "+esc(i.opponent):""}${i.place?" · "+esc(i.place):""} · ${esc(i.cat)}${i.moved?` · <span class="evtag">przeniesione z ${fmtDate(i.orig)}</span>`:i.edited?' · <span class="evtag">zmienione</span>':""}`;
 
-function eventSheet(id){
-  const e = id ? S.events.find(x=>x.id===id) : {title:"",cat:"Trening",days:[wdOf(tab==="day"?dayDate:selDay)],time:"17:00",dur:60,place:"",from:TODAY,to:"",every:1};
+function eventSheet(id, pre={}){
+  const e = id ? S.events.find(x=>x.id===id) : {title:"",cat:"Trening",days:[wdOf(tab==="day"?dayDate:selDay)],time:(pre&&pre.time)||"17:00",dur:60,place:"",from:TODAY,to:"",every:1,work:""};
   const h=Math.floor(e.dur/60), m=e.dur%60;
   ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Stałe wydarzenie"><h3>${id?"Edytuj całą serię":"Nowe stałe wydarzenie"}</h3><form id="f">
     <div class="field"><label class="label" for="e-title">Nazwa</label><input id="e-title" required value="${esc(e.title)}" placeholder="np. Trening U12, Anatomia – ćwiczenia"></div>
@@ -243,6 +257,8 @@ function eventSheet(id){
       <div class="field"><label class="label" for="e-cat">Kategoria</label><select id="e-cat">${S.cats.map(c=>`<option ${c===e.cat?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
       <div class="field"><label class="label" for="e-place">Miejsce</label><input id="e-place" value="${esc(e.place||"")}" placeholder="np. Sala 112"></div>
     </div>
+    ${workField("e-work", e.work)}
+    ${S.jobs.length?`<div class="field"><span class="label">Rodzaj jednostki</span>${seg("ekind",[["T","Trening (T)"],["M","Mecz (M)"]],e.kind||"T")}</div>`:""}
     <div class="field"><span class="label">Dni tygodnia</span><div class="seg dayseg" id="e-days" role="group" aria-label="Dni tygodnia">${WD.map((w,i)=>`<button type="button" data-d="${i+1}" aria-pressed="${e.days.includes(i+1)}">${w}</button>`).join("")}</div></div>
     <div class="field"><label class="label" for="e-time">Godzina startu</label><input id="e-time" type="time" step="300" value="${e.time}" required></div>
     <div class="field"><span class="label">Czas trwania</span><div class="durrow"><input id="e-h" type="number" min="0" max="23" inputmode="numeric" value="${h||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="e-m" type="number" min="0" max="59" step="5" inputmode="numeric" value="${m||""}" placeholder="0" aria-label="Minuty"><span>min</span></div></div>
@@ -268,12 +284,13 @@ function eventSheet(id){
     const dur=(parseInt(ov.querySelector("#e-h").value)||0)*60+(parseInt(ov.querySelector("#e-m").value)||0); if(dur<5){err.textContent="Podaj czas trwania, np. 1 h 30 min.";return;}
     const from=ov.querySelector("#e-from").value||TODAY, to=ov.querySelector("#e-to").value;
     if(to && to<from){err.textContent="Data „Do” musi być po dacie „Od”.";return;}
-    const data={title,cat:ov.querySelector("#e-cat").value,place:ov.querySelector("#e-place").value.trim(),days,time:ov.querySelector("#e-time").value,dur,every:+segVal(ov,"every"),from,to};
+    const data={title,cat:ov.querySelector("#e-cat").value,place:ov.querySelector("#e-place").value.trim(),days,time:ov.querySelector("#e-time").value,dur,every:+segVal(ov,"every"),from,to,work:ov.querySelector("#e-work")?.value ?? (e.work||""),kind:ov.querySelector('[data-seg="ekind"]')?segVal(ov,"ekind"):(e.kind||"T")};
     if(id) Object.assign(e,data); else S.events.push({id:uid(),skip:[],over:{},...data});
     save();close();render();};
 }
 function eventDaySheet(id, orig){
   const e=S.events.find(x=>x.id===id); if(!e) return;
+  if(e.once){ matchSheet(id); return; }
   const inst = eventsOn((e.over[orig]&&e.over[orig].date)||orig, true).find(i=>i.id===id && i.orig===orig) || {...e,orig};
   const when = new Date((inst.date||orig)+"T00:00").toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
   ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${esc(e.title)}"><h3>${esc(inst.title)}</h3>
@@ -318,9 +335,10 @@ function occSheet(id, orig){
 }
 function renderEventsList(){
   document.getElementById("c-week").innerHTML = WD.map((w,i)=>`<div><span class="wd" style="background:none;padding:0;font-size:.66rem;text-align:center">${w}</span>${
-    S.events.filter(e=>e.days.includes(i+1) && (!e.to || e.to>=TODAY)).sort((a,b)=>a.time.localeCompare(b.time)).map(e=>`<span><b>${e.time}</b>${esc(e.title)}${e.every===2?" (co 2 tyg.)":""}</span>`).join("")}</div>`).join("");
-  document.getElementById("c-week").hidden = !S.events.length;
-  document.getElementById("c-events").innerHTML = S.events.length ? S.events.map(e=>`<div class="evrow"><div style="min-width:0"><strong>${esc(e.title)}</strong><span class="meta" style="margin:2px 0 0">${evSummary(e)} · ${esc(e.cat)}${e.to&&e.to<TODAY?' · <span class="dl late">zakończone</span>':""}</span></div><button class="mini" data-editev="${e.id}">Edytuj</button></div>`).join("")
+    S.events.filter(e=>!e.once && e.days.includes(i+1) && (!e.to || e.to>=TODAY)).sort((a,b)=>a.time.localeCompare(b.time)).map(e=>`<span><b>${e.time}</b>${esc(e.title)}${e.every===2?" (co 2 tyg.)":""}</span>`).join("")}</div>`).join("");
+  const series=S.events.filter(e=>!e.once);
+  document.getElementById("c-week").hidden = !series.length;
+  document.getElementById("c-events").innerHTML = series.length ? series.map(e=>`<div class="evrow"><div style="min-width:0"><strong>${esc(e.title)}</strong><span class="meta" style="margin:2px 0 0">${evSummary(e)} · ${esc(e.cat)}${e.to&&e.to<TODAY?' · <span class="dl late">zakończone</span>':""}</span></div><button class="mini" data-editev="${e.id}">Edytuj</button></div>`).join("")
     : `<div class="empty">Dodaj stałe rzeczy, które powtarzają się co tydzień: treningi, pracę, plan zajęć. Same pojawią się w planie dnia i kalendarzu.</div>`;
 }
 const evRow = i => `<div class="evrow"><div style="min-width:0"><strong>${esc(i.title)}</strong><span class="meta" style="margin:2px 0 0">${instLine(i)}</span></div><button class="mini" data-evday="${i.id}" data-orig="${i.orig}">Opcje</button></div>`;
@@ -338,16 +356,18 @@ function renderDay(){
   const qs = S.quests.filter(q=>q.date===dayDate);
   const timed = qs.filter(q=>q.time).sort((a,b)=>a.time.localeCompare(b.time));
   const untimed = qs.filter(q=>!q.time).sort((a,b)=>a.done-b.done||b.prio-a.prio);
-  const ops = opsOn(dayDate);
+  const ops = opsOn(dayDate).filter(t=>!t.travelId);
   const open = qs.filter(q=>!q.done);
   const dur = open.reduce((s,q)=>s+(q.dur||0),0), cost = open.reduce((s,q)=>s+(q.cost||0),0);
   const evs = eventsOn(dayDate), skipped = eventsOn(dayDate,true).filter(e=>e.skipped);
+  const trs = travelsOn(dayDate), tCost = trs.filter(t=>!t.paid).reduce((s,t)=>s+(t.cost||0),0);
   const f = forecast(dayDate);
   document.getElementById("d-sum").innerHTML = `
     <div><span class="label">Zrobione</span><b class="num">${qs.length-open.length}/${qs.length}</b></div>
     <div><span class="label">Czas questów</span><b class="num">${dur?fmtDur(dur):"—"}</b></div>
     <div><span class="label">Stałe</span><b class="num">${evs.length?evs.length+" · "+fmtDur(evs.reduce((s,e)=>s+e.dur,0)):"—"}</b></div>
-    <div><span class="label">Koszty</span><b class="num" style="color:${cost?"var(--exp)":"inherit"}">${cost?"−"+zl(cost):"—"}</b></div>
+    ${trs.length?`<div><span class="label">Podróże</span><b class="num">${trs.length} · ${fmtDur(trs.reduce((s,t)=>s+tDur(t),0))||"—"}</b></div>`:""}
+    <div><span class="label">Koszty</span><b class="num" style="color:${cost+tCost?"var(--exp)":"inherit"}">${cost+tCost?"−"+zl(round2(cost+tCost)):"—"}</b></div>
     <div><span class="label">Saldo na koniec dnia</span><b class="num" style="color:${f.total<0?"var(--exp)":"inherit"}">${zl(f.total)}</b></div>`;
   document.getElementById("d-cancel").innerHTML = skipped.map(e=>`<div class="demo" style="margin-top:8px"><span>Odwołane: ${esc(e.title)} (${e.time})</span><button class="mini" data-unskip="${e.id}" data-orig="${e.orig}">Przywróć</button></div>`).join("");
 
@@ -361,18 +381,21 @@ function renderDay(){
   let sH = 6, eH = 23;
   evs.forEach(e=>{ const st=toMin(e.time); sH=Math.min(sH,Math.floor(st/60)); eH=Math.max(eH,Math.ceil((st+e.dur)/60)); });
   timed.forEach(q=>{ const st=toMin(q.time); sH=Math.min(sH,Math.floor(st/60)); eH=Math.max(eH,Math.ceil((st+(q.dur||30))/60)); });
+  trs.forEach(t=>{ sH=Math.min(sH,Math.floor(toMin(t.dep)/60)); eH=Math.max(eH,Math.ceil(tEnd(t)/60)); });
   eH = Math.min(eH,24);
   const H = 60; dayRange = {sH,eH,H};
   let rows = "";
   for(let h=sH; h<eH; h++){ const l=String(h).padStart(2,"0")+":00"; rows += `<div class="hour"><span class="num">${l}</span><button class="slot" data-slot="${l}" aria-label="Dodaj quest o ${l}"></button></div>`; }
-  const ev = [...evs.map(e=>({e,st:toMin(e.time),en:toMin(e.time)+e.dur})), ...timed.map(q=>({q,st:toMin(q.time),en:toMin(q.time)+Math.max(q.dur||30,20)}))].sort((a,b)=>a.st-b.st);
+  const ev = [...evs.map(e=>({e,st:toMin(e.time),en:toMin(e.time)+e.dur})), ...timed.map(q=>({q,st:toMin(q.time),en:toMin(q.time)+Math.max(q.dur||30,20)})), ...trs.map(t=>({t,st:toMin(t.dep),en:Math.max(tEnd(t),toMin(t.dep)+20)}))].sort((a,b)=>a.st-b.st);
   const laneEnd = []; ev.forEach(e=>{ let l=laneEnd.findIndex(x=>x<=e.st); if(l<0){l=laneEnd.length;laneEnd.push(0);} laneEnd[l]=e.en; e.lane=l; });
   ev.forEach(e=>{ e.cols = Math.max(1, ...ev.filter(o=>o.st<e.en&&o.en>e.st).map(o=>o.lane+1)); });
   const blocks = ev.map(e=>{
     const top=(e.st-sH*60)/60*H, hgt=Math.max((e.en-e.st)/60*H-2,22), w=100/e.cols;
     const pos=`top:${top+1}px;height:${hgt}px;left:calc(${e.lane*w}% + 2px);width:calc(${w}% - 4px)`;
+    if(e.t){ const x=e.t;
+      return `<button class="blk travel" data-travel="${x.id}" style="${pos}" aria-label="Podróż ${esc(x.from)} – ${esc(x.to)}, ${x.dep}"><span class="bt">${esc(tLabel(x))}</span><span class="bm num">${x.dep}${x.arr?"–"+x.arr+(tOvernight(x)?" (+1)":""):""}${x.cost?` · ${zl(x.cost)}${x.paid?" ✓":""}`:""}${x.note?" · "+esc(x.note):""}</span></button>`; }
     if(e.e){ const x=e.e;
-      return `<button class="blk event" data-evday="${x.id}" data-orig="${x.orig}" style="${pos}" aria-label="${esc(x.title)}, ${x.time}"><span class="bt">${esc(x.title)}</span><span class="bm num">${instLine(x)}</span></button>`; }
+      return `<button class="blk event${x.kind==="M"?" match":""}" data-evday="${x.id}" data-orig="${x.orig}" style="${pos}" aria-label="${esc(x.title)}, ${x.time}"><span class="bt">${esc(x.title)}</span><span class="bm num">${instLine(x)}</span></button>`; }
     const q=e.q, clash=!q.done && clashes(q.date,q.time,q.dur,q.id).length;
     return `<div class="blk ${q.done?"done":""} ${clash?"clash":""}" ${q.done?"":`data-drag="${q.id}"`} style="--pc:var(--p${q.prio});${pos}">
       <button class="check" data-toggle="${q.id}" aria-label="${q.done?"Przywróć":"Ukończ"} quest">${q.done?"✓":""}</button>
@@ -388,7 +411,7 @@ function renderDay(){
   document.getElementById("d-un").innerHTML = untimed.map(q=>(q.done?questCard:dragCard)(q,`<button class="mini" data-settime="${q.id}">Ustaw godzinę</button>`)).join("") + ops.map(opRow).join("");
 }
 function suggestTime(){
-  const busy = [...S.quests.filter(q=>q.date===dayDate&&q.time&&!q.done).map(q=>[toMin(q.time),toMin(q.time)+(q.dur||30)]), ...eventsOn(dayDate).map(e=>[toMin(e.time),toMin(e.time)+e.dur])];
+  const busy = [...S.quests.filter(q=>q.date===dayDate&&q.time&&!q.done).map(q=>[toMin(q.time),toMin(q.time)+(q.dur||30)]), ...eventsOn(dayDate).map(e=>[toMin(e.time),toMin(e.time)+e.dur]), ...travelsOn(dayDate).map(t=>[toMin(t.dep),tEnd(t)])];
   let m = dayDate===TODAY ? Math.ceil((new Date().getHours()*60+new Date().getMinutes()+1)/30)*30 : 9*60;
   for(let i=0;i<40 && busy.some(([a,b])=>m<b&&m+30>a);i++) m+=30;
   return hhmm(Math.min(m,23*60+30));
@@ -508,7 +531,8 @@ function renderCal(){
   const byDay = {};
   const dlByDay = {};
   S.quests.forEach(q=>{ if(q.date) (byDay[q.date] ||= []).push(q); if(q.deadline && !q.done) (dlByDay[q.deadline] ||= []).push(q); });
-  const opDays = new Set([...S.plan.map(t=>t.date), ...S.recur.flatMap(r=>occurrences(r,gridEnd))]);
+  const opDays = new Set([...S.plan.filter(t=>!t.travelId).map(t=>t.date), ...S.recur.flatMap(r=>occurrences(r,gridEnd))]);
+  const trDays = new Set(S.travels.map(t=>t.date));
   let h = WD.map(w=>`<div class="wd">${w}</div>`).join("");
   for(let i=0;i<42;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
@@ -519,6 +543,7 @@ function renderCal(){
     if(qs.length>4) dots += `<em class="more">+${qs.length-4}</em>`;
     if(dlByDay[s]) dots = `<em class="dlm" aria-hidden="true">⚑</em>` + dots;
     const ne = eventsOn(s).length; if(ne) dots += `<i class="ev"></i>`.repeat(Math.min(ne,2));
+    if(trDays.has(s)) dots += `<i class="trv"></i>`;
     if(opDays.has(s)) dots += `<i style="background:transparent;border:1.5px solid var(--gold);width:6px;height:6px"></i>`;
     h += `<button class="day ${d.getMonth()!==calM?"out":""} ${s===TODAY?"today":""} ${late?"haslate":""}" data-day="${s}" aria-pressed="${s===selDay}" aria-label="${d.getDate()} ${d.toLocaleDateString("pl-PL",{month:"long"})}, questów: ${qs.length}${dlByDay[s]?", deadline'y: "+dlByDay[s].length:""}"><span class="n num">${d.getDate()}</span><span class="dots">${dots}</span></button>`;
   }
@@ -534,9 +559,9 @@ function renderCal(){
   const de = eventsOn(selDay);
   const dd = dlByDay[selDay]||[];
   document.getElementById("c-day").innerHTML = (dd.length?`<div class="label" style="color:var(--gold)">⚑ Deadline'y tego dnia</div>`+dd.map(q=>questCard(q)).join("")+(dq.length||de.length?`<div class="label" style="margin-top:6px">W planie dnia</div>`:""):"")
-    + de.map(evRow).join("") + (dq.length ? dq.map(q=>questCard(q)).join("")
-    : (de.length||dd.length) ? "" : `<div class="empty">Nic na ten dzień. Kliknij +, żeby dodać quest z deadline'em na ten dzień.</div>`);
-  const pl = opsOn(selDay);
+    + travelsOn(selDay).map(trRow).join("") + de.map(evRow).join("") + (dq.length ? dq.map(q=>questCard(q)).join("")
+    : (de.length||dd.length||travelsOn(selDay).length) ? "" : `<div class="empty">Nic na ten dzień. Kliknij +, żeby dodać quest z deadline'em na ten dzień.</div>`);
+  const pl = opsOn(selDay).filter(t=>!t.travelId);
   document.getElementById("c-planh").hidden = !pl.length;
   document.getElementById("c-plan").innerHTML = pl.map(opRow).join("");
   const nd = S.quests.filter(q=>!q.done && !q.date).sort(byDeadline);
@@ -552,7 +577,8 @@ function renderQuests(){
   const loose = vis.filter(q=>!q.done && !q.date).sort(byDeadline);
   document.getElementById("h-loose").hidden = !loose.length;
   document.getElementById("q-loose").innerHTML = loose.map(q=>questCard(q,`<button class="mini" data-plan="${q.id}">Wrzuć w plan dziś</button>`)).join("");
-  const done = vis.filter(q=>q.done);
+  const done = vis.filter(q=>q.done).sort((a,b)=>(b.doneAt||b.date||"").localeCompare(a.doneAt||a.date||""));
+  document.getElementById("done-n").textContent = `(${done.length})`;
   document.getElementById("q-open").innerHTML = open.length?open.map(q=>questCard(q)).join(""):`<div class="empty">Nic jeszcze nie jest wrzucone w plan. Luźne questy zaplanujesz w zakładce Dziś.</div>`;
   document.getElementById("q-done").innerHTML = done.map(q=>questCard(q)).join("");
   document.getElementById("h-done").hidden = !done.length;
@@ -591,12 +617,15 @@ function render(){
   document.getElementById("v-wallet").hidden = tab!=="wallet";
   document.getElementById("v-cal").hidden = tab!=="cal";
   document.getElementById("v-day").hidden = tab!=="day";
-  ["day","quests","cal","shop","wallet"].forEach(t=>document.getElementById("t-"+t).setAttribute("aria-selected",tab===t));
+  ["day","quests","cal","work","shop","wallet"].forEach(t=>document.getElementById("t-"+t).setAttribute("aria-selected",tab===t));
   document.getElementById("demo").hidden = !S.demo;
   document.getElementById("v-shop").hidden = tab!=="shop";
   document.getElementById("v-hist").hidden = tab!=="hist";
   if(tab==="hist") document.getElementById("t-wallet").setAttribute("aria-selected","true");
-  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop(); renderHist();
+  document.getElementById("v-work").hidden = tab!=="work";
+  document.getElementById("v-workd").hidden = tab!=="workd";
+  if(tab==="workd") document.getElementById("t-work").setAttribute("aria-selected","true");
+  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop(); renderHist(); renderWork(); renderWorkDetail();
 }
 
 /* ---------- zakupy ---------- */
@@ -919,6 +948,516 @@ function openHist(){ tab="hist"; syncHistControls(); render(); scrollTo(0,0); }
   document.getElementById("w-allhist").onclick=openHist;
 })();
 
+/* ---------- podróże ---------- */
+const TMODES = [["train","🚆","Pociąg"],["bus","🚌","Autobus"],["car","🚗","Samochód"],["share","🚙","Wspólny przejazd"],["plane","✈️","Samolot"],["other","🧳","Inne"]];
+const tmode = k => TMODES.find(m=>m[0]===k) || TMODES[5];
+const travelsOn = s => S.travels.filter(t=>t.date===s).sort((a,b)=>(a.dep||"99").localeCompare(b.dep||"99"));
+const tOvernight = t => !!(t.arr && toMin(t.arr) <= toMin(t.dep));
+const tEnd = t => { const a=toMin(t.dep); if(!t.arr) return a+60; const b=toMin(t.arr); return b>a ? b : 24*60; };
+const tDur = t => { if(!t.arr) return 0; const a=toMin(t.dep), b=toMin(t.arr); return b>a ? b-a : b+24*60-a; };
+const tLabel = t => `${tmode(t.mode)[1]} ${t.from} → ${t.to}`;
+const PL_CITIES = ["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Gdynia","Szczecin","Katowice","Lublin","Białystok","Bydgoszcz","Toruń","Rzeszów","Kielce","Olsztyn","Opole","Częstochowa","Radom","Zakopane"];
+function syncTravelMoney(t){
+  const rmTx = ()=>{ if(t.txId){ S.tx=S.tx.filter(x=>x.id!==t.txId); delete t.txId; } };
+  const rmPlan = ()=>{ if(t.planId){ S.plan=S.plan.filter(x=>x.id!==t.planId); delete t.planId; } };
+  if(!(t.cost>0)){ rmTx(); rmPlan(); return; }
+  const base = {type:"exp",amount:t.cost,method:t.method||"card",cat:"Transport",note:`${tmode(t.mode)[2]}: ${t.from} → ${t.to}`,travelId:t.id};
+  if(t.paid){
+    rmPlan();
+    let x = t.txId && S.tx.find(y=>y.id===t.txId);
+    if(!x){ x={id:uid(),date:t.paidDate||TODAY}; S.tx.push(x); t.txId=x.id; }
+    Object.assign(x, base);
+  } else {
+    rmTx();
+    let x = t.planId && S.plan.find(y=>y.id===t.planId);
+    if(!x){ x={id:uid()}; S.plan.push(x); t.planId=x.id; }
+    Object.assign(x, base, {date:t.date});
+  }
+}
+const trRow = t => { const m=tmode(t.mode);
+  return `<div class="evrow"><div style="min-width:0"><strong class="trvt">${esc(tLabel(t))}</strong><span class="meta" style="margin:2px 0 0">${t.dep}${t.arr?`–${t.arr}${tOvernight(t)?" (+1 dzień)":""}`:""} · ${m[2]}${t.cost?` · ${zl(t.cost)} ${t.paid?"opłacone ✓":"do zapłaty"}`:""}${t.note?" · "+esc(t.note):""}</span></div><button class="mini" data-travel="${t.id}">Edytuj</button></div>`; };
+
+function travelSheet(id, pre={}){
+  const known = [...new Set([...S.travels.flatMap(t=>[t.to,t.from]), ...PL_CITIES])];
+  const last = [...S.travels].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const t = id ? S.travels.find(x=>x.id===id) : {from:last?last.to:"",to:"",mode:last?last.mode:"train",date:pre.date||TODAY,dep:pre.dep||"",arr:"",cost:0,method:"card",paid:false,note:""};
+  if(!t) return;
+  const fuel = S.fuel || {l:6.5,p:6.2};
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${id?"Edytuj podróż":"Nowa podróż"}"><h3>${id?"Edytuj podróż":"Nowa podróż"}</h3><form id="f">
+    <datalist id="cities">${known.map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
+    <div class="trvcities">
+      <div class="field"><label class="label" for="tr-from">Skąd</label><input id="tr-from" list="cities" required value="${esc(t.from)}" placeholder="np. Warszawa" autocomplete="off"></div>
+      <button type="button" class="iconbtn" id="tr-swap" aria-label="Zamień skąd i dokąd">⇄</button>
+      <div class="field"><label class="label" for="tr-to">Dokąd</label><input id="tr-to" list="cities" required value="${esc(t.to)}" placeholder="np. Kraków" autocomplete="off"></div>
+    </div>
+    <div class="field"><span class="label">Czym</span><div class="quick" id="tr-mode">${TMODES.map(m=>`<button type="button" data-v="${m[0]}" aria-pressed="${m[0]===t.mode}">${m[1]} ${m[2]}</button>`).join("")}</div></div>
+    <div class="field"><label class="label" for="tr-date">Dzień</label><input id="tr-date" type="date" required value="${t.date}"></div>
+    <div class="row">
+      <div class="field"><label class="label" for="tr-dep">Wyjazd</label><input id="tr-dep" type="time" step="300" required value="${t.dep||""}"></div>
+      <div class="field"><label class="label" for="tr-arr">Przyjazd</label><input id="tr-arr" type="time" step="300" value="${t.arr||""}"></div>
+    </div>
+    <p class="hint" id="tr-durhint" style="margin:0"></p>
+    <div class="row">
+      <div class="field"><label class="label" for="tr-cost">Koszt (zł)</label><input id="tr-cost" inputmode="decimal" value="${t.cost?String(t.cost).replace(".",","):""}" placeholder="np. 89,00"></div>
+      <div class="field"><span class="label">Bilet / koszt</span>${seg("trpaid",[["0","Do zapłaty"],["1","Opłacone"]],t.paid?"1":"0")}</div>
+    </div>
+    <details id="tr-fuel" class="fuel" ${t.mode==="car"?"":"hidden"}><summary>⛽ Policz koszt paliwa</summary>
+      <div class="fuelrow">
+        <div class="field"><label class="label" for="fu-km">Km</label><input id="fu-km" inputmode="decimal" placeholder="300"></div>
+        <div class="field"><label class="label" for="fu-l">l/100 km</label><input id="fu-l" inputmode="decimal" value="${String(fuel.l).replace(".",",")}"></div>
+        <div class="field"><label class="label" for="fu-p">zł/l</label><input id="fu-p" inputmode="decimal" value="${String(fuel.p).replace(".",",")}"></div>
+      </div>
+      <button type="button" class="mini" id="fu-go" style="margin-top:8px">Wpisz wyliczony koszt</button>
+    </details>
+    <div class="field"><span class="label">Płatność</span>${seg("trmethod",[["card","Karta / przelew"],["cash","Gotówka"]],t.method||"card")}</div>
+    <div class="field"><label class="label" for="tr-note">Notatka (opcj.)</label><input id="tr-note" value="${esc(t.note||"")}" placeholder="np. IC 5310, wagon 8, miejsce 45"></div>
+    ${id?"":`<div class="field"><span class="label">Powrót</span>${seg("trret",[["0","Bez powrotu"],["1","Dodaj powrót"]],"0")}</div>
+    <div id="tr-retbox" class="retbox" hidden>
+      <div class="field"><label class="label" for="rt-date">Dzień powrotu</label><input id="rt-date" type="date" value="${t.date}"></div>
+      <div class="row">
+        <div class="field"><label class="label" for="rt-dep">Wyjazd</label><input id="rt-dep" type="time" step="300"></div>
+        <div class="field"><label class="label" for="rt-arr">Przyjazd</label><input id="rt-arr" type="time" step="300"></div>
+      </div>
+      <div class="field"><label class="label" for="rt-cost">Koszt powrotu (zł)</label><input id="rt-cost" inputmode="decimal" placeholder="taki sam jak w tamtą stronę"></div>
+    </div>`}
+    <p class="hint" style="margin:0">Opłacony koszt trafia do historii Portfela (Transport). Nieopłacony liczy się w prognozie salda na dzień podróży.</p>
+    <div class="err" id="err"></div>
+    <div class="actions">${id?`<button type="button" class="btn ghost" id="tr-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary" id="tr-ok">${id?"Zapisz":"Dodaj podróż"}</button></div>
+  </form></div>`;
+  ov.hidden=false; bindSeg(ov);
+  const $=sel=>ov.querySelector(sel);
+  let mode=t.mode;
+  $("#tr-mode").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; mode=b.dataset.v; ov.querySelectorAll("#tr-mode button").forEach(x=>x.setAttribute("aria-pressed",x===b)); $("#tr-fuel").hidden = mode!=="car"; };
+  $("#tr-swap").onclick=()=>{ const a=$("#tr-from").value; $("#tr-from").value=$("#tr-to").value; $("#tr-to").value=a; };
+  const durHint=()=>{ const d=$("#tr-dep").value, a=$("#tr-arr").value; const h=$("#tr-durhint");
+    if(!d||!a){ h.textContent=""; return; } const x={dep:d,arr:a}; h.textContent=`Czas podróży: ${fmtDur(tDur(x))}${tOvernight(x)?" · przyjazd następnego dnia":""}`; };
+  $("#tr-dep").oninput=durHint; $("#tr-arr").oninput=durHint; durHint();
+  $("#fu-go").onclick=()=>{ const km=parseAmt($("#fu-km").value), l=parseAmt($("#fu-l").value), p=parseAmt($("#fu-p").value);
+    if(!(km>0&&l>0&&p>0)){ $("#err").textContent="Wpisz kilometry, spalanie i cenę paliwa."; return; }
+    $("#tr-cost").value=String(round2(km*l/100*p)).replace(".",","); S.fuel={l,p}; $("#err").textContent=""; };
+  const rs=ov.querySelector('[data-seg="trret"]'); if(rs) rs.addEventListener("segchange",()=>{ $("#tr-retbox").hidden = segVal(ov,"trret")!=="1"; if(!$("#tr-retbox").hidden) $("#rt-date").value=$("#tr-date").value; });
+  $("#cancel").onclick=close;
+  if(id) confirmBtn($("#tr-del"),()=>{
+    if(t.planId) S.plan=S.plan.filter(x=>x.id!==t.planId);
+    if(t.txId){ const x=S.tx.find(y=>y.id===t.txId); if(x) delete x.travelId; }
+    S.travels=S.travels.filter(x=>x.id!==id); save(); close(); render();
+    toast(t.txId?"Usunięto podróż. Opłacony bilet został w historii Portfela.":"Usunięto podróż.");
+  });
+  let warned=false;
+  $("#f").onsubmit=e=>{ e.preventDefault();
+    const err=$("#err"); err.className="err";
+    const from=$("#tr-from").value.trim(), to=$("#tr-to").value.trim(), date=$("#tr-date").value, dep=$("#tr-dep").value, arr=$("#tr-arr").value;
+    if(!from||!to){ err.textContent="Wpisz, skąd i dokąd jedziesz."; return; }
+    if(!date||!dep){ err.textContent="Podaj dzień i godzinę wyjazdu."; return; }
+    const cr=$("#tr-cost").value.trim(), cost=cr?parseAmt(cr):0;
+    if(cr && !(cost>0)){ err.textContent="Koszt musi być liczbą, np. 89,00."; return; }
+    const c = clashes(date, dep, (tEnd({dep,arr})-toMin(dep)), null, id);
+    if(c.length && !warned){ warned=true; err.className="err warn-soft"; err.textContent=`⚠ W tym czasie masz: ${c.join(", ")}. Zapisz jeszcze raz, jeśli tak ma być.`; $("#tr-ok").textContent="Zapisz mimo to"; return; }
+    const paid = segVal(ov,"trpaid")==="1";
+    const data = {from,to,mode,date,dep,arr,cost:round2(cost),method:segVal(ov,"trmethod"),paid,note:$("#tr-note").value.trim()};
+    if(paid && !(id && t.paid)) data.paidDate = TODAY;
+    let main;
+    if(id){ Object.assign(t,data); main=t; } else { main={id:uid(),...data}; S.travels.push(main); }
+    syncTravelMoney(main);
+    if(!id && segVal(ov,"trret")==="1"){
+      const rd=$("#rt-date").value||date, rdep=$("#rt-dep").value;
+      if(!rdep){ err.className="err"; err.textContent="Podaj godzinę wyjazdu w drodze powrotnej albo wybierz „Bez powrotu”."; S.travels=S.travels.filter(x=>x!==main); if(main.planId) S.plan=S.plan.filter(x=>x.id!==main.planId); if(main.txId) S.tx=S.tx.filter(x=>x.id!==main.txId); return; }
+      const rcr=$("#rt-cost").value.trim(), rcost=rcr?parseAmt(rcr):cost;
+      const back={id:uid(),from:to,to:from,mode,date:rd,dep:rdep,arr:$("#rt-arr").value,cost:round2(rcost>0?rcost:0),method:data.method,paid,note:"",pair:main.id};
+      if(paid) back.paidDate=TODAY;
+      main.pair=back.id; S.travels.push(back); syncTravelMoney(back);
+    }
+    save(); close(); render();
+    if(data.date>TODAY && !id) toast(`Dodano podróż na ${fmtDate(data.date)}.`);
+  };
+  if(!id) setTimeout(()=>{ (t.from?$("#tr-to"):$("#tr-from"))?.focus(); },50);
+}
+
+/* ---------- wybór: co dodać ---------- */
+function addChooser(o={}){
+  const where = o.date ? new Date(o.date+"T00:00").toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"}) : "";
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Dodaj"><h3>Dodaj${o.time?` o ${o.time}`:""}</h3>${where?`<p class="hint" style="margin:-6px 0 12px;text-transform:none">${where}</p>`:""}
+    <div class="choose">
+      <button type="button" class="chbtn" data-chq="quest"><span aria-hidden="true">✓</span><b>Quest</b><small>zadanie do zrobienia</small></button>
+      <button type="button" class="chbtn" data-chq="travel"><span aria-hidden="true">🚆</span><b>Podróż</b><small>przejazd między miastami</small></button>
+      <button type="button" class="chbtn" data-chq="event"><span aria-hidden="true">⟳</span><b>Stałe wydarzenie</b><small>trening, praca, zajęcia</small></button>
+      <button type="button" class="chbtn" data-chq="rout"><span aria-hidden="true">☀</span><b>Rutyna</b><small>codzienna czynność</small></button>
+    </div>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button></div></div>`;
+  ov.hidden=false;
+  ov.querySelector("#cancel").onclick=close;
+  ov.querySelector(".choose").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; e.stopPropagation();
+    const k=b.dataset.chq;
+    if(k==="quest") questSheet(o.cal?{deadline:o.date}:{date:o.date,time:o.time||""});
+    else if(k==="travel") travelSheet(null,{date:o.date,dep:o.time||""});
+    else if(k==="event") eventSheet(null,{time:o.time});
+    else routineSheet();
+  };
+}
+
+/* ---------- praca i ewidencja ---------- */
+let wkY=d0.getFullYear(), wkM=d0.getMonth(), wkSel=null;
+const jobOf = id => S.jobs.find(j=>j.id===id);
+const splitW = w => { const [a,b]=(w||"").split("|"); return [a||"", b||""]; };
+function workName(w){ const [a,b]=splitW(w); const j=jobOf(a); if(!j) return ""; const s=b&&j.subs.find(x=>x.id===b); return s?`${j.name} › ${s.name}`:j.name; }
+const matcher = (jid,sid) => w => { const [a,b]=splitW(w); return a===jid && (sid==="*" || b===sid); };
+function rateFor(w){ const [a,b]=splitW(w); const j=jobOf(a); if(!j) return {type:"hour",rate:0,match:0}; const s=b&&j.subs.find(x=>x.id===b);
+  return {type:j.rateType==="hour"?"hour":"unit", rate:(s&&s.rate>0)?s.rate:(j.rate||0), match:(s&&s.matchRate>0)?s.matchRate:(j.matchRate||0)}; }
+const entryPay = en => { const r=rateFor(en.work); if(en.kind==="M" && r.match>0) return r.match; return r.type==="hour" ? round2(en.dur/60*r.rate) : r.rate; };
+const entryUnits = en => { if(en.kind!=="M") return 1; const r=rateFor(en.work); return r.match>0 && r.rate>0 ? Math.round(r.match/r.rate*100)/100 : 1; };
+const fmtNum = v => (Math.round(v*100)/100).toLocaleString("pl-PL",{maximumFractionDigits:2});
+const fmtH = m => (Math.round(m/60*100)/100).toLocaleString("pl-PL",{maximumFractionDigits:2})+" h";
+const rateLabel = (type,rate,match) => (rate>0 ? (type==="hour"?`${zl(rate)}/h`:`${zl(rate)} za jednostkę`) : "bez stawki") + (match>0?` · mecz ${zl(match)}`:"");
+const wkKey = () => `${wkY}-${String(wkM+1).padStart(2,"0")}`;
+const wkName = () => new Date(wkY,wkM,1).toLocaleDateString("pl-PL",{month:"long",year:"numeric"});
+function entryStatus(date,time,dur){
+  if(date<TODAY) return "done"; if(date>TODAY) return "plan";
+  if(!time) return "plan";
+  const n=new Date(); return toMin(time)+dur <= n.getHours()*60+n.getMinutes() ? "done" : "plan";
+}
+function workEntries(match){
+  const ym=wkKey(), last=new Date(wkY,wkM+1,0).getDate(), out=[];
+  for(let d=1; d<=last; d++){
+    const s=`${ym}-${String(d).padStart(2,"0")}`;
+    for(const e of eventsOn(s,true)) if(e.work && match(e.work))
+      out.push({date:s,time:e.time,dur:e.dur,title:e.title,src:"event",id:e.id,orig:e.orig,work:e.work,kind:e.kind||"T",where:e.kind==="M"?(e.opponent||e.place||""):(e.place||jobOf(splitW(e.work)[0])?.place||""),status:e.skipped?"skip":entryStatus(s,e.time,e.dur)});
+  }
+  for(const q of S.quests) if(q.work && match(q.work) && q.date && q.date.slice(0,7)===ym)
+    out.push({date:q.date,time:q.time||"",dur:q.dur||0,title:q.title,src:"quest",id:q.id,work:q.work,kind:"T",where:jobOf(splitW(q.work)[0])?.place||"",status:q.done?"done":(q.date<TODAY?"miss":"plan")});
+  for(const w of S.workLog) if(match(w.work) && w.date.slice(0,7)===ym)
+    out.push({date:w.date,time:w.time||"",dur:w.dur||0,title:w.note||(w.kind==="M"?"Mecz":"Wpis ręczny"),src:"manual",id:w.id,work:w.work,kind:w.kind||"T",where:w.place||jobOf(splitW(w.work)[0])?.place||"",status:"done"});
+  return out.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||"99").localeCompare(b.time||"99"));
+}
+function summarize(list){
+  const r={doneN:0,doneMin:0,donePay:0,doneUnits:0,doneM:0,planN:0,planMin:0,planPay:0,skipN:0,missN:0};
+  for(const en of list){ const p=entryPay(en);
+    if(en.status==="done"){ r.doneN++; r.doneMin+=en.dur; r.donePay+=p; r.doneUnits+=entryUnits(en); if(en.kind==="M") r.doneM++; }
+    else if(en.status==="plan"){ r.planN++; r.planMin+=en.dur; r.planPay+=p; }
+    else if(en.status==="skip") r.skipN++; else r.missN++; }
+  r.donePay=round2(r.donePay); r.planPay=round2(r.planPay); r.doneUnits=Math.round(r.doneUnits*100)/100; return r;
+}
+function workOptions(sel, allowNone=true){
+  return (allowNone?`<option value="">— nie liczy się do ewidencji —</option>`:"") + S.jobs.map(j=>
+    `<option value="${j.id}|" ${sel===j.id+"|"?"selected":""}>${esc(j.name)}${j.subs.length?" (ogólnie)":""}</option>` +
+    j.subs.map(s=>`<option value="${j.id}|${s.id}" ${sel===j.id+"|"+s.id?"selected":""}>${esc(j.name)} › ${esc(s.name)}</option>`).join("")).join("");
+}
+const workField = (id, sel) => S.jobs.length
+  ? `<div class="field"><label class="label" for="${id}">💼 Ewidencja pracy</label><select id="${id}">${workOptions(sel||"")}</select></div>`
+  : "";
+
+function renderWork(){
+  document.getElementById("wk-title").textContent = wkName();
+  const all = workEntries(w=>!!jobOf(splitW(w)[0])), tot=summarize(all);
+  document.getElementById("wk-sum").innerHTML = S.jobs.length ? `
+    <div><span class="label">Przepracowane</span><b class="num">${fmtH(tot.doneMin)}</b></div>
+    <div><span class="label">Zajęcia</span><b class="num">${tot.doneN}${tot.doneM?` <small style="font-weight:500;color:var(--muted)">(${tot.doneM} M)</small>`:""}</b></div>
+    <div><span class="label">Zarobione</span><b class="num" style="color:var(--inc)">${zl(tot.donePay)}</b></div>
+    ${tot.planN?`<div><span class="label">Jeszcze w planie</span><b class="num" style="color:var(--muted)">+${fmtH(tot.planMin)} · +${zl(tot.planPay)}</b></div>`:""}` : "";
+  document.getElementById("wk-jobs").innerHTML = S.jobs.length ? S.jobs.map(j=>{
+    const js=all.filter(en=>splitW(en.work)[0]===j.id), sm=summarize(js);
+    const subRow=(sid,name,rate)=>{ const ss=summarize(js.filter(en=>splitW(en.work)[1]===sid));
+      return `<button class="jsub" data-wd="${j.id}|${sid}"><span>${esc(name)}${rate>0?`<small> · ${rateLabel(j.rateType,rate)}</small>`:""}</span><span class="num">${j.rateType==="hour"?`${ss.doneN} zaj. · ${fmtH(ss.doneMin)}`:`${fmtNum(ss.doneUnits)} jedn.${ss.doneM?` · ${ss.doneM} M`:""}`}</span><b class="num">${zl(ss.donePay)}</b><span class="chev" aria-hidden="true">›</span></button>`; };
+    const general = js.some(en=>!splitW(en.work)[1]);
+    return `<div class="jcard"><div class="jhead"><button class="jname" data-wd="${j.id}|*"><b>${esc(j.name)}</b><span class="meta" style="margin:0">${rateLabel(j.rateType,j.rate,j.matchRate)} · ${j.rateType==="hour"?fmtH(sm.doneMin):fmtNum(sm.doneUnits)+" jedn."} · <b class="num" style="font-family:var(--body);font-size:.85rem;color:var(--inc)">${zl(sm.donePay)}</b>${sm.planN?` · +${fmtH(sm.planMin)} w planie`:""}</span></button><button class="mini" data-editjob="${j.id}" aria-label="Edytuj pracę ${esc(j.name)}">⋯</button></div>
+      ${j.subs.map(s=>subRow(s.id,s.name,s.rate)).join("")}${j.subs.length&&general?subRow("","Ogólnie (bez podgrupy)",0):""}
+      ${!js.length?`<p class="hint" style="margin:4px 0 0">Nic w tym miesiącu. Przypisz do tej pracy stałe wydarzenie albo dodaj wpis ręczny.</p>`:""}</div>`;
+  }).join("") : `<div class="rcard"><b style="font-family:var(--display);font-size:1.05rem">Ewidencja pracy</b><p class="hint" style="margin:0">Dodaj pracę, np. klub albo firmę, jej podgrupy (np. roczniki) i stawkę. Potem przypisz do niej stałe wydarzenia, a apka sama policzy godziny i zarobek w każdym miesiącu.</p></div>`;
+  const un = S.jobs.length ? S.events.filter(e=>e.cat==="Praca" && !e.work && (!e.to||e.to>=TODAY)) : [];
+  document.getElementById("wk-un").innerHTML = un.length ? `<div class="demo" style="flex-direction:column;align-items:stretch;gap:6px;margin-top:12px"><span>Te stałe wydarzenia z kategorii Praca nie liczą się do żadnej ewidencji:</span>${un.map(e=>`<span style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="min-width:0">${esc(e.title)}</b><button class="mini" data-editev="${e.id}">Przypisz</button></span>`).join("")}</div>` : "";
+}
+function wdTitle(){ const j=jobOf(wkSel.jid); if(!j) return ""; if(wkSel.sid==="*") return j.name; if(!wkSel.sid) return `${j.name} · ogólnie`; const s=j.subs.find(x=>x.id===wkSel.sid); return s?`${j.name} › ${s.name}`:j.name; }
+function renderWorkDetail(){
+  if(!wkSel) return;
+  const j=jobOf(wkSel.jid); if(!j){ wkSel=null; return; }
+  document.getElementById("wd-title").textContent = wdTitle();
+  document.getElementById("wd-month").textContent = wkName();
+  const list=workEntries(matcher(wkSel.jid,wkSel.sid)), sm=summarize(list);
+  const r = wkSel.sid && wkSel.sid!=="*" ? rateFor(`${j.id}|${wkSel.sid}`) : rateFor(`${j.id}|`);
+  document.getElementById("wd-sum").innerHTML = `
+    ${r.type==="hour"?`<div><span class="label">Przepracowane</span><b class="num">${fmtH(sm.doneMin)}</b></div>`:`<div><span class="label">Jednostki</span><b class="num">${fmtNum(sm.doneUnits)}</b></div>`}
+    <div><span class="label">Zajęcia</span><b class="num">${sm.doneN-sm.doneM} T${sm.doneM?` + ${sm.doneM} M`:""}</b></div>
+    <div><span class="label">Kwota</span><b class="num" style="color:var(--inc)">${zl(sm.donePay)}</b></div>
+    <div><span class="label">Stawka</span><b class="num" style="font-size:.9rem">${rateLabel(r.type,r.rate,r.match)}</b></div>
+    ${sm.planN?`<div><span class="label">Do końca miesiąca</span><b class="num" style="color:var(--muted)">+${sm.planN} zaj. · +${fmtH(sm.planMin)} · +${zl(sm.planPay)}</b></div>`:""}
+    ${sm.skipN?`<div><span class="label">Odwołane</span><b class="num" style="color:var(--muted)">${sm.skipN}</b></div>`:""}`;
+  document.getElementById("wd-pay").textContent = sm.donePay+sm.planPay>0 ? `Zaplanuj wypłatę ${zl(round2(sm.donePay+sm.planPay))}` : "Zaplanuj wypłatę";
+  document.getElementById("wd-pay").disabled = !(sm.donePay+sm.planPay>0);
+  const docOk = r.type!=="hour" && (wkSel.sid!=="*" || !j.subs.length) && !(wkSel.sid==="" && j.subs.length);
+  const db=document.getElementById("wd-doc"); db.hidden = r.type==="hour"; db.disabled=!docOk;
+  db.title = docOk ? "" : "Wybierz podgrupę, żeby wygenerować zestawienie";
+  document.getElementById("wd-dochint").hidden = r.type==="hour" || docOk;
+  const subName = w => { const [,b]=splitW(w); const s=b&&j.subs.find(x=>x.id===b); return s?s.name:""; };
+  document.getElementById("wd-list").innerHTML = list.length ? list.map(en=>{
+    const st = en.status==="plan"?" · zaplanowane":en.status==="skip"?" · odwołane":en.status==="miss"?" · nieodhaczony quest":"";
+    return `<button class="wrow st-${en.status}" data-went="${en.src}|${en.id}|${en.orig||en.date}">
+      <span class="wdate num">${new Date(en.date+"T00:00").toLocaleDateString("pl-PL",{weekday:"short",day:"numeric",month:"numeric"})}</span>
+      <span class="wt"><b><span class="kind k${en.kind}">${en.kind}</span> ${esc(en.title)}</b><small>${en.time?`${en.time}–${hhmm(toMin(en.time)+en.dur)}`:"bez godziny"}${en.where?" · "+esc(en.where):""} · ${en.src==="event"?(en.kind==="M"?"mecz":"⟳ stałe"):en.src==="quest"?"quest":"wpis ręczny"}${wkSel.sid==="*"&&subName(en.work)?" · "+esc(subName(en.work)):""}${st}</small></span>
+      <span class="wh num">${r.type==="hour"?(en.dur?fmtH(en.dur):"—"):"×"+fmtNum(entryUnits(en))}</span>
+      <span class="wz num">${en.status==="done"?zl(entryPay(en)):""}</span></button>`; }).join("")
+    : `<div class="empty" style="margin:12px 0">Brak wpisów w tym miesiącu.</div>`;
+}
+function openWorkDetail(jid,sid){ wkSel={jid,sid}; tab="workd"; render(); scrollTo(0,0); }
+function exportWork(){
+  const j=jobOf(wkSel.jid), list=workEntries(matcher(wkSel.jid,wkSel.sid)).filter(en=>en.status==="done"), sm=summarize(list);
+  const r = wkSel.sid && wkSel.sid!=="*" ? rateFor(`${j.id}|${wkSel.sid}`) : rateFor(`${j.id}|`);
+  const lines=[`Ewidencja godzin – ${wdTitle()}`, wkName().replace(/^./,c=>c.toUpperCase()), ""];
+  lines.push(`Data         T/M Godziny      ${r.type==="hour"?"Czas":"Jedn."}   Opis`);
+  for(const en of list){
+    const d=new Date(en.date+"T00:00"), ds=`${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")} (${d.toLocaleDateString("pl-PL",{weekday:"short"})})`;
+    lines.push(`${ds.padEnd(13)}${en.kind}  ${(en.time?`${en.time}–${hhmm(toMin(en.time)+en.dur)}`:"—").padEnd(13)}${(r.type==="hour"?fmtH(en.dur):"×"+fmtNum(entryUnits(en))).padEnd(8)}${en.title}${en.where?" ("+en.where+")":""}`);
+  }
+  lines.push("", r.type==="hour" ? `Razem: ${sm.doneN} ${sm.doneN===1?"wpis":"wpisów"}, ${fmtH(sm.doneMin)}` : `Suma jednostek zajęć: ${fmtNum(sm.doneUnits)} (${sm.doneN-sm.doneM} T, ${sm.doneM} M)`);
+  if(r.rate>0) lines.push(`Stawka: ${rateLabel(r.type,r.rate,r.match)}`, `Do wypłaty: ${zl(sm.donePay)}`);
+  if(wkSel.sid==="*" && j.subs.length){ lines.push("", "Podział na podgrupy:");
+    for(const s of [...j.subs,{id:"",name:"ogólnie"}]){ const ss=summarize(list.filter(en=>splitW(en.work)[1]===s.id)); if(ss.doneN) lines.push(`• ${s.name}: ${ss.doneN} wpisów, ${fmtH(ss.doneMin)}, ${zl(ss.donePay)}`); } }
+  const txt=lines.join("\n");
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Ewidencja do wysłania"><h3>Ewidencja do wysłania</h3>
+    <p class="hint" style="margin:-6px 0 10px">Tylko odbyte zajęcia i wpisy. Skopiuj i wklej do maila, SMS-a albo dokumentu.</p>
+    <textarea id="ex-txt" readonly rows="12" class="extxt">${esc(txt)}</textarea>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">Zamknij</button><button type="button" class="btn primary" id="ex-copy">Kopiuj</button></div></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  ov.querySelector("#ex-copy").onclick=async()=>{ const ta=ov.querySelector("#ex-txt"); let ok=false; try{ await navigator.clipboard.writeText(txt); ok=true; }catch(e){} if(ok) toast("Skopiowano ewidencję."); else { ta.focus(); ta.select(); toast("Zaznaczyłem tekst. Skopiuj go z menu."); } };
+}
+function planPayout(){
+  const j=jobOf(wkSel.jid), sm=summarize(workEntries(matcher(wkSel.jid,wkSel.sid))), amount=round2(sm.donePay+sm.planPay);
+  if(!(amount>0)) return;
+  let date=iso(new Date(wkY,wkM+1,10)); if(date<TODAY) date=TODAY;
+  txSheet(null,null,{type:"inc",amount,method:"card",cat:"Wynagrodzenie",note:`${wdTitle()} – ${new Date(wkY,wkM,1).toLocaleDateString("pl-PL",{month:"long"})}`.slice(0,60),date});
+}
+function manualSheet(id){
+  if(!S.jobs.length){ jobSheet(); return; }
+  const w = id ? S.workLog.find(x=>x.id===id) : {work: wkSel ? `${wkSel.jid}|${wkSel.sid==="*"?"":wkSel.sid}` : `${S.jobs[0].id}|`, date: wkKey()===TODAY.slice(0,7)?TODAY:`${wkKey()}-01`, time:"", dur:60, note:""};
+  if(!w) return;
+  const h=Math.floor(w.dur/60), m=w.dur%60;
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Wpis do ewidencji"><h3>${id?"Edytuj wpis":"Wpis ręczny do ewidencji"}</h3><form id="f">
+    <div class="field"><label class="label" for="m-work">Praca</label><select id="m-work">${workOptions(w.work,false)}</select></div>
+    <div class="field"><span class="label">Rodzaj</span>${seg("mkind",[["T","Trening"],["M","Mecz / turniej"]],w.kind||"T")}</div>
+    <div class="row">
+      <div class="field"><label class="label" for="m-date">Dzień</label><input id="m-date" type="date" required value="${w.date}"></div>
+      <div class="field"><label class="label" for="m-time">Od (opcj.)</label><input id="m-time" type="time" step="300" value="${w.time||""}"></div>
+    </div>
+    <div class="field"><span class="label">Czas trwania</span><div class="durrow"><input id="m-h" type="number" min="0" max="23" inputmode="numeric" value="${h||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="m-m" type="number" min="0" max="59" step="5" inputmode="numeric" value="${m||""}" placeholder="0" aria-label="Minuty"><span>min</span></div></div>
+    <div class="row">
+      <div class="field"><label class="label" for="m-note">Opis</label><input id="m-note" value="${esc(w.note||"")}" placeholder="np. zastępstwo"></div>
+      <div class="field"><label class="label" for="m-place">Miejsce / przeciwnik</label><input id="m-place" value="${esc(w.place||"")}" placeholder="np. Marki"></div>
+    </div>
+    <p class="hint" style="margin:0">Wpis ręczny liczy się jako odbyty. Przydaje się na zastępstwa i jednorazowe zlecenia.</p>
+    <div class="err" id="err"></div>
+    <div class="actions">${id?`<button type="button" class="btn ghost" id="m-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
+  </form></div>`;
+  ov.hidden=false; bindSeg(ov); ov.querySelector("#cancel").onclick=close;
+  if(id) confirmBtn(ov.querySelector("#m-del"),()=>{ S.workLog=S.workLog.filter(x=>x.id!==id); save(); close(); render(); });
+  ov.querySelector("#f").onsubmit=e=>{ e.preventDefault();
+    const dur=(parseInt(ov.querySelector("#m-h").value)||0)*60+(parseInt(ov.querySelector("#m-m").value)||0);
+    const date=ov.querySelector("#m-date").value;
+    if(!date){ ov.querySelector("#err").textContent="Wybierz dzień."; return; }
+    if(dur<5 && rateFor(ov.querySelector("#m-work").value).type==="hour"){ ov.querySelector("#err").textContent="Podaj czas trwania, np. 1 h 30 min."; return; }
+    const data={work:ov.querySelector("#m-work").value,date,time:ov.querySelector("#m-time").value,dur,note:ov.querySelector("#m-note").value.trim(),kind:segVal(ov,"mkind"),place:ov.querySelector("#m-place").value.trim()};
+    if(id) Object.assign(w,data); else S.workLog.push({id:uid(),...data});
+    save(); close(); render();
+  };
+}
+/* mecze: jednorazowe wydarzenia rozliczane stawką meczową */
+function matchSheet(id, pre={}){
+  if(!S.jobs.length){ jobSheet(); return; }
+  const e = id ? S.events.find(x=>x.id===id) : null;
+  const defW = pre.work || (wkSel ? `${wkSel.jid}|${wkSel.sid==="*"?(jobOf(wkSel.jid)?.subs[0]?.id||""):wkSel.sid}` : `${S.jobs[0].id}|${S.jobs[0].subs[0]?.id||""}`);
+  const v = e ? {...e, date:e.from} : {work:defW, date:pre.date||TODAY, time:"10:00", dur:90, opponent:"", place:"", title:""};
+  const sname = w => { const [a,b]=splitW(w); const j=jobOf(a); const s=b&&j&&j.subs.find(x=>x.id===b); return s?s.name:(j?j.name:""); };
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Mecz"><h3>${e?"Edytuj mecz":"Nowy mecz"}</h3><form id="f">
+    <div class="field"><label class="label" for="mt-work">Drużyna / praca</label><select id="mt-work">${workOptions(v.work,false)}</select></div>
+    <div class="field"><label class="label" for="mt-opp">Przeciwnik / wydarzenie</label><input id="mt-opp" value="${esc(v.opponent||"")}" placeholder="np. KS Ząbki, turniej w Wołominie"></div>
+    <div class="row">
+      <div class="field"><label class="label" for="mt-date">Dzień</label><input id="mt-date" type="date" required value="${v.date}"></div>
+      <div class="field"><label class="label" for="mt-time">Godzina</label><input id="mt-time" type="time" step="300" required value="${v.time}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label class="label" for="mt-dur">Czas (min)</label><input id="mt-dur" type="number" min="15" step="15" inputmode="numeric" value="${v.dur}"></div>
+      <div class="field"><label class="label" for="mt-place">Miejsce</label><input id="mt-place" value="${esc(v.place||"")}" placeholder="np. Marki / wyjazd"></div>
+    </div>
+    <div class="field"><label class="label" for="mt-title">Nazwa w planie</label><input id="mt-title" value="${esc(v.title||"")}" placeholder="Mecz ${esc(sname(v.work))}"></div>
+    <p class="hint" style="margin:0" id="mt-rate"></p>
+    <div class="err" id="err"></div>
+    <div class="actions">${e?`<button type="button" class="btn ghost" id="mt-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${e?"Zapisz":"Dodaj mecz"}</button></div>
+  </form></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  const rateHint=()=>{ const w=ov.querySelector("#mt-work").value, r=rateFor(w); ov.querySelector("#mt-title").placeholder=`Mecz ${sname(w)}`;
+    ov.querySelector("#mt-rate").textContent = r.match>0 ? `Stawka meczowa: ${zl(r.match)}${r.type!=="hour"&&r.rate>0?` (w zestawieniu przelicznik ×${fmtNum(r.match/r.rate)})`:""}.` : `Brak stawki meczowej, mecz liczy się jak ${r.type==="hour"?"zwykłe godziny":"1 jednostka"}. Ustawisz ją w ⋯ przy pracy.`; };
+  ov.querySelector("#mt-work").onchange=rateHint; rateHint();
+  if(e) confirmBtn(ov.querySelector("#mt-del"),()=>{ S.events=S.events.filter(x=>x.id!==id); save(); close(); render(); });
+  ov.querySelector("#f").onsubmit=ev=>{ ev.preventDefault();
+    const date=ov.querySelector("#mt-date").value, time=ov.querySelector("#mt-time").value;
+    if(!date||!time){ ov.querySelector("#err").textContent="Podaj dzień i godzinę meczu."; return; }
+    const work=ov.querySelector("#mt-work").value;
+    const data={title:ov.querySelector("#mt-title").value.trim()||`Mecz ${sname(work)}`,cat:"Praca",days:[wdOf(date)],time,dur:parseInt(ov.querySelector("#mt-dur").value)||90,
+      place:ov.querySelector("#mt-place").value.trim(),from:date,to:date,every:1,work,kind:"M",opponent:ov.querySelector("#mt-opp").value.trim(),once:true};
+    if(e){ Object.assign(e,data); e.over={}; e.skip=[]; } else S.events.push({id:uid(),skip:[],over:{},...data});
+    save(); close(); render(); if(!e) toast(`Dodano mecz na ${fmtDate(date)}. Jest też w planie dnia i kalendarzu.`);
+  };
+}
+
+/* zestawienie Word (Załącznik nr 5) */
+let zipLoading=null;
+function loadZip(){
+  if(window.JSZip) return Promise.resolve();
+  return zipLoading ||= new Promise((res,rej)=>{ const sc=document.createElement("script");
+    sc.src = window.__PWA__ ? "jszip.min.js" : "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+    sc.onload=res; sc.onerror=()=>{ zipLoading=null; rej(new Error("load")); }; document.head.appendChild(sc); });
+}
+const xe = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const plainNum = v => Number.isInteger(round2(v)) ? String(round2(v)) : round2(v).toFixed(2).replace(".",",");
+const asciiName = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l").replace(/Ł/g,"L").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");
+function docTarget(){ const j=jobOf(wkSel.jid); const s=wkSel.sid&&wkSel.sid!=="*" ? j.subs.find(x=>x.id===wkSel.sid) : null; return {j,s,o:s||j}; }
+async function buildZ5(info){
+  const {j,s}=docTarget(), w=`${j.id}|${s?s.id:""}`, r=rateFor(w);
+  const list=workEntries(matcher(wkSel.jid, s?s.id:"")).filter(en=>en.status==="done");
+  const sm=summarize(list);
+  await loadZip();
+  const zip=await JSZip.loadAsync(Z5_TPL, {base64:true});
+  let x=await zip.file("word/document.xml").async("string");
+  const k=x.indexOf("{{LP}}"); let st=-1; const re=/<w:tr[ >]/g; let m; while((m=re.exec(x)) && m.index<k) st=m.index;
+  const en=x.indexOf("</w:tr>",k)+7, rowT=x.slice(st,en);
+  const n=Math.max(15,list.length); let rows="";
+  for(let i=0;i<n;i++){ const e=list[i]; const d=e?new Date(e.date+"T00:00"):null;
+    rows += rowT.replace("{{LP}}",`${i+1}.`).replace("{{DATA}}", d?`${d.getDate()}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`:"")
+      .replace("{{RODZ}}", e?e.kind:"").replace("{{MIEJSCE}}", e?xe(e.where):"").replace("{{PRZEL}}", e?plainNum(entryUnits(e)):""); }
+  x = x.slice(0,st)+rows+x.slice(en);
+  const month = new Date(wkY,wkM,1).toLocaleDateString("pl-PL",{month:"long"}).toUpperCase()+" "+wkY;
+  x = x.replace("{{UMOWA}}",xe(info.contract)).replace("{{IMIE}}",xe(info.name)).replace("{{MIESIAC}}",xe(month))
+       .replace("{{STAWKA}}",xe(plainNum(r.rate))).replace("{{GRUPA}}",xe(info.group))
+       .replace("{{SUMA}}",xe(plainNum(sm.doneUnits))).replace("{{WYNAGR}}",xe(plainNum(sm.donePay)));
+  zip.file("word/document.xml",x);
+  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",compression:"DEFLATE"});
+  const surname=(info.name.trim().split(/\s+/).pop()||"Zestawienie");
+  return {blob, filename:`${asciiName(surname)}_${asciiName(info.group)}_${String(wkM+1).padStart(2,"0")}_${wkY}.docx`, sm};
+}
+async function saveFile(blob, filename){
+  if(!window.__PWA__ && window.claude){
+    const dl = await claude.use("downloads").catch(()=>null);
+    if(dl){ try{ await dl.save({filename, data:blob}); return "saved"; }catch(e){ if(e && e.code==="declined") return "declined"; throw e; } }
+    throw new Error("unavailable");
+  }
+  const file=new File([blob],filename,{type:blob.type});
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:filename}); return "saved"; } }
+  catch(e){ if(e && e.name==="AbortError") return "declined"; }
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},3000); return "saved";
+}
+function docSheet(){
+  const {j,s,o}=docTarget();
+  const list=workEntries(matcher(wkSel.jid, s?s.id:"")), sm=summarize(list.filter(e=>e.status==="done")), r=rateFor(`${j.id}|${s?s.id:""}`);
+  const plan=list.filter(e=>e.status==="plan").length, miss=list.filter(e=>e.status==="miss").length;
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Zestawienie"><h3>Zestawienie jednostek zajęć</h3>
+    <p class="hint" style="margin:-6px 0 12px">Załącznik nr 5 do umowy zlecenia · ${esc(wdTitle())} · <span style="text-transform:capitalize">${wkName()}</span></p>
+    <div class="daysum" style="margin:0 0 12px"><div><span class="label">Jednostki</span><b class="num">${fmtNum(sm.doneUnits)}</b></div><div><span class="label">T / M</span><b class="num">${sm.doneN-sm.doneM} / ${sm.doneM}</b></div><div><span class="label">Wynagrodzenie</span><b class="num" style="color:var(--inc)">${zl(sm.donePay)}</b></div></div>
+    ${plan||miss?`<p class="hint" style="margin:0 0 10px;color:var(--gold)">${plan?`${plan} zaplanowanych zajęć jeszcze się nie odbyło, więc nie ma ich w zestawieniu. `:""}${miss?`${miss} questów pracy nie jest odhaczonych.`:""}</p>`:""}
+    <form id="f">
+      <div class="field"><label class="label" for="z-name">Zleceniobiorca (trener)</label><input id="z-name" required value="${esc(S.me.name||"")}" placeholder="Imię i nazwisko"></div>
+      <div class="field"><label class="label" for="z-contract">Nr umowy zlecenia</label><input id="z-contract" required value="${esc(o.contract||"")}" placeholder="np. 190/502-3 MKS MM/09/2026"></div>
+      <div class="field"><label class="label" for="z-group">Grupa (jak w dokumencie)</label><input id="z-group" required value="${esc(o.docGroup||(s?s.name:j.name))}"></div>
+      <p class="hint" style="margin:0">Stawka w dokumencie: ${plainNum(r.rate)} zł brutto za jednostkę${r.match>0&&r.rate>0?`. Mecz liczy się z przelicznikiem ×${fmtNum(r.match/r.rate)}`:""}. Dane zapamiętam na kolejne miesiące.</p>
+      <div class="err" id="err"></div>
+      <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary" id="z-go">📄 Pobierz .docx</button></div>
+    </form></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  ov.querySelector("#f").onsubmit=async ev=>{ ev.preventDefault();
+    const err=ov.querySelector("#err"), btn=ov.querySelector("#z-go");
+    const info={name:ov.querySelector("#z-name").value.trim(),contract:ov.querySelector("#z-contract").value.trim(),group:ov.querySelector("#z-group").value.trim()};
+    if(!info.name||!info.contract||!info.group){ err.textContent="Uzupełnij imię i nazwisko, numer umowy i grupę."; return; }
+    if(!sm.doneN){ err.textContent="W tym miesiącu nie ma jeszcze odbytych zajęć."; return; }
+    S.me.name=info.name; o.contract=info.contract; o.docGroup=info.group; save();
+    btn.disabled=true; btn.textContent="Tworzę dokument…";
+    try{
+      const {blob,filename}=await buildZ5(info);
+      const st=await saveFile(blob,filename);
+      if(st==="saved"){ close(); toast(`Gotowe: ${filename}`); } else { btn.disabled=false; btn.textContent="📄 Pobierz .docx"; }
+    }catch(e){ btn.disabled=false; btn.textContent="📄 Pobierz .docx";
+      err.textContent = !window.JSZip ? "Nie udało się wczytać modułu dokumentów. Sprawdź internet i spróbuj ponownie." : "Nie udało się zapisać pliku w tym widoku. Spróbuj w aplikacji na telefonie albo skopiuj ewidencję jako tekst."; }
+  };
+}
+
+function jobSheet(id){
+  const j = id ? jobOf(id) : {name:"",rateType:"unit",rate:0,matchRate:0,place:"",subs:[]};
+  if(!j) return;
+  let subs = j.subs.map(s=>({...s}));
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Praca"><h3>${id?"Edytuj pracę":"Nowa praca"}</h3><form id="f">
+    <div class="field"><label class="label" for="j-name">Nazwa</label><input id="j-name" required value="${esc(j.name)}" placeholder="np. Marcovia Marki, SG Motoryka"></div>
+    <div class="field"><span class="label">Rozliczenie</span>${seg("jrt",[["unit","Za jednostkę treningową"],["hour","Za godzinę"]],j.rateType==="hour"?"hour":"unit")}</div>
+    <div class="row">
+      <div class="field"><label class="label" for="j-rate" id="j-ratel">Stawka (zł)</label><input id="j-rate" inputmode="decimal" value="${j.rate?String(j.rate).replace(".",","):""}" placeholder="np. 85"></div>
+      <div class="field"><label class="label" for="j-match">Stawka meczowa (opcj.)</label><input id="j-match" inputmode="decimal" value="${j.matchRate?String(j.matchRate).replace(".",","):""}" placeholder="jak trening"></div>
+    </div>
+    <div class="field"><label class="label" for="j-place">Miejsce treningów (domyślne)</label><input id="j-place" value="${esc(j.place||"")}" placeholder="np. Marki"></div>
+    <div class="field"><span class="label">Podgrupy (opcj.)</span><div id="j-subs" class="subs"></div>
+      <button type="button" class="mini" id="j-addsub" style="align-self:flex-start">+ Podgrupa</button>
+      <p class="hint" style="margin:0">Np. roczniki: 2015B, 2020. Każda podgrupa ma osobną ewidencję. Kolumny: nazwa, stawka, stawka meczowa (puste = jak dla całej pracy).</p></div>
+    <div class="err" id="err"></div>
+    <div class="actions">${id?`<button type="button" class="btn ghost" id="j-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj pracę"}</button></div>
+  </form></div>`;
+  ov.hidden=false; bindSeg(ov);
+  const box=ov.querySelector("#j-subs");
+  const read=()=>{ box.querySelectorAll(".subrow").forEach((row,i)=>{ subs[i].name=row.querySelector(".sn").value; subs[i].rateStr=row.querySelector(".sr").value; subs[i].matchStr=row.querySelector(".sm").value; }); };
+  const nv=(str,v)=>esc(str!=null?str:(v?String(v).replace(".",","):""));
+  const draw=()=>{ box.innerHTML = subs.map((s,i)=>`<div class="subrow"><input class="sn" value="${esc(s.name)}" placeholder="np. 2015B" aria-label="Nazwa podgrupy"><input class="sr" inputmode="decimal" value="${nv(s.rateStr,s.rate)}" placeholder="stawka" aria-label="Stawka podgrupy"><input class="sm" inputmode="decimal" value="${nv(s.matchStr,s.matchRate)}" placeholder="mecz" aria-label="Stawka meczowa podgrupy"><button type="button" class="del" data-i="${i}" aria-label="Usuń podgrupę">×</button></div>`).join(""); };
+  draw();
+  box.onclick=e=>{ const b=e.target.closest("button[data-i]"); if(!b) return; read(); subs.splice(+b.dataset.i,1); draw(); };
+  ov.querySelector("#j-addsub").onclick=()=>{ read(); subs.push({id:uid(),name:"",rate:null}); draw(); box.querySelector(".subrow:last-child .sn")?.focus(); };
+  ov.querySelector("#cancel").onclick=close;
+  if(id) confirmBtn(ov.querySelector("#j-del"),()=>{
+    S.events.forEach(e=>{ if(splitW(e.work)[0]===id) delete e.work; }); S.quests.forEach(q=>{ if(splitW(q.work)[0]===id) delete q.work; });
+    S.workLog=S.workLog.filter(w=>splitW(w.work)[0]!==id); S.jobs=S.jobs.filter(x=>x.id!==id);
+    save(); close(); if(tab==="workd") tab="work"; render(); toast("Usunięto pracę i jej wpisy ręczne. Stałe wydarzenia zostały, tylko bez ewidencji.");
+  });
+  ov.querySelector("#f").onsubmit=e=>{ e.preventDefault(); read();
+    const err=ov.querySelector("#err");
+    const name=ov.querySelector("#j-name").value.trim(); if(!name){ err.textContent="Wpisz nazwę pracy."; return; }
+    const rr=ov.querySelector("#j-rate").value.trim(), rate=rr?parseAmt(rr):0;
+    if(rr && !(rate>=0)){ err.textContent="Stawka musi być liczbą, np. 50."; return; }
+    const mr=ov.querySelector("#j-match").value.trim(), matchRate=mr?parseAmt(mr):0;
+    if(mr && !(matchRate>=0)){ err.textContent="Stawka meczowa musi być liczbą, np. 120."; return; }
+    const clean=[]; for(const s of subs){ const n=(s.name||"").trim(); if(!n) continue;
+      const sr=(s.rateStr!=null?s.rateStr:(s.rate?String(s.rate):"")).trim(), v=sr?parseAmt(sr):null;
+      const sm=(s.matchStr!=null?s.matchStr:(s.matchRate?String(s.matchRate):"")).trim(), mv=sm?parseAmt(sm):null;
+      if((sr && !(v>=0)) || (sm && !(mv>=0))){ err.textContent=`Stawki podgrupy „${n}” muszą być liczbami.`; return; }
+      clean.push({id:s.id||uid(),name:n,rate:v>0?round2(v):null,matchRate:mv>0?round2(mv):null,contract:s.contract||"",docGroup:s.docGroup||""}); }
+    const data={name,rateType:segVal(ov,"jrt"),rate:round2(rate||0),matchRate:round2(matchRate||0),place:ov.querySelector("#j-place").value.trim(),subs:clean};
+    if(id){
+      const keep=new Set(clean.map(s=>s.id));
+      const retag=x=>{ const [a,b]=splitW(x.work); if(a===id && b && !keep.has(b)) x.work=`${id}|`; };
+      S.events.forEach(retag); S.quests.forEach(retag); S.workLog.forEach(retag);
+      if(wkSel && wkSel.jid===id && wkSel.sid && wkSel.sid!=="*" && !keep.has(wkSel.sid)) wkSel.sid="*";
+      Object.assign(j,data);
+    } else S.jobs.push({id:"j-"+uid(),...data});
+    save(); close(); render();
+  };
+  if(!id) setTimeout(()=>ov.querySelector("#j-name")?.focus(),50);
+}
+(function wireWork(){
+  const shift=n=>{ wkM+=n; if(wkM<0){wkM=11;wkY--;} if(wkM>11){wkM=0;wkY++;} renderWork(); renderWorkDetail(); };
+  document.getElementById("wk-prev").onclick=()=>shift(-1);
+  document.getElementById("wk-next").onclick=()=>shift(1);
+  document.getElementById("wk-now").onclick=()=>{ wkY=d0.getFullYear(); wkM=d0.getMonth(); renderWork(); };
+  document.getElementById("wd-prev").onclick=()=>shift(-1);
+  document.getElementById("wd-next").onclick=()=>shift(1);
+  document.getElementById("wk-addjob").onclick=()=>jobSheet();
+  document.getElementById("wd-back").onclick=()=>{ tab="work"; render(); scrollTo(0,0); };
+  document.getElementById("wd-export").onclick=exportWork;
+  document.getElementById("wd-pay").onclick=planPayout;
+  document.getElementById("wd-add").onclick=()=>manualSheet();
+  document.getElementById("wd-match").onclick=()=>matchSheet();
+  document.getElementById("wd-doc").onclick=docSheet;
+  addSwipe(document.getElementById("v-work"),()=>shift(-1),()=>shift(1));
+  addSwipe(document.getElementById("wd-sum"),()=>shift(-1),()=>shift(1));
+})();
+
+function addWorkChooser(){
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Dodaj do ewidencji"><h3>Dodaj do ewidencji</h3>
+    <div class="choose"><button type="button" class="chbtn" id="cw-m"><span aria-hidden="true">⚽</span><b>Mecz</b><small>trafi też do planu dnia</small></button>
+    <button type="button" class="chbtn" id="cw-t"><span aria-hidden="true">✎</span><b>Wpis ręczny</b><small>zastępstwo, turniej</small></button></div>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button></div></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  ov.querySelector("#cw-m").onclick=e=>{ e.stopPropagation(); matchSheet(); };
+  ov.querySelector("#cw-t").onclick=e=>{ e.stopPropagation(); manualSheet(); };
+}
 /* ---------- arkusze ---------- */
 const ov = document.getElementById("overlay");
 function close(){ ov.hidden=true; ov.innerHTML=""; }
@@ -940,6 +1479,7 @@ function questSheet(o={}){
       <div class="field"><label class="label" for="q-deadline">⚑ Deadline</label><input id="q-deadline" type="date" value="${v.deadline||""}"></div>
     </div>
     <div class="field" id="newcat" hidden><label class="label" for="q-newcat">Nazwa nowej kategorii</label><input id="q-newcat" placeholder="np. Obóz"></div>
+    ${workField("q-work", v.work)}
     <p class="hint" style="margin:0">Deadline to przypomnienie w kalendarzu. Quest bez ustalonego dnia jest luźny: wrzucasz go w plan dowolnego dnia w zakładce Dziś.</p>
     <div class="row">
       <div class="field"><label class="label" for="q-date">📅 Ustalony dzień (opcj.)</label><input id="q-date" type="date" value="${v.date||""}"></div>
@@ -981,7 +1521,7 @@ function questSheet(o={}){
       err.textContent=[c.length?`⚠ Koliduje z: ${c.join(", ")}.`:"", afterDl?`⚠ Ustalony dzień wypada po deadlinie.`:""].filter(Boolean).join(" ")+" Zapisz jeszcze raz, jeśli tak ma być.";
       ov.querySelector("#q-ok").textContent="Zapisz mimo to"; return; }
     if(!S.cats.includes(cat)) S.cats.push(cat);
-    const data={title,cat,prio:+segVal(ov,"prio"),date,deadline,time:date?time:"",cost:round2(cost),method:segVal(ov,"qmethod"),expCat:expSel.value,dur};
+    const data={title,cat,prio:+segVal(ov,"prio"),date,deadline,time:date?time:"",cost:round2(cost),method:segVal(ov,"qmethod"),expCat:expSel.value,dur,work:ov.querySelector("#q-work")?.value ?? (q&&q.work||"")};
     if(q){ Object.assign(q,data); syncQuestTx(q); } else S.quests.push({id:uid(),done:false,...data});
     save();close();render();};
   if(!q) setTimeout(()=>ov.querySelector("#q-title")?.focus(),50);
@@ -990,7 +1530,7 @@ function questSheet(o={}){
 function txSheet(id, list, pre){
   const src = id ? (list==="recur"?S.recur:list==="plan"?S.plan:S.tx).find(x=>x.id===id) : null;
   const v = src ? {...src, date: src.next||src.date, freq: list==="recur"?src.freq:"none"} : {type:"exp",amount:"",method:"card",dir:"toCash",cat:"Jedzenie",note:"",date:TODAY,freq:"none",to:"",...(pre||{})};
-  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${src?"Edytuj operację":"Nowa operacja"}"><h3>${src?"Edytuj operację":pre?"Sprawdź odczyt paragonu":"Nowa operacja"}</h3>
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${src?"Edytuj operację":"Nowa operacja"}"><h3>${src?"Edytuj operację":pre&&pre.receiptInfo?"Sprawdź odczyt paragonu":"Nowa operacja"}</h3>
     ${!src&&!pre&&SCAN?`<button type="button" class="btn ghost" id="t-scan" style="width:100%;margin-bottom:12px">📷 Uzupełnij ze zdjęcia paragonu</button>`:""}
     ${pre&&pre.receiptInfo?`<div class="receipt-info">${pre.receiptInfo}</div>`:""}<form id="f">
     ${seg("type",[["exp","Wydatek"],["inc","Wpływ"],["trf","Transfer"]],v.type)}
@@ -1248,11 +1788,17 @@ document.getElementById("settings").onclick=settingsSheet;
 if(IS_PWA && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 
 /* ---------- zdarzenia ---------- */
-document.getElementById("fab").onclick=()=> tab==="hist"?txSheet():tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
+document.getElementById("fab").onclick=()=> tab==="work"?(S.jobs.length?manualSheet():jobSheet()):tab==="workd"?addWorkChooser():tab==="day"?addChooser({date:dayDate}):tab==="cal"?addChooser({date:selDay,cal:true}):tab==="hist"?txSheet():tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
 document.getElementById("t-quests").onclick=()=>{tab="quests";render();};
 document.getElementById("t-cal").onclick=()=>{tab="cal";render();};
 document.getElementById("t-day").onclick=()=>{tab="day";render();};
 document.getElementById("t-wallet").onclick=()=>{tab="wallet";render();};
+document.getElementById("t-work").onclick=()=>{tab="work";render();};
+(function(){ const dc=document.getElementById("done-clear"); let armed=false, t;
+  dc.onclick=()=>{ if(!armed){ armed=true; dc.textContent="Na pewno? Stuknij jeszcze raz"; t=setTimeout(()=>{armed=false;dc.textContent="Usuń ukończone starsze niż 30 dni";},4000); return; }
+    clearTimeout(t); armed=false; dc.textContent="Usuń ukończone starsze niż 30 dni";
+    const cut=addDays(-30), before=S.quests.length; S.quests=S.quests.filter(q=>!(q.done && (q.doneAt||q.date||"9999")<cut)); save(); render(); toast(`Usunięto ${before-S.quests.length} starych questów.`); };
+})();
 document.getElementById("t-shop").onclick=()=>{tab="shop";render();};
 document.getElementById("c-addev").onclick=()=>eventSheet();
 document.getElementById("d-addev").onclick=()=>eventSheet();
@@ -1274,7 +1820,7 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("button");
   if(!b){
     const eq=e.target.closest("[data-editq]"); if(eq){ questSheet({id:eq.dataset.editq}); return; }
-    const et=e.target.closest("[data-edittx]"); if(et){ txSheet(et.dataset.edittx, et.dataset.list); return; }
+    const et=e.target.closest("[data-edittx]"); if(et){ const it=[...S.tx,...S.plan].find(x=>x.id===et.dataset.edittx); if(it && it.travelId && S.travels.some(t=>t.id===it.travelId)){ travelSheet(it.travelId); return; } txSheet(et.dataset.edittx, et.dataset.list); return; }
     const es=e.target.closest("[data-editshop]"); if(es){ shopItemSheet(es.dataset.editshop); return; }
     const er=e.target.closest("[data-editrout]"); if(er){ routineSheet(er.dataset.editrout); return; }
     return;
@@ -1282,7 +1828,11 @@ document.addEventListener("click",e=>{
   const d=b.dataset;
   if(d.c){filter=d.c;renderQuests();}
   if(d.day){selDay=d.day;const x=new Date(selDay+"T00:00");if(x.getMonth()!==calM){calM=x.getMonth();calY=x.getFullYear();}renderCal();}
-  if(d.slot){questSheet({date:dayDate,time:d.slot});}
+  if(d.slot){addChooser({date:dayDate,time:d.slot});}
+  if(d.travel){travelSheet(d.travel);}
+  if(d.wd){ const [a,b]=d.wd.split("|"); openWorkDetail(a,b); }
+  if(d.editjob){ jobSheet(d.editjob); }
+  if(d.went){ const [src,id,orig]=d.went.split("|"); if(src==="event") eventDaySheet(id,orig); else if(src==="quest") questSheet({id}); else manualSheet(id); }
   if(d.settime){timeSheet(d.settime);}
   if(d.evday){eventDaySheet(d.evday, d.orig);}
   if(d.editev){eventSheet(d.editev);}
@@ -1301,14 +1851,18 @@ document.addEventListener("click",e=>{
   if(d.shopquest){ listToQuest(d.shopquest); }
   if(d.openquest){ questSheet({id:d.openquest}); }
   if(d.clearbought!==undefined){ S.shop.items=S.shop.items.filter(i=>!i.bought); save(); renderShop(); }
-  if(d.toggle){const q=S.quests.find(x=>x.id===d.toggle);q.done=!q.done;
+  if(d.toggle){const q=S.quests.find(x=>x.id===d.toggle);q.done=!q.done; if(q.done) q.doneAt=TODAY; else delete q.doneAt;
     if(q.shopList){ if(q.done){ shopOpen(q.shopList).forEach(it=>{it.bought=true;it.boughtAt=TODAY;it.viaQuest=q.id;}); } else { S.shop.items.forEach(it=>{ if(it.viaQuest===q.id){ it.bought=false; delete it.viaQuest; delete it.boughtAt; } }); } }
     syncQuestTx(q);save();render(); if(q.done&&q.shopList) toast("Produkty z listy oznaczone jako kupione. Kwotę wydatku możesz poprawić w Portfelu.");}
   if(d.delq){S.quests=S.quests.filter(x=>x.id!==d.delq);save();render();}
-  if(d.delt){S.tx=S.tx.filter(x=>x.id!==d.delt);save();render();}
+  if(d.delt){ const x=S.tx.find(y=>y.id===d.delt); S.tx=S.tx.filter(y=>y.id!==d.delt);
+    const tr = x && x.travelId && S.travels.find(t=>t.id===x.travelId);
+    if(tr){ tr.paid=false; delete tr.txId; delete tr.paidDate; syncTravelMoney(tr); save(); render(); toast("Koszt podróży wrócił do zaplanowanych wydatków."); }
+    else { save(); render(); } }
   if(d.real){
     if(d.list==="recur"){ const r=S.recur.find(x=>x.id===d.real); const {next,freq,day,to,...rest}=r; S.tx.push({...rest,id:uid(),date:TODAY}); r.next=advance(r,r.next); if(r.to && r.next>r.to) S.recur=S.recur.filter(x=>x!==r); toast(`Zaksięgowano. Następny termin: ${fmtDate(r.next)}.`); }
-    else { const i=S.plan.findIndex(x=>x.id===d.real); const t=S.plan.splice(i,1)[0]; t.date=TODAY; S.tx.push(t); }
+    else { const i=S.plan.findIndex(x=>x.id===d.real); const t=S.plan.splice(i,1)[0]; t.date=TODAY; S.tx.push(t);
+      const tr=t.travelId && S.travels.find(x=>x.id===t.travelId); if(tr){ tr.paid=true; tr.paidDate=TODAY; tr.txId=t.id; delete tr.planId; } }
     save();render();
   }
   if(d.skiprec){ const r=S.recur.find(x=>x.id===d.skiprec); r.next=advance(r,r.next); if(r.to && r.next>r.to) S.recur=S.recur.filter(x=>x!==r); save();render(); toast(`Pominięto. Następny termin: ${fmtDate(r.next)}.`); }
