@@ -311,6 +311,7 @@ input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);b
 .chbtn span{font-size:1.25rem;line-height:1.2}
 .chbtn b{font-weight:700}
 .chbtn small{color:var(--muted);font-size:.78rem}
+.choose .chbtn:last-child:nth-child(odd){grid-column:1/-1}
 /* ukończone */
 .donebox{margin-top:22px}
 .donebox>summary{list-style:none;cursor:pointer;font-family:var(--display);font-weight:600;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center;padding:6px 0 10px}
@@ -358,13 +359,38 @@ nav{gap:0;padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0
 nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.66rem;font-weight:600;padding:5px 0 4px;max-width:96px;min-width:0;letter-spacing:.01em;border-radius:12px}
 nav button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav button span{white-space:nowrap}
+
+/* inspiracje */
+#insp-btn[aria-pressed="true"]{background:color-mix(in srgb,var(--gold) 22%,var(--surface));border-color:var(--gold)}
+.inadd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 8px}
+.inadd .btn{padding:11px 8px;font-size:.9rem}
+.pastezone{border:1.5px dashed var(--line);border-radius:12px;padding:12px;min-height:46px;color:var(--muted);font-size:.86rem;text-align:center;-webkit-user-select:text;user-select:text;caret-color:transparent}
+.pastezone:empty::before{content:attr(data-ph)}
+.pastezone:focus{border-color:var(--accent);outline:none}
+.ingrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px;align-items:start}
+.icard{display:flex;flex-direction:column;border:1px solid var(--line);background:var(--surface);border-radius:14px;overflow:hidden;padding:0;text-align:left;color:var(--ink);cursor:pointer;min-width:0}
+.ithumb{display:block;aspect-ratio:4/5;max-width:100%;background:var(--bg);overflow:hidden;position:relative}
+.ithumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.ithumb.itext{aspect-ratio:auto;min-height:96px;padding:12px;font-size:.84rem;line-height:1.4;color:var(--muted);overflow-wrap:anywhere;background:color-mix(in srgb,var(--gold) 9%,var(--surface))}
+.ithumb.missing{aspect-ratio:auto;min-height:96px}
+.ithumb.missing::after{content:"Zdjęcie niedostępne. Otwórz i dodaj zrzut ponownie.";position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;font-size:.76rem;color:var(--muted)}
+.ibody{padding:8px 10px 10px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.ibody b{font-size:.88rem;font-weight:600;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.isec{font-weight:700;color:var(--accent);margin-right:6px}
+.iprev{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px}
+.iprev img{max-height:280px;max-width:100%;border-radius:10px;border:1px solid var(--line);flex:none}
+.ta{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;resize:vertical;min-width:0}
+.ibtns{display:flex;flex-direction:column;gap:8px}
+#in-cat button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ocrtxt{white-space:pre-wrap;font:11px ui-monospace,Menlo,monospace;margin:6px 0 0;color:var(--muted)}
+header .date{font-size:.8rem;text-align:right}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>Quest<span>log</span></h1>
-    <span style="display:flex;align-items:center;gap:10px;min-width:0"><span class="date" id="today"></span><button class="iconbtn" id="settings" aria-label="Dane i kopia zapasowa">⚙</button></span>
+    <span style="display:flex;align-items:center;gap:10px;min-width:0"><span class="date" id="today"></span><button class="iconbtn" id="insp-btn" aria-label="Inspiracje" aria-pressed="false">💡</button><button class="iconbtn" id="settings" aria-label="Dane i kopia zapasowa">⚙</button></span>
   </header>
 
   <section id="v-day">
@@ -460,6 +486,17 @@ nav button span{white-space:nowrap}
     <div class="daysum" id="h-sum"></div>
     <div class="hcats" id="h-cats"></div>
     <div class="list" id="h-list" style="margin-top:12px"></div>
+  </section>
+
+  <section id="v-insp" hidden>
+    <div class="dayhead"><b>Inspiracje</b><button class="mini" id="in-back" type="button">← Wróć</button></div>
+    <div class="inadd"><button class="btn primary" id="in-add" type="button">📷 Dodaj ze zdjęć</button><button class="btn ghost" id="in-note-add" type="button">✎ Link / notatka</button></div>
+    <div class="pastezone" id="in-paste" contenteditable="true" inputmode="none" role="textbox" aria-label="Wklej zrzut ekranu" data-ph="📋 Przytrzymaj tutaj i wybierz „Wklej”, żeby dodać skopiowany zrzut albo link"></div>
+    <p class="hint" style="margin:6px 0 0">Na iPhonie: po zrzucie stuknij miniaturkę → Gotowe → „Kopiuj i usuń”, a potem wklej tutaj. Zrzut nie zostanie w galerii.</p>
+    <input id="in-q" type="search" placeholder="Szukaj w inspiracjach" autocomplete="off" aria-label="Szukaj w inspiracjach" style="margin-top:12px">
+    <div class="chips" id="in-filter" style="margin-top:10px"></div>
+    <div class="ingrid" id="in-grid"></div>
+    <p class="hint" style="margin:14px 0 0">Zdjęcia są zapisane tylko na tym urządzeniu i nie wchodzą do kopii zapasowej.</p>
   </section>
 
   <section id="v-work" hidden>

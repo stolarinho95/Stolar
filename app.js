@@ -22,6 +22,10 @@ const round2 = v => Math.round(v*100)/100;
 function sample(){
   return { demo:true, v7:true, v8:true,
     me:{name:""},
+    inspCats:["Praca","Hobby","Studia","Zakupy"],
+    insp:[{id:"i1",img:false,cat:"Praca",title:"Pomysł na post: 3 błędy przy lądowaniu po skoku",note:"Krótka rolka z porównaniem: kolano do środka, sztywne lądowanie, brak amortyzacji biodrem.",link:"",at:new Date(Date.now()-864e5*2).toISOString(),done:false},
+          {id:"i2",img:false,cat:"Zakupy",title:"Buty do biegania w terenie",note:"Sprawdzić rozmiar 44 w Decathlonie.",link:"",at:new Date(Date.now()-864e5*5).toISOString(),done:false},
+          {id:"i3",img:false,cat:"Hobby",title:"Długi czas naświetlania nad Wisłą",note:"Statyw, ok. 20 s, po zachodzie słońca.",link:"",at:new Date(Date.now()-864e5*9).toISOString(),done:false}],
     jobs:[{id:"j-marc",name:"Marcovia Marki",rateType:"unit",rate:85,matchRate:0,place:"Marki",subs:[{id:"s-2015b",name:"2015B",rate:85,matchRate:170,contract:"",docGroup:"2015b"},{id:"s-2020",name:"2020",rate:90,matchRate:null,contract:"",docGroup:"2020"}]},
           {id:"j-sgm",name:"SG Motoryka",rateType:"unit",rate:150,matchRate:0,place:"",subs:[]}],
     workLog:[{id:uid(),work:"j-marc|s-2015b",date:addDays(-5),time:"10:00",dur:180,note:"Zastępstwo",kind:"T",place:"Marki"}],
@@ -89,12 +93,12 @@ function sample(){
     ]};
 }
 const DEF_LISTS = () => [{id:"l-super",name:"Supermarket",exp:"Jedzenie"},{id:"l-drog",name:"Drogeria",exp:"Zakupy"},{id:"l-elek",name:"Elektronika",exp:"Zakupy"},{id:"l-hobby",name:"Hobby",exp:"Rozrywka"}];
-const emptyState = () => ({demo:false,v7:true,v8:true,me:{name:""},jobs:[],workLog:[],travels:[],routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
+const emptyState = () => ({demo:false,v7:true,v8:true,insp:[],inspCats:["Praca","Hobby","Studia","Zakupy"],me:{name:""},jobs:[],workLog:[],travels:[],routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch(e){ S = sample(); }
 // Aktualizacja NIGDY nie nadpisuje danych. Do starszych danych dokładamy tylko brakujące części.
 if(S.demo && !S.v7 && !(S.shop && S.shop.items)){ const smp=sample(); S.shop=smp.shop; S.prices={...smp.prices,...(S.prices||{})}; }
-S.v7 = true; S.v8 = true; S.jobs ||= []; S.me ||= {name:""}; S.jobs.forEach(j=>{ if(j.rateType==="session") j.rateType="unit"; j.subs ||= []; }); S.workLog ||= []; S.travels ||= []; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
+S.v7 = true; S.v8 = true; S.insp ||= []; S.inspCats ||= ["Praca","Hobby","Studia","Zakupy"]; S.jobs ||= []; S.me ||= {name:""}; S.jobs.forEach(j=>{ if(j.rateType==="session") j.rateType="unit"; j.subs ||= []; }); S.workLog ||= []; S.travels ||= []; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
 S.events.forEach(e=>{ e.skip ||= []; e.over ||= {}; });
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
 S.quests.forEach(q=>{ if("due" in q){ if(q.time){ q.date ||= q.due; } else { q.deadline ||= q.due; } delete q.due; } q.date ||= ""; q.deadline ||= ""; });
@@ -622,10 +626,12 @@ function render(){
   document.getElementById("v-shop").hidden = tab!=="shop";
   document.getElementById("v-hist").hidden = tab!=="hist";
   if(tab==="hist") document.getElementById("t-wallet").setAttribute("aria-selected","true");
+  document.getElementById("v-insp").hidden = tab!=="insp";
+  document.getElementById("insp-btn").setAttribute("aria-pressed", tab==="insp");
   document.getElementById("v-work").hidden = tab!=="work";
   document.getElementById("v-workd").hidden = tab!=="workd";
   if(tab==="workd") document.getElementById("t-work").setAttribute("aria-selected","true");
-  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop(); renderHist(); renderWork(); renderWorkDetail();
+  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop(); renderHist(); renderWork(); renderWorkDetail(); renderInsp();
 }
 
 /* ---------- zakupy ---------- */
@@ -980,10 +986,13 @@ const trRow = t => { const m=tmode(t.mode);
 function travelSheet(id, pre={}){
   const known = [...new Set([...S.travels.flatMap(t=>[t.to,t.from]), ...PL_CITIES])];
   const last = [...S.travels].sort((a,b)=>b.date.localeCompare(a.date))[0];
-  const t = id ? S.travels.find(x=>x.id===id) : {from:last?last.to:"",to:"",mode:last?last.mode:"train",date:pre.date||TODAY,dep:pre.dep||"",arr:"",cost:0,method:"card",paid:false,note:""};
+  const tBase = {from:last?last.to:"",to:"",mode:last?last.mode:"train",date:TODAY,dep:"",arr:"",cost:0,method:"card",paid:false,note:""};
+  const t = id ? S.travels.find(x=>x.id===id) : {...tBase, ...Object.fromEntries(Object.entries(pre||{}).filter(([k,v])=>["from","to","mode","date","dep","arr","cost","paid","note","method"].includes(k) && v!==undefined && v!==null && v!==""))};
   if(!t) return;
   const fuel = S.fuel || {l:6.5,p:6.2};
-  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${id?"Edytuj podróż":"Nowa podróż"}"><h3>${id?"Edytuj podróż":"Nowa podróż"}</h3><form id="f">
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${id?"Edytuj podróż":"Nowa podróż"}"><h3>${id?"Edytuj podróż":"Nowa podróż"}</h3>
+    ${!id && !pre.ticketInfo && ticketScanOn() ? `<button type="button" class="btn ghost" id="tr-scan" style="width:100%;margin-bottom:12px">🎫 Uzupełnij z biletu (zrzut ekranu)</button>`:""}
+    ${pre.ticketInfo?`<div class="receipt-info">${pre.ticketInfo}</div>`:""}<form id="f">
     <datalist id="cities">${known.map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
     <div class="trvcities">
       <div class="field"><label class="label" for="tr-from">Skąd</label><input id="tr-from" list="cities" required value="${esc(t.from)}" placeholder="np. Warszawa" autocomplete="off"></div>
@@ -1027,6 +1036,7 @@ function travelSheet(id, pre={}){
   ov.hidden=false; bindSeg(ov);
   const $=sel=>ov.querySelector(sel);
   let mode=t.mode;
+  const tsb=$("#tr-scan"); if(tsb) tsb.onclick=()=>pickImages(false, fs=>scanTicket(fs[0]));
   $("#tr-mode").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; mode=b.dataset.v; ov.querySelectorAll("#tr-mode button").forEach(x=>x.setAttribute("aria-pressed",x===b)); $("#tr-fuel").hidden = mode!=="car"; };
   $("#tr-swap").onclick=()=>{ const a=$("#tr-from").value; $("#tr-from").value=$("#tr-to").value; $("#tr-to").value=a; };
   const durHint=()=>{ const d=$("#tr-dep").value, a=$("#tr-arr").value; const h=$("#tr-durhint");
@@ -1037,6 +1047,7 @@ function travelSheet(id, pre={}){
     $("#tr-cost").value=String(round2(km*l/100*p)).replace(".",","); S.fuel={l,p}; $("#err").textContent=""; };
   const rs=ov.querySelector('[data-seg="trret"]'); if(rs) rs.addEventListener("segchange",()=>{ $("#tr-retbox").hidden = segVal(ov,"trret")!=="1"; if(!$("#tr-retbox").hidden) $("#rt-date").value=$("#tr-date").value; });
   $("#cancel").onclick=close;
+  if(!id && pre.ret){ const rb=ov.querySelector('[data-seg="trret"] [data-v="1"]'); if(rb){ rb.click(); $("#rt-date").value=pre.ret.date||t.date; $("#rt-dep").value=pre.ret.dep||""; $("#rt-arr").value=pre.ret.arr||""; if(pre.ret.cost) $("#rt-cost").value=String(pre.ret.cost).replace(".",","); } }
   if(id) confirmBtn($("#tr-del"),()=>{
     if(t.planId) S.plan=S.plan.filter(x=>x.id!==t.planId);
     if(t.txId){ const x=S.tx.find(y=>y.id===t.txId); if(x) delete x.travelId; }
@@ -1082,6 +1093,7 @@ function addChooser(o={}){
       <button type="button" class="chbtn" data-chq="travel"><span aria-hidden="true">🚆</span><b>Podróż</b><small>przejazd między miastami</small></button>
       <button type="button" class="chbtn" data-chq="event"><span aria-hidden="true">⟳</span><b>Stałe wydarzenie</b><small>trening, praca, zajęcia</small></button>
       <button type="button" class="chbtn" data-chq="rout"><span aria-hidden="true">☀</span><b>Rutyna</b><small>codzienna czynność</small></button>
+      <button type="button" class="chbtn" data-chq="insp"><span aria-hidden="true">💡</span><b>Inspiracja</b><small>zrzut, link, pomysł</small></button>
     </div>
     <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button></div></div>`;
   ov.hidden=false;
@@ -1091,6 +1103,7 @@ function addChooser(o={}){
     if(k==="quest") questSheet(o.cal?{deadline:o.date}:{date:o.date,time:o.time||""});
     else if(k==="travel") travelSheet(null,{date:o.date,dep:o.time||""});
     else if(k==="event") eventSheet(null,{time:o.time});
+    else if(k==="insp") pickImages(true, fs=>addInspFiles(fs));
     else routineSheet();
   };
 }
@@ -1458,6 +1471,160 @@ function addWorkChooser(){
   ov.querySelector("#cw-m").onclick=e=>{ e.stopPropagation(); matchSheet(); };
   ov.querySelector("#cw-t").onclick=e=>{ e.stopPropagation(); manualSheet(); };
 }
+/* ---------- zdjęcia (IndexedDB) ---------- */
+const IDB = (()=>{
+  let dbp=null;
+  const open=()=>dbp ||= new Promise((res,rej)=>{ try{ const r=indexedDB.open("questlog-media",1); r.onupgradeneeded=()=>r.result.createObjectStore("img"); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } });
+  const run=(mode,fn)=>open().then(db=>new Promise((res,rej)=>{ const t=db.transaction("img",mode), q=fn(t.objectStore("img")); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }));
+  const put=async(k,v)=>{ const val = v instanceof Blob ? {buf:await v.arrayBuffer(), type:v.type||"image/jpeg"} : v; return run("readwrite",s=>s.put(val,k)); };
+  const get=async k=>{ const v=await run("readonly",s=>s.get(k)); if(!v) return null; if(v instanceof Blob) return v; if(v.buf) return new Blob([v.buf],{type:v.type||"image/jpeg"}); return null; };
+  return { put, get, del:k=>run("readwrite",s=>s.delete(k)) };
+})();
+async function shrink(file, max, q){
+  const bmp=await createImageBitmap(file);
+  const k=Math.min(1, max/Math.max(bmp.width,bmp.height));
+  const c=document.createElement("canvas"); c.width=Math.max(1,Math.round(bmp.width*k)); c.height=Math.max(1,Math.round(bmp.height*k));
+  c.getContext("2d").drawImage(bmp,0,0,c.width,c.height); bmp.close && bmp.close();
+  const b=await new Promise((res,rej)=>c.toBlob(x=>x?res(x):rej(new Error("toBlob")),"image/jpeg",q));
+  c.width=c.height=0; return b;
+}
+const imgURLs=new Map();
+async function imgURL(key){
+  if(imgURLs.has(key)) return imgURLs.get(key);
+  try{ const b=await IDB.get(key); if(!b || !b.size) return null;
+    const u=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(r.error); r.readAsDataURL(b); });
+    if(typeof u!=="string" || !u.startsWith("data:image")) return null;
+    imgURLs.set(key,u); return u; }catch(e){ return null; }
+}
+function pickImages(multiple, cb){
+  const fi=document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.multiple=!!multiple; fi.style.display="none";
+  fi.onchange=()=>{ const fs=[...(fi.files||[])]; fi.remove(); if(fs.length) cb(fs); };
+  document.body.appendChild(fi); fi.click();
+}
+
+/* ---------- inspiracje ---------- */
+let inspFilter="all", inspQ="", inspBack="day";
+const inspSecs = () => S.inspCats;
+const INSP_TO_QCAT = {Praca:"Praca",Studia:"Studia",Zakupy:"Zakupy",Hobby:"Hobby"};
+function openInsp(){ if(tab!=="insp") inspBack=tab; tab="insp"; render(); scrollTo(0,0); }
+function renderInsp(){
+  if(tab!=="insp") return;
+  document.getElementById("in-filter").innerHTML = [["all","Wszystkie"],...inspSecs().map(c=>[c,c])].map(([v,l])=>{
+      const n = v==="all" ? S.insp.length : S.insp.filter(i=>i.cat===v).length;
+      return `<button class="chip" data-inf="${esc(v)}" aria-pressed="${inspFilter===v}">${esc(l)} <span class="num" style="opacity:.6">${n}</span></button>`; }).join("")
+    + `<button class="chip" data-newinspcat="">+ Sekcja</button>`;
+  const q=normName(inspQ);
+  const list=S.insp.filter(i=>(inspFilter==="all"||i.cat===inspFilter) && (!q || normName(`${i.title} ${i.note} ${i.link} ${i.cat}`).includes(q))).sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+  const grid=document.getElementById("in-grid");
+  grid.innerHTML = list.length ? list.map(i=>`<button class="icard" data-insp="${i.id}">
+      ${i.img?`<span class="ithumb"><img alt="" data-ikey="${i.id}:t"></span>`:`<span class="ithumb itext">${esc((i.note||i.link||i.title||"").slice(0,140))}</span>`}
+      <span class="ibody"><b>${esc(i.title||(i.link?i.link.replace(/^https?:\/\/(www\.)?/,"").slice(0,40):"Bez tytułu"))}</b><span class="meta" style="margin:0">${inspFilter==="all"?`<span class="isec">${esc(i.cat)}</span>`:""}${fmtDate(i.at.slice(0,10))}${i.done?" · ✓ zrobione":""}</span></span></button>`).join("")
+    : `<div class="empty" style="grid-column:1/-1">${S.insp.length?"Nic nie pasuje do filtra.":"Tu trafią zrzuty ekranu i linki, które Cię zainspirowały. Dodaj pierwszy z galerii albo wklej skopiowany zrzut."}</div>`;
+  grid.querySelectorAll("img[data-ikey]").forEach(async im=>{
+    const miss=()=>{ im.remove(); const t=im.closest(".ithumb")||grid.querySelector(`[data-ikey="${im.dataset.ikey}"]`); };
+    im.onerror=()=>{ const box=im.parentElement; im.remove(); box && box.classList.add("missing"); };
+    let u=await imgURL(im.dataset.ikey);
+    if(!u){ u=await imgURL(im.dataset.ikey.replace(/:t$/,"")); }   // brak miniatury: użyj pełnego zdjęcia
+    if(u) im.src=u; else { const box=im.parentElement; im.remove(); box && box.classList.add("missing"); } });
+}
+async function addInspFiles(files, pre={}){
+  const ids=[];
+  for(const f of files){
+    try{
+      const id=uid(), full=await shrink(f,1600,.82), th=await shrink(f,480,.72);
+      await IDB.put(id,full); await IDB.put(id+":t",th);
+      const chk=await IDB.get(id+":t"); if(!chk || !chk.size) throw new Error("readback");
+      ids.push(id);
+    }catch(e){ toast("Nie udało się zapisać zdjęcia na tym urządzeniu."); }
+  }
+  if(ids.length) inspSheet(null,{...pre, imgs:ids});
+}
+function inspSheet(id, pre={}){
+  const it = id ? S.insp.find(x=>x.id===id) : {title:"",note:"",link:"",cat:pre.cat||(inspFilter!=="all"?inspFilter:inspSecs()[0]),img:!!(pre.imgs&&pre.imgs.length)};
+  if(!it) return;
+  const imgs = id ? (it.img?[it.id]:[]) : (pre.imgs||[]);
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Inspiracja"><h3>${id?"Inspiracja":imgs.length>1?`Nowe inspiracje (${imgs.length})`:"Nowa inspiracja"}</h3>
+    ${imgs.length?`<div class="iprev">${imgs.map(k=>`<img alt="" data-pk="${k}">`).join("")}</div>`:""}
+    ${!id&&SCAN_DESC()&&imgs.length===1?`<button type="button" class="btn ghost" id="in-ai" style="width:100%;margin-bottom:10px">✨ Opisz automatycznie</button>`:""}
+    <form id="f">
+      <div class="field"><span class="label">Sekcja</span><div class="quick" id="in-cat">${inspSecs().map(c=>`<button type="button" data-v="${esc(c)}" aria-pressed="${c===it.cat}">${esc(c)}</button>`).join("")}</div></div>
+      <div class="field"><label class="label" for="in-title">Tytuł</label><input id="in-title" value="${esc(it.title)}" placeholder="np. Ćwiczenie na stabilizację, buty do biegania"></div>
+      <div class="field"><label class="label" for="in-note">Notatka</label><textarea id="in-note" rows="3" class="ta" placeholder="Co Cię zainteresowało, co z tym zrobić">${esc(it.note||"")}</textarea></div>
+      <div class="field"><label class="label" for="in-link">Link (opcj.)</label><input id="in-link" type="text" inputmode="url" autocapitalize="off" autocorrect="off" value="${esc(it.link||"")}" placeholder="https://"></div>
+      ${id&&it.link?`<a class="mini" href="${esc(/^https?:/i.test(it.link)?it.link:"https://"+it.link)}" target="_blank" rel="noopener" style="align-self:flex-start;text-decoration:none">Otwórz link ↗</a>`:""}
+      ${id?`<div class="ibtns"><button type="button" class="btn ghost" id="in-quest">✓ Zrób z tego quest</button>${it.cat==="Zakupy"?`<button type="button" class="btn ghost" id="in-shop">🛒 Do listy zakupów</button>`:""}<button type="button" class="btn ghost" id="in-done">${it.done?"↺ Oznacz jako aktualne":"✓ Zrealizowane"}</button></div>`:""}
+      <div class="err" id="err"></div>
+      <div class="actions">${id?`<button type="button" class="btn ghost" id="in-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">${id?"Zamknij":"Anuluj"}</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
+    </form></div>`;
+  ov.hidden=false;
+  ov.querySelectorAll("img[data-pk]").forEach(async im=>{ im.onerror=()=>im.remove(); const u=await imgURL(im.dataset.pk); if(u) im.src=u; else im.replaceWith(Object.assign(document.createElement("p"),{className:"hint",textContent:"Nie udało się wczytać tego zdjęcia na tym urządzeniu. Usuń inspirację i dodaj zrzut ponownie."})); });
+  let cat=it.cat;
+  ov.querySelector("#in-cat").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; cat=b.dataset.v; ov.querySelectorAll("#in-cat button").forEach(x=>x.setAttribute("aria-pressed",x===b)); };
+  const dropNew=()=>{ if(!id) imgs.forEach(k=>{ IDB.del(k).catch(()=>{}); IDB.del(k+":t").catch(()=>{}); }); };
+  ov.querySelector("#cancel").onclick=()=>{ dropNew(); close(); };
+  const ai=ov.querySelector("#in-ai");
+  if(ai) ai.onclick=async()=>{ ai.disabled=true; ai.textContent="Czytam zrzut…";
+    try{ const b=await IDB.get(imgs[0]); const r=await SCAN.json(`To zrzut ekranu, który ktoś zapisał jako inspirację. Odpowiedz WYŁĄCZNIE JSON-em: {"title":"krótki tytuł do 50 znaków","note":"1–2 zdania: co to jest i co warto z tym zrobić","link":"adres URL widoczny na zrzucie albo pusty","section":"jedna z: ${inspSecs().join(", ")}"}. Pisz po polsku.`,{images:[b],modelTier:"quick"});
+      if(r){ if(r.title) ov.querySelector("#in-title").value=String(r.title).slice(0,80); if(r.note) ov.querySelector("#in-note").value=String(r.note).slice(0,400); if(r.link && /\./.test(r.link)) ov.querySelector("#in-link").value=String(r.link).slice(0,300);
+        if(inspSecs().includes(r.section)){ cat=r.section; ov.querySelectorAll("#in-cat button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===cat)); } }
+      ai.textContent="✨ Uzupełniono, popraw w razie potrzeby";
+    }catch(e){ ai.disabled=false; ai.textContent="✨ Opisz automatycznie"; ov.querySelector("#err").textContent= e&&e.code==="not_granted" ? "Opisywanie wymaga zgody na użycie Claude." : "Nie udało się opisać zrzutu. Wpisz tytuł sam."; }
+  };
+  const read=()=>({cat,title:ov.querySelector("#in-title").value.trim(),note:ov.querySelector("#in-note").value.trim(),link:ov.querySelector("#in-link").value.trim()});
+  if(id){
+    confirmBtn(ov.querySelector("#in-del"),()=>{ S.insp=S.insp.filter(x=>x.id!==id); if(it.img){ IDB.del(id).catch(()=>{}); IDB.del(id+":t").catch(()=>{}); } save(); close(); render(); });
+    ov.querySelector("#in-done").onclick=()=>{ Object.assign(it,read()); it.done=!it.done; save(); close(); render(); };
+    ov.querySelector("#in-quest").onclick=()=>{ Object.assign(it,read());
+      const qc=INSP_TO_QCAT[it.cat] || "Inne"; if(!S.cats.includes(qc)) S.cats.push(qc);
+      S.quests.push({id:uid(),title:it.title||"Inspiracja",cat:qc,prio:2,date:"",time:"",deadline:"",done:false,cost:0,method:"card",expCat:"",dur:0,note:it.note,inspId:it.id});
+      save(); close(); render(); toast("Dodano jako luźny quest. Wrzucisz go w plan w zakładce Dziś."); };
+    const sh=ov.querySelector("#in-shop"); if(sh) sh.onclick=()=>{ Object.assign(it,read());
+      S.shop.items.push({id:uid(),name:it.title||"Produkt z inspiracji",qty:1,prio:2,list:"",bought:false}); save(); close(); render(); toast("Dodano do listy zakupów (bez listy)."); };
+  }
+  ov.querySelector("#f").onsubmit=e=>{ e.preventDefault();
+    const d=read(); if(d.link && !/^https?:\/\//i.test(d.link) && /\./.test(d.link)) d.link="https://"+d.link;
+    if(id){ Object.assign(it,d); }
+    else if(imgs.length){ imgs.forEach((k,i)=>S.insp.push({id:k,img:true,at:new Date().toISOString(),done:false,...d,title:imgs.length>1&&d.title?`${d.title} (${i+1})`:d.title})); }
+    else { if(!d.title && !d.note && !d.link){ ov.querySelector("#err").textContent="Wpisz tytuł, notatkę albo link."; return; } S.insp.push({id:uid(),img:false,at:new Date().toISOString(),done:false,...d}); }
+    if(!id && inspFilter!=="all" && inspFilter!==d.cat) inspFilter=d.cat;
+    save(); close(); render(); if(!id) toast(`Dodano do sekcji ${d.cat}.`);
+  };
+}
+function inspCatSheet(){
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Nowa sekcja"><h3>Nowa sekcja inspiracji</h3><form id="f">
+    <div class="field"><label class="label" for="ic-name">Nazwa</label><input id="ic-name" required placeholder="np. Trening, Podróże, Prezenty"></div>
+    <p class="hint" style="margin:0">Żeby usunąć sekcję, wpisz jej nazwę i stuknij „Usuń sekcję”. Inspiracje z niej trafią do pierwszej sekcji na liście.</p>
+    <div class="err" id="err"></div>
+    <div class="actions"><button type="button" class="btn ghost" id="ic-del" style="color:var(--exp)">Usuń sekcję</button><button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">Dodaj</button></div></form></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  ov.querySelector("#ic-del").onclick=()=>{ const n=ov.querySelector("#ic-name").value.trim(); const err=ov.querySelector("#err");
+    if(!S.inspCats.includes(n)){ err.textContent="Nie ma takiej sekcji. Wpisz dokładną nazwę."; return; }
+    if(S.inspCats.length<2){ err.textContent="Musi zostać co najmniej jedna sekcja."; return; }
+    S.inspCats=S.inspCats.filter(c=>c!==n); S.insp.forEach(i=>{ if(i.cat===n) i.cat=S.inspCats[0]; }); if(inspFilter===n) inspFilter="all"; save(); close(); render(); };
+  ov.querySelector("#f").onsubmit=e=>{ e.preventDefault(); const n=ov.querySelector("#ic-name").value.trim();
+    if(!n){ ov.querySelector("#err").textContent="Wpisz nazwę sekcji."; return; }
+    if(S.inspCats.some(c=>c.toLowerCase()===n.toLowerCase())){ ov.querySelector("#err").textContent="Taka sekcja już jest."; return; }
+    S.inspCats.push(n.slice(0,24)); inspFilter=n.slice(0,24); save(); close(); render(); };
+}
+function handlePasteFiles(dt){
+  const files=[...(dt&&dt.files||[])].filter(f=>f.type.startsWith("image/"));
+  if(files.length){ addInspFiles(files); return true; }
+  const txt=dt && dt.getData && dt.getData("text/plain");
+  if(txt && txt.trim()){ const t=txt.trim(); const isUrl=/^https?:\/\/\S+$/i.test(t); inspSheet(null,{}); setTimeout(()=>{ const el=ov.querySelector(isUrl?"#in-link":"#in-note"); if(el) el.value=t.slice(0,400); },0); return true; }
+  return false;
+}
+(function wireInsp(){
+  document.getElementById("insp-btn").onclick=()=> tab==="insp" ? (tab=inspBack, render()) : openInsp();
+  document.getElementById("in-back").onclick=()=>{ tab=inspBack||"day"; render(); scrollTo(0,0); };
+  document.getElementById("in-add").onclick=()=>pickImages(true, fs=>addInspFiles(fs));
+  document.getElementById("in-note-add").onclick=()=>inspSheet(null,{});
+  let t; document.getElementById("in-q").addEventListener("input",e=>{ clearTimeout(t); t=setTimeout(()=>{ inspQ=e.target.value.trim(); renderInsp(); },150); });
+  const pz=document.getElementById("in-paste");
+  pz.addEventListener("paste",e=>{ e.preventDefault(); if(!handlePasteFiles(e.clipboardData)) toast("W schowku nie ma zdjęcia ani tekstu."); pz.blur(); });
+  pz.addEventListener("input",()=>{ pz.textContent=""; });
+  document.addEventListener("paste",e=>{ if(tab!=="insp" || !ov.hidden || e.target===pz || e.target.closest("input,textarea")) return; if(handlePasteFiles(e.clipboardData)) e.preventDefault(); });
+})();
+
 /* ---------- arkusze ---------- */
 const ov = document.getElementById("overlay");
 function close(){ ov.hidden=true; ov.innerHTML=""; }
@@ -1730,6 +1897,119 @@ document.getElementById("w-file").addEventListener("change",e=>{ const f=e.targe
 document.getElementById("w-scan").hidden=false;
 document.getElementById("w-scan").onclick=pickReceipt;
 
+/* parser biletu: tekst OCR -> {from,to,date,dep,arr,mode,cost,note} */
+const TK_CITIES = ["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Gdynia","Sopot","Szczecin","Katowice","Lublin","Białystok","Bydgoszcz","Toruń","Rzeszów","Kielce","Olsztyn","Opole","Częstochowa","Radom","Zakopane","Gliwice","Zabrze","Bielsko-Biała","Płock","Elbląg","Tarnów","Koszalin","Legnica","Kalisz","Siedlce","Piła","Przemyśl","Zielona Góra","Gorzów Wielkopolski","Nowy Sącz","Suwałki","Łomża","Ostrołęka","Ciechanów","Mińsk Mazowiecki","Modlin","Marki","Wołomin","Legionowo","Pruszków","Piaseczno","Berlin","Praga","Wiedeń","Budapeszt","Wilno"];
+const TK_MON = {sty:1,lut:2,mar:3,kwi:4,maj:5,cze:6,lip:7,sie:8,wrz:9,"paź":10,paz:10,lis:11,gru:12,jan:1,feb:2,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+const tkNorm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l").replace(/Ł/g,"L").toLowerCase();
+function tkCity(s){
+  if(!s) return "";
+  const n=tkNorm(s);
+  let best=null;
+  for(const c of TK_CITIES){ const i=n.indexOf(tkNorm(c)); if(i>=0 && (!best || i<best.i || (i===best.i && c.length>best.c.length))) best={c,i}; }
+  if(best) return best.c;
+  return s.replace(/\b(dworzec|stacja|st\.|pkp|gl\.?|gł\.?)\b/gi,"").replace(/[^\p{L}\s.-]/gu,"").replace(/\s+/g," ").trim().slice(0,30);
+}
+function parseTicket(raw, today){
+  const lines = raw.split(/\r?\n/).map(l=>l.replace(/[|¦]/g," ").replace(/\s+/g," ").trim()).filter(Boolean);
+  const all = lines.join("\n"), up = all.toUpperCase();
+  // tryb
+  let mode="train";
+  if(/FLIX|POLSKI ?BUS|AUTOBUS|\bBUS\b|SINDBAD|PKS|NEOBUS|LEO ?EXPRESS BUS/.test(up)) mode="bus";
+  if(/BLABLACAR/.test(up)) mode="share";
+  if(/\bLOT\b|RYANAIR|WIZZ|BOARDING|KARTA POKŁADOWA|KARTA POKLADOWA|LOT NR|GATE|BRAMKA|AIRPORT|LOTNISKO/.test(up)) mode="plane";
+  if(/INTERCITY|\bPKP\b|POLREGIO|KOLEJE|\bTLK\b|\bEIC\b|\bEIP\b|\bIC ?\d|WAGON|SKM|KOLEJ/.test(up)) mode="train";
+  // data
+  let date=null; const y0=today.slice(0,4);
+  const mISO=all.match(/\b(20\d{2})[-.\/](\d{1,2})[-.\/](\d{1,2})\b/);
+  const mPL=all.match(/\b(\d{1,2})[.\/-](\d{1,2})[.\/-](20\d{2}|\d{2})\b/);
+  const mTxt=all.match(/\b(\d{1,2})\s+(sty|lut|mar|kwi|maj|cze|lip|sie|wrz|paź|paz|lis|gru|jan|feb|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-ząćęłńóśźż.]*\s*(20\d{2})?/i);
+  if(mISO) date=`${mISO[1]}-${mISO[2].padStart(2,"0")}-${mISO[3].padStart(2,"0")}`;
+  else if(mPL){ const yy=mPL[3].length===2?"20"+mPL[3]:mPL[3]; date=`${yy}-${mPL[2].padStart(2,"0")}-${mPL[1].padStart(2,"0")}`; }
+  else if(mTxt){ const mo=TK_MON[mTxt[2].toLowerCase()]; if(mo) date=`${mTxt[3]||y0}-${String(mo).padStart(2,"0")}-${mTxt[1].padStart(2,"0")}`; }
+  else { const mShort=all.match(/\b(\d{1,2})\.(\d{1,2})\b(?![.\d])/); if(mShort && +mShort[2]<=12) date=`${y0}-${mShort[2].padStart(2,"0")}-${mShort[1].padStart(2,"0")}`; }
+  if(date){ const [,m,d]=date.split("-").map(Number); if(m<1||m>12||d<1||d>31) date=null; }
+  // godziny (pomijamy godzinę zakupu)
+  const times=[]; lines.forEach(l=>{ if(/ZAKUP|KUPION|WYSTAWION|TRANSAKC|ZAP[ŁL]ACONO|ISSUED|PURCHASE/i.test(l)) return;
+    for(const m of l.matchAll(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b(?![.:]\d)/g)) times.push(m[1].padStart(2,"0")+":"+m[2]); });
+  let dep="", arr="";
+  const lineOf = rx => lines.find(l=>rx.test(l));
+  const tIn = l => { const m=l&&l.match(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/); return m?m[1].padStart(2,"0")+":"+m[2]:""; };
+  const tAfter = (rx) => { const l=lineOf(rx); if(!l) return ""; const m=l.match(rx); return tIn(l.slice(m.index)); };
+  dep = tAfter(/ODJAZD|ODJ\.|WYJAZD|DEPARTURE|WYLOT/i); arr = tAfter(/PRZYJAZD|PRZYJ\.|ARRIVAL|PRZYLOT/i);
+  const tLine = l => l ? (l.match(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/g)||[]) : [];
+  const odj=lineOf(/ODJAZD|WYJAZD|DEPARTURE/i); if(odj){ const t=tLine(odj); if(t.length>=2 && !arr) arr=t[1].replace(".",":").padStart(5,"0"); }
+  if(!dep && times.length) dep=times[0];
+  if(!arr && times.length>1) arr=times.find(t=>t!==dep) || "";
+  // trasa
+  let from="", to="";
+  const arrowLine = lines.find(l=>/\S\s*(→|->|—>|>|–|\s-\s|⇒|►)\s*\S/.test(l) && /[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]{3}/.test(l) && !/\d{1,2}[:.]\d{2}\s*[-–]\s*\d{1,2}[:.]\d{2}/.test(l) || /→|->/.test(l));
+  const lbl = (rx) => { const i=lines.findIndex(l=>rx.test(l)); if(i<0) return ""; let rest=lines[i].replace(rx,"").replace(/^[\s:]+/,""); if(!/[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]{3}/.test(rest)) rest=lines[i+1]||""; return rest; };
+  const fl=lbl(/^(OD|Z|SKĄD|SKAD|FROM|STACJA POCZĄTKOWA|STACJA POCZATKOWA|WYJAZD Z)\b[:]?/i), tl=lbl(/^(DO|DOKĄD|DOKAD|TO|STACJA DOCELOWA)\b[:]?/i);
+  if(fl && tl){ from=tkCity(fl); to=tkCity(tl); }
+  else if(arrowLine){ const parts=arrowLine.split(/\s*(?:→|->|—>|⇒|►|>|\s[-–]\s)\s*/).filter(p=>/[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]{3}/.test(p)); if(parts.length>=2){ from=tkCity(parts[0]); to=tkCity(parts[parts.length-1]); } }
+  if(!from || !to || from===to){
+    const found=[]; const n=tkNorm(all);
+    for(const c of TK_CITIES){ let i=n.indexOf(tkNorm(c)); while(i>=0){ found.push({c,i}); i=n.indexOf(tkNorm(c),i+1); } }
+    found.sort((a,b)=>a.i-b.i);
+    const uniq=[]; for(const f of found) if(!uniq.includes(f.c)) uniq.push(f.c);
+    if(uniq.length>=2){ from=from&&from!==uniq[1]?from:uniq[0]; to=uniq.find(c=>c!==from)||""; }
+  }
+  // cena
+  let cost=null;
+  const AMT=/(\d{1,4}(?:[ .]\d{3})*[,.]\d{2})\s*(?:zł|zl|PLN)?/i;
+  const priced = lines.find(l=>/(CENA|DO ZAP[ŁL]ATY|RAZEM|SUMA|NALE[ŻZ]NO[ŚS][ĆC]|TOTAL|KWOTA|OP[ŁL]ATA)/i.test(l) && AMT.test(l));
+  const amt = s => parseFloat(s.replace(/\s/g,"").replace(/\.(?=\d{3}\b)/g,"").replace(",","."));
+  if(priced) cost=amt(priced.match(AMT)[1]);
+  else { const c=[]; for(const l of lines) for(const m of l.matchAll(/(\d{1,4}[,.]\d{2})\s*(?:zł|zl|PLN)/gi)) c.push(amt(m[1])); if(c.length) cost=Math.max(...c); }
+  // notatka: pociąg, wagon, miejsce
+  const bits=[];
+  const tr=all.match(/\b(EIC|EIP|IC|TLK|KM|KD|IR|RE|R|SKM|ŁKA|KS|LS|PR|EC|EN)\s?(\d{2,5})\b/); if(tr) bits.push(`${tr[1]} ${tr[2]}`);
+  const fn=all.match(/\b(LO|FR|W6|DY|LH)\s?(\d{2,4})\b/); if(mode==="plane" && fn) bits.push(`lot ${fn[1]}${fn[2]}`);
+  const wg=all.match(/\bWAG(?:ON|\.)?\s*(?:NR)?\s*:?\s*(\d{1,3})\b/i); if(wg) bits.push(`wagon ${wg[1]}`);
+  const ms=all.match(/\bMIEJSC[EA]\s*(?:NR)?\s*:?\s*(\d{1,3}[A-Z]?)\b/i) || all.match(/\bSEAT\s*:?\s*(\d{1,3}[A-Z]?)\b/i); if(ms) bits.push(`miejsce ${ms[1]}`);
+  const readable = !!(from && to && (dep || date));
+  return {from,to,date,dep,arr,mode,cost:cost&&cost>0?Math.round(cost*100)/100:null,note:bits.join(", "),readable};
+}
+
+
+/* ---------- bilet ze zrzutu: OCR na telefonie ---------- */
+const ticketScanOn = () => true;
+async function scanTicket(file){
+  scanAbort=false;
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Czytam bilet"><h3>Czytam bilet…</h3>
+    <div class="scanbox"><div class="spinner" aria-hidden="true"></div><p id="scan-msg">${localStorage.getItem("questlog-ocr-ready")?"Rozpoznaję tekst na zrzucie…":"Pierwszy raz pobieram pakiet rozpoznawania tekstu (ok. 10 MB)."}</p></div>
+    <div class="bar"><i id="scan-bar"></i></div>
+    <div class="actions"><button type="button" class="btn ghost" id="scan-stop">Przerwij</button></div></div>`;
+  ov.hidden=false;
+  let worker=null;
+  ov.querySelector("#scan-stop").onclick=()=>{ scanAbort=true; worker && worker.terminate(); close(); };
+  const bar=v=>{ const b=document.getElementById("scan-bar"); if(b) b.style.width=Math.round(v*100)+"%"; };
+  try{
+    await loadTesseract();
+    let canvas = await prepCanvas(file); file=null;
+    const base = new URL("./", location.href).href;
+    worker = await Tesseract.createWorker("pol", 1, { workerPath: base+"worker.min.js", corePath: base, langPath: base, workerBlobURL:false, gzip:true,
+      logger: m=>{ if(m.status==="recognizing text") bar(0.25+m.progress*0.75); else if(typeof m.progress==="number") bar(m.progress*0.25); } });
+    if(scanAbort) return;
+    try{ localStorage.setItem("questlog-ocr-ready","1"); }catch(e){}
+    const { data:{ text } } = await worker.recognize(canvas);
+    await worker.terminate(); worker=null; canvas.width=canvas.height=0; canvas=null;
+    if(scanAbort) return;
+    const r = parseTicket(text, TODAY);
+    if(!r.readable){ close(); toast("Nie rozpoznałem trasy na tym zrzucie. Spróbuj zrzutu, na którym widać stacje, datę i godzinę."); return; }
+    travelSheet(null, {from:r.from,to:r.to,mode:r.mode,date:r.date||TODAY,dep:r.dep,arr:r.arr,cost:r.cost||0,paid:true,note:r.note,
+      ticketInfo:`<b>Odczytano z biletu:</b> ${esc(r.from)} → ${esc(r.to)} · ${r.date?fmtDate(r.date):"data nieczytelna"} · ${r.dep||"?"}${r.arr?"–"+r.arr:""}${r.cost?" · "+zl(r.cost):""}
+        <details><summary>Odczytany tekst</summary><pre class="ocrtxt">${esc(text.slice(0,2500))}</pre></details>
+        <div class="hint" style="margin:4px 0 0">Odczyt na telefonie bywa niedokładny. Sprawdź dane przed zapisem.</div>`});
+  }catch(e){
+    if(worker) try{ await worker.terminate(); }catch(_){}
+    if(scanAbort) return;
+    close(); toast("Nie udało się odczytać zrzutu. Spróbuj jeszcze raz.");
+  }
+}
+
+const SCAN_DESC = () => false;
+
 /* ---------- ustawienia i kopia zapasowa ---------- */
 const IS_PWA = !!window.__PWA__;
 const counts = () => `${S.quests.length} questów · ${S.tx.length} transakcji · ${S.plan.length+S.recur.length} zaplanowanych · ${S.events.length} stałych wydarzeń`;
@@ -1739,7 +2019,7 @@ async function copyText(txt){
 }
 function settingsSheet(){
   ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Ustawienia"><h3>Dane i kopia zapasowa</h3>
-    <p class="hint" style="margin:-6px 0 14px">Masz teraz: ${counts()}. Dane są zapisane tylko na tym urządzeniu, w tej ${IS_PWA?"aplikacji":"przeglądarce"}.</p>
+    <p class="hint" style="margin:-6px 0 14px">Masz teraz: ${counts()}. Dane są zapisane tylko na tym urządzeniu, w tej ${IS_PWA?"aplikacji":"przeglądarce"}. Zdjęcia inspiracji nie wchodzą do kopii, przenoszą się tylko opisy i linki.</p>
     <div class="stack">
       <button class="btn primary" id="s-export">${IS_PWA?"Eksportuj kopię do pliku":"Kopiuj dane do przeniesienia"}</button>
       ${IS_PWA?`<button class="btn ghost" id="s-copy">Kopiuj kopię jako tekst</button>`:""}
@@ -1788,7 +2068,7 @@ document.getElementById("settings").onclick=settingsSheet;
 if(IS_PWA && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 
 /* ---------- zdarzenia ---------- */
-document.getElementById("fab").onclick=()=> tab==="work"?(S.jobs.length?manualSheet():jobSheet()):tab==="workd"?addWorkChooser():tab==="day"?addChooser({date:dayDate}):tab==="cal"?addChooser({date:selDay,cal:true}):tab==="hist"?txSheet():tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
+document.getElementById("fab").onclick=()=> tab==="insp"?pickImages(true, fs=>addInspFiles(fs)):tab==="work"?(S.jobs.length?manualSheet():jobSheet()):tab==="workd"?addWorkChooser():tab==="day"?addChooser({date:dayDate}):tab==="cal"?addChooser({date:selDay,cal:true}):tab==="hist"?txSheet():tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
 document.getElementById("t-quests").onclick=()=>{tab="quests";render();};
 document.getElementById("t-cal").onclick=()=>{tab="cal";render();};
 document.getElementById("t-day").onclick=()=>{tab="day";render();};
@@ -1830,6 +2110,9 @@ document.addEventListener("click",e=>{
   if(d.day){selDay=d.day;const x=new Date(selDay+"T00:00");if(x.getMonth()!==calM){calM=x.getMonth();calY=x.getFullYear();}renderCal();}
   if(d.slot){addChooser({date:dayDate,time:d.slot});}
   if(d.travel){travelSheet(d.travel);}
+  if(d.insp){inspSheet(d.insp);}
+  if(d.inf!==undefined && d.inf!==""){ inspFilter=d.inf; renderInsp(); }
+  if(d.newinspcat!==undefined){ inspCatSheet(); }
   if(d.wd){ const [a,b]=d.wd.split("|"); openWorkDetail(a,b); }
   if(d.editjob){ jobSheet(d.editjob); }
   if(d.went){ const [src,id,orig]=d.went.split("|"); if(src==="event") eventDaySheet(id,orig); else if(src==="quest") questSheet({id}); else manualSheet(id); }
