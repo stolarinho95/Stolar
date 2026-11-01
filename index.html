@@ -416,6 +416,30 @@ header .date{font-size:.8rem;text-align:right}
 .mrows{display:flex;flex-direction:column}
 .mrow{display:grid;grid-template-columns:1fr auto 64px 28px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:.88rem}
 .mrow .num:first-child{color:var(--muted)}
+
+/* kopie */
+.bkbar{margin-top:10px;border-color:var(--gold)}
+.snaps{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.snaprow{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
+.snaprow b{display:block;font-weight:600;text-transform:capitalize}
+
+/* tripy */
+.day.trip{background:color-mix(in srgb,var(--trv) 20%,var(--surface));border-color:color-mix(in srgb,var(--trv) 35%,transparent)}
+.day.trip.tfirst{box-shadow:inset 3px 0 0 var(--trv)}
+.day.trip.tlast{box-shadow:inset -3px 0 0 var(--trv)}
+.day.trip.tfirst.tlast{box-shadow:inset 3px 0 0 var(--trv),inset -3px 0 0 var(--trv)}
+.day.trip.out{opacity:.7}
+.tripbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--trv) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--trv) 35%,transparent);font-size:.88rem}
+.tripbar span{min-width:0}
+.tripwrap{display:flex;flex-direction:column;gap:8px}
+.tripbox{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer}
+.tripbox input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.tripbox .tbx{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;margin-top:1px}
+.tripbox input:checked + .tbx{background:var(--trv);border-color:var(--trv)}
+.tripbox input:checked + .tbx::after{content:"✓";color:#fff;font-weight:800;font-size:.9rem}
+.tripbox input:focus-visible + .tbx{outline:2px solid var(--accent);outline-offset:2px}
+.tripbox b{display:block}
+.tripbox small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35}
 </style>
 </head>
 <body>
@@ -435,6 +459,7 @@ header .date{font-size:.8rem;text-align:right}
       </div>
     </div>
     <div class="daysum" id="d-sum"></div>
+    <div id="d-backup"></div>
     <div id="d-rout" style="margin-top:12px"></div>
     <div id="d-cancel"></div>
     <h2 id="d-lateh" hidden style="color:var(--exp)">Zaległe <small>przeciągnij na godzinę albo przenieś na dziś</small></h2>
@@ -589,6 +614,7 @@ header .date{font-size:.8rem;text-align:right}
       <span><i style="background:var(--p1)"></i>Niski</span>
       <span><i style="background:var(--accent);opacity:.7;border-radius:2px"></i>stałe</span>
       <span><i style="background:var(--trv);border-radius:2px"></i>podróż</span>
+      <span><i style="background:color-mix(in srgb,var(--trv) 30%,var(--surface));border-radius:3px;width:12px;height:10px"></i>trip</span>
       <span style="color:var(--gold);font-weight:700">⚑</span><span style="margin-left:-8px">deadline</span>
       <span><i style="background:var(--exp);border-radius:2px;height:3px;width:12px"></i>po terminie</span>
     </div>

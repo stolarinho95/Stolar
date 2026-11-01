@@ -1,5 +1,5 @@
 // Questlog – service worker: działa offline, aktualizuje się przy internecie
-const VERSION = "questlog-202611011728";
+const VERSION = "questlog-202611011848";
 const SHELL = ["./", "index.html", "app.js", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "tesseract.min.js", "worker.min.js", "jszip.min.js"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {

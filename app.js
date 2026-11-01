@@ -29,6 +29,7 @@ function sample(){
     jobs:[{id:"j-marc",name:"Marcovia Marki",rateType:"unit",rate:85,matchRate:0,place:"Marki",subs:[{id:"s-2015b",name:"2015B",rate:85,matchRate:170,contract:"",docGroup:"2015b"},{id:"s-2020",name:"2020",rate:90,matchRate:null,contract:"",docGroup:"2020"}]},
           {id:"j-sgm",name:"SG Motoryka",rateType:"unit",rate:150,matchRate:0,place:"",subs:[]}],
     workLog:[{id:uid(),work:"j-marc|s-2015b",date:addDays(-5),time:"10:00",dur:180,note:"Zastępstwo",kind:"T",place:"Marki"}],
+    trips:[{id:"trp1",outId:"tr1",backId:"tr2",name:"Kraków – konferencja",skipped:[],pending:true}],
     travels:[{id:"tr1",from:"Warszawa",to:"Kraków",mode:"train",date:addDays(0),dep:"13:05",arr:"15:32",cost:89,method:"card",paid:true,paidDate:addDays(-5),note:"IC 5310, wagon 8, miejsce 45",pair:"tr2"},
              {id:"tr2",from:"Kraków",to:"Warszawa",mode:"train",date:addDays(1),dep:"18:10",arr:"20:40",cost:79,method:"card",paid:false,note:"",pair:"tr1"}],
     routines:[
@@ -95,24 +96,35 @@ function sample(){
     ]};
 }
 const DEF_LISTS = () => [{id:"l-super",name:"Supermarket",exp:"Jedzenie"},{id:"l-drog",name:"Drogeria",exp:"Zakupy"},{id:"l-elek",name:"Elektronika",exp:"Zakupy"},{id:"l-hobby",name:"Hobby",exp:"Rozrywka"}];
-const emptyState = () => ({demo:false,v7:true,v8:true,v9:true,routineVals:{},insp:[],inspCats:["Praca","Hobby","Studia","Zakupy"],me:{name:""},jobs:[],workLog:[],travels:[],routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
-let S;
-try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch(e){ S = sample(); }
+const emptyState = () => ({demo:false,trips:[],v7:true,v8:true,v9:true,routineVals:{},insp:[],inspCats:["Praca","Hobby","Studia","Zakupy"],me:{name:""},jobs:[],workLog:[],travels:[],routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
+let S, LOAD_STATE="fresh", RAW=null;
+try { RAW = localStorage.getItem(KEY); } catch(e){ LOAD_STATE="error"; }
+if(RAW){ try{ S = JSON.parse(RAW); LOAD_STATE = (S && typeof S==="object" && Array.isArray(S.quests)) ? "ok" : "error"; }catch(e){ LOAD_STATE="error"; } }
+if(LOAD_STATE!=="ok"){
+  if(LOAD_STATE==="error" && RAW){ try{ localStorage.setItem(KEY+"-nieczytelne-"+Date.now(), RAW); }catch(e){} }
+  S = sample();
+}
 // Aktualizacja NIGDY nie nadpisuje danych. Do starszych danych dokładamy tylko brakujące części.
 if(S.demo && !S.v7 && !(S.shop && S.shop.items)){ const smp=sample(); S.shop=smp.shop; S.prices={...smp.prices,...(S.prices||{})}; }
 S.routineVals ||= {};
 if(!S.v9){ S.routines ||= []; if(!S.routines.some(r=>r.type==="measure")) S.routines.push({id:"r-waga",title:"Waga",type:"measure",unit:"kg",goal:0,pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"rano, na czczo",from:TODAY}); }
 S.v9 = true;
+S.trips ||= [];
 S.v7 = true; S.v8 = true; S.insp ||= []; S.inspCats ||= ["Praca","Hobby","Studia","Zakupy"]; S.jobs ||= []; S.me ||= {name:""}; S.jobs.forEach(j=>{ if(j.rateType==="session") j.rateType="unit"; j.subs ||= []; }); S.workLog ||= []; S.travels ||= []; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
 S.events.forEach(e=>{ e.skip ||= []; e.over ||= {}; });
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
 S.quests.forEach(q=>{ if("due" in q){ if(q.time){ q.date ||= q.due; } else { q.deadline ||= q.due; } delete q.due; } q.date ||= ""; q.deadline ||= ""; });
 const isLate = q => !q.done && ((q.date && q.date<TODAY) || (!q.date && q.deadline && q.deadline<TODAY));
 const byDeadline = (a,b) => (a.deadline||"9999").localeCompare(b.deadline||"9999") || b.prio-a.prio;
-const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+const save = () => {
+  if(LOAD_STATE==="error") return;              // nie nadpisuj danych, których nie udało się odczytać
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); LOAD_STATE="ok"; }catch(e){}
+  if(typeof snapshotSoon==="function") snapshotSoon();
+};
 
 let tab = "day", filter = "Wszystkie";
-queueMicrotask(()=>{ let ch=false; S.travels.forEach(t=>{ if(t.cost>0 && !t.txId && !t.planId){ syncTravelMoney(t); ch=true; } }); if(ch){ save(); render(); } });
+queueMicrotask(()=>{ let ch=false; S.travels.forEach(t=>{ if(t.cost>0 && !t.txId && !t.planId){ syncTravelMoney(t); ch=true; } });
+  S.trips.forEach(tr=>{ if(tr.pending){ applyTripSkips(tr); delete tr.pending; ch=true; } }); if(ch){ if(LOAD_STATE==="ok") save(); render(); } });
 document.getElementById("today").textContent = d0.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
 
 let toastT;
@@ -357,7 +369,7 @@ const opRow = t => `<div class="tx" data-edittx="${t.id}" data-list="${t.list}">
 let dayDate = TODAY;
 function shiftDay(n){ dayDate=plusDays(dayDate,n); renderDay(); }
 function renderDay(){
-  renderRoutines();
+  renderRoutines(); renderBackupBanner();
   const dt = new Date(dayDate+"T00:00");
   const rel = dayDate===TODAY?"Dziś":dayDate===addDays(1)?"Jutro":dayDate===addDays(-1)?"Wczoraj":"";
   const wd = dt.toLocaleDateString("pl-PL",{weekday:"long"});
@@ -378,7 +390,7 @@ function renderDay(){
     ${trs.length?`<div><span class="label">Podróże</span><b class="num">${trs.length} · ${fmtDur(trs.reduce((s,t)=>s+tDur(t),0))||"—"}</b></div>`:""}
     <div><span class="label">Koszty</span><b class="num" style="color:${cost+tCost?"var(--exp)":"inherit"}">${cost+tCost?"−"+zl(round2(cost+tCost)):"—"}</b></div>
     <div><span class="label">Saldo na koniec dnia</span><b class="num" style="color:${f.total<0?"var(--exp)":"inherit"}">${zl(f.total)}</b></div>`;
-  document.getElementById("d-cancel").innerHTML = skipped.map(e=>`<div class="demo" style="margin-top:8px"><span>Odwołane: ${esc(e.title)} (${e.time})</span><button class="mini" data-unskip="${e.id}" data-orig="${e.orig}">Przywróć</button></div>`).join("");
+  document.getElementById("d-cancel").innerHTML = tripsOn(dayDate).map(tr=>{ const r=tripRange(tr); return `<div class="tripbar" style="margin-top:8px"><span>🧳 <b>${esc(tripName(tr))}</b> · ${fmtDate(r.from)}–${fmtDate(r.to)}</span><button class="mini" data-travel="${tr.outId}">Edytuj</button></div>`; }).join("") + skipped.map(e=>`<div class="demo" style="margin-top:8px"><span>Odwołane: ${esc(e.title)} (${e.time})</span><button class="mini" data-unskip="${e.id}" data-orig="${e.orig}">Przywróć</button></div>`).join("");
 
   // zaległe (tylko w widoku dzisiejszym)
   const late = dayDate===TODAY ? S.quests.filter(isLate).sort((a,b)=>b.prio-a.prio||(a.date||a.deadline).localeCompare(b.date||b.deadline)) : [];
@@ -542,6 +554,7 @@ function renderCal(){
   S.quests.forEach(q=>{ if(q.date) (byDay[q.date] ||= []).push(q); if(q.deadline && !q.done) (dlByDay[q.deadline] ||= []).push(q); });
   const opDays = new Set([...S.plan.filter(t=>!t.travelId).map(t=>t.date), ...S.recur.flatMap(r=>occurrences(r,gridEnd))]);
   const trDays = new Set(S.travels.map(t=>t.date));
+  const tripDay = {}; S.trips.forEach(tr=>{ const r=tripRange(tr); if(!r) return; for(let d=r.from; d<=r.to; d=plusDays(d,1)) tripDay[d]={first:d===r.from,last:d===r.to,name:tripName(tr)}; });
   let h = WD.map(w=>`<div class="wd">${w}</div>`).join("");
   for(let i=0;i<42;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
@@ -554,7 +567,8 @@ function renderCal(){
     const ne = eventsOn(s).length; if(ne) dots += `<i class="ev"></i>`.repeat(Math.min(ne,2));
     if(trDays.has(s)) dots += `<i class="trv"></i>`;
     if(opDays.has(s)) dots += `<i style="background:transparent;border:1.5px solid var(--gold);width:6px;height:6px"></i>`;
-    h += `<button class="day ${d.getMonth()!==calM?"out":""} ${s===TODAY?"today":""} ${late?"haslate":""}" data-day="${s}" aria-pressed="${s===selDay}" aria-label="${d.getDate()} ${d.toLocaleDateString("pl-PL",{month:"long"})}, questów: ${qs.length}${dlByDay[s]?", deadline'y: "+dlByDay[s].length:""}"><span class="n num">${d.getDate()}</span><span class="dots">${dots}</span></button>`;
+    const tdy=tripDay[s];
+    h += `<button class="day ${d.getMonth()!==calM?"out":""} ${s===TODAY?"today":""} ${late?"haslate":""} ${tdy?"trip"+(tdy.first?" tfirst":"")+(tdy.last?" tlast":""):""}" ${tdy?`title="🧳 ${esc(tdy.name)}"`:""} data-day="${s}" aria-pressed="${s===selDay}" aria-label="${d.getDate()} ${d.toLocaleDateString("pl-PL",{month:"long"})}, questów: ${qs.length}${dlByDay[s]?", deadline'y: "+dlByDay[s].length:""}"><span class="n num">${d.getDate()}</span><span class="dots">${dots}</span></button>`;
   }
   document.getElementById("c-grid").innerHTML = h;
 
@@ -567,7 +581,8 @@ function renderCal(){
   renderEventsList();
   const de = eventsOn(selDay);
   const dd = dlByDay[selDay]||[];
-  document.getElementById("c-day").innerHTML = (dd.length?`<div class="label" style="color:var(--gold)">⚑ Deadline'y tego dnia</div>`+dd.map(q=>questCard(q)).join("")+(dq.length||de.length?`<div class="label" style="margin-top:6px">W planie dnia</div>`:""):"")
+  const tsel = tripsOn(selDay);
+  document.getElementById("c-day").innerHTML = tsel.map(tr=>{ const r=tripRange(tr); return `<div class="tripbar"><span>🧳 <b>${esc(tripName(tr))}</b> · ${fmtDate(r.from)}–${fmtDate(r.to)}${(tr.skipped||[]).length?` · odwołane stałe: ${tr.skipped.length}`:""}</span><button class="mini" data-travel="${tr.outId}">Edytuj</button></div>`; }).join("") + (dd.length?`<div class="label" style="color:var(--gold)">⚑ Deadline'y tego dnia</div>`+dd.map(q=>questCard(q)).join("")+(dq.length||de.length?`<div class="label" style="margin-top:6px">W planie dnia</div>`:""):"")
     + travelsOn(selDay).map(trRow).join("") + de.map(evRow).join("") + (dq.length ? dq.map(q=>questCard(q)).join("")
     : (de.length||dd.length||travelsOn(selDay).length) ? "" : `<div class="empty">Nic na ten dzień. Kliknij +, żeby dodać quest z deadline'em na ten dzień.</div>`);
   const pl = opsOn(selDay).filter(t=>!t.travelId);
@@ -1094,6 +1109,38 @@ function syncTravelMoney(t){
 const trRow = t => { const m=tmode(t.mode);
   return `<div class="evrow"><div style="min-width:0"><strong class="trvt">${esc(tLabel(t))}</strong><span class="meta" style="margin:2px 0 0">${t.dep}${t.arr?`–${t.arr}${tOvernight(t)?" (+1 dzień)":""}`:""} · ${m[2]}${t.cost?` · ${zl(t.cost)} ${t.paid?"opłacone ✓":"do zapłaty"}`:""}${t.note?" · "+esc(t.note):""}</span></div><button class="mini" data-travel="${t.id}">Edytuj</button></div>`; };
 
+/* ---------- tripy: czas między wyjazdem a powrotem ---------- */
+const tripBoxHTML = (on,name) => `<div class="tripwrap"><label class="tripbox"><input type="checkbox" id="tr-trip" ${on?"checked":""}><span class="tbx" aria-hidden="true"></span><span><b>🧳 Trip</b><small>zaznacz cały wyjazd w kalendarzu i odwołaj na ten czas stałe wydarzenia</small></span></label>
+  <input id="tr-tripname" value="${esc(name)}" placeholder="Nazwa wyjazdu (opcj.), np. Obóz Zakopane" ${on?"":"hidden"}></div>`;
+const tripOf = travelId => S.trips.find(x=>x.outId===travelId || x.backId===travelId);
+function tripRange(tr){
+  const o=S.travels.find(x=>x.id===tr.outId), b=S.travels.find(x=>x.id===tr.backId); if(!o||!b) return null;
+  const st=new Date(o.date+"T"+(o.dep||"00:00")).getTime();
+  let endDate=b.date, endT=b.arr||hhmm(Math.min(toMin(b.dep||"23:00")+60,1439));
+  if(b.arr && tOvernight(b)) endDate=plusDays(b.date,1);
+  const en=new Date(endDate+"T"+endT).getTime();
+  return {st,en,from:o.date,to:endDate,o,b};
+}
+const tripName = tr => { const r=tripRange(tr); return tr.name || (r?`${r.o.from} → ${r.o.to}`:"Wyjazd"); };
+function tripsOn(d){ return S.trips.filter(tr=>{ const r=tripRange(tr); return r && d>=r.from && d<=r.to; }); }
+function unapplyTripSkips(tr){
+  (tr.skipped||[]).forEach(({ev,d})=>{ const e=S.events.find(x=>x.id===ev); if(e) e.skip=(e.skip||[]).filter(x=>x!==d); });
+  tr.skipped=[];
+}
+function applyTripSkips(tr){
+  unapplyTripSkips(tr);
+  const r=tripRange(tr); if(!r) return 0;
+  for(let d=r.from; d<=r.to; d=plusDays(d,1)){
+    for(const e of eventsOn(d)){
+      const s=new Date(d+"T"+e.time).getTime(), en=s+e.dur*60000;
+      if(s<r.en && en>r.st){ const ev=S.events.find(x=>x.id===e.id); if(!ev) continue; ev.skip ||= [];
+        if(!ev.skip.includes(e.orig)){ ev.skip.push(e.orig); tr.skipped.push({ev:e.id,d:e.orig}); } }
+    }
+  }
+  return tr.skipped.length;
+}
+function removeTrip(tr){ unapplyTripSkips(tr); S.trips=S.trips.filter(x=>x!==tr); }
+
 function travelSheet(id, pre={}){
   const known = [...new Set([...S.travels.flatMap(t=>[t.to,t.from]), ...PL_CITIES])];
   const last = [...S.travels].sort((a,b)=>b.date.localeCompare(a.date))[0];
@@ -1139,7 +1186,9 @@ function travelSheet(id, pre={}){
         <div class="field"><label class="label" for="rt-arr">Przyjazd</label><input id="rt-arr" type="time"></div>
       </div>
       <div class="field"><label class="label" for="rt-cost">Koszt powrotu (zł)</label><input id="rt-cost" inputmode="decimal" placeholder="taki sam jak w tamtą stronę"></div>
+      ${tripBoxHTML(false,"")}
     </div>`}
+    ${id && t.pair && S.travels.some(x=>x.id===t.pair) ? tripBoxHTML(!!tripOf(id), tripOf(id)?.name||"") : ""}
     <p class="hint" style="margin:0">Opłacony koszt trafia do historii Portfela (Transport). Nieopłacony liczy się w prognozie salda na dzień podróży.</p>
     <div class="err" id="err"></div>
     <div class="actions">${id?`<button type="button" class="btn ghost" id="tr-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary" id="tr-ok">${id?"Zapisz":"Dodaj podróż"}</button></div>
@@ -1156,14 +1205,17 @@ function travelSheet(id, pre={}){
   $("#fu-go").onclick=()=>{ const km=parseAmt($("#fu-km").value), l=parseAmt($("#fu-l").value), p=parseAmt($("#fu-p").value);
     if(!(km>0&&l>0&&p>0)){ $("#err").textContent="Wpisz kilometry, spalanie i cenę paliwa."; return; }
     $("#tr-cost").value=String(round2(km*l/100*p)).replace(".",","); S.fuel={l,p}; $("#err").textContent=""; };
+  const tb=$("#tr-trip"); if(tb) tb.addEventListener("change",()=>{ $("#tr-tripname").hidden=!tb.checked; if(tb.checked) $("#tr-tripname").focus(); });
   const rs=ov.querySelector('[data-seg="trret"]'); if(rs) rs.addEventListener("segchange",()=>{ $("#tr-retbox").hidden = segVal(ov,"trret")!=="1"; if(!$("#tr-retbox").hidden) $("#rt-date").value=$("#tr-date").value; });
   $("#cancel").onclick=close;
   if(!id && pre.ret){ const rb=ov.querySelector('[data-seg="trret"] [data-v="1"]'); if(rb){ rb.click(); $("#rt-date").value=pre.ret.date||t.date; $("#rt-dep").value=pre.ret.dep||""; $("#rt-arr").value=pre.ret.arr||""; if(pre.ret.cost) $("#rt-cost").value=String(pre.ret.cost).replace(".",","); } }
   if(id) confirmBtn($("#tr-del"),()=>{
     if(t.planId) S.plan=S.plan.filter(x=>x.id!==t.planId);
     if(t.txId){ const x=S.tx.find(y=>y.id===t.txId); if(x) delete x.travelId; }
+    const tr=tripOf(id), had=tr?(tr.skipped||[]).length:0; if(tr) removeTrip(tr);
+    const pr=t.pair&&S.travels.find(x=>x.id===t.pair); if(pr) delete pr.pair;
     S.travels=S.travels.filter(x=>x.id!==id); save(); close(); render();
-    toast(t.txId?"Usunięto podróż. Opłacony bilet został w historii Portfela.":"Usunięto podróż.");
+    toast((t.txId?"Usunięto podróż. Opłacony bilet został w historii Portfela.":"Usunięto podróż.")+(tr&&had?` Przywrócono ${had} stałe wydarzenia z wyjazdu.`:""));
   });
   let warned=false;
   $("#f").onsubmit=e=>{ e.preventDefault();
@@ -1188,6 +1240,26 @@ function travelSheet(id, pre={}){
       const back={id:uid(),from:to,to:from,mode,date:rd,dep:rdep,arr:$("#rt-arr").value,cost:round2(rcost>0?rcost:0),method:data.method,paid,note:"",pair:main.id};
       if(paid) back.paidDate=TODAY;
       main.pair=back.id; S.travels.push(back); syncTravelMoney(back);
+      if($("#tr-trip")?.checked){
+        const tr={id:uid(),outId:main.id,backId:back.id,name:$("#tr-tripname").value.trim().slice(0,40),skipped:[]};
+        const r=tripRange(tr);
+        if(!r || r.en<=r.st){ err.className="err"; err.textContent="Powrót musi być później niż wyjazd."; S.travels=S.travels.filter(x=>x!==main&&x!==back); [main,back].forEach(x=>{ if(x.planId) S.plan=S.plan.filter(y=>y.id!==x.planId); if(x.txId) S.tx=S.tx.filter(y=>y.id!==x.txId); }); return; }
+        S.trips.push(tr); const n=applyTripSkips(tr);
+        save(); close(); render(); toast(`🧳 Trip zapisany: ${fmtDate(r.from)}–${fmtDate(r.to)}${n?`. Odwołano ${n} ${n===1?"stałe wydarzenie":"stałych wydarzeń"} w tym czasie.`:"."}`); return;
+      }
+    }
+    if(id){
+      const tb=$("#tr-trip"), tr=tripOf(id);
+      if(tb){
+        if(tb.checked){
+          const other=S.travels.find(x=>x.id===t.pair);
+          const [o,b]=[t,other].sort((x,y)=>(x.date+x.dep).localeCompare(y.date+y.dep));
+          const T = tr || {id:uid(),skipped:[]}; T.outId=o.id; T.backId=b.id; T.name=$("#tr-tripname").value.trim().slice(0,40);
+          const r=tripRange(T); if(!r || r.en<=r.st){ err.className="err"; err.textContent="Powrót musi być później niż wyjazd."; return; }
+          if(!tr) S.trips.push(T);
+          const n=applyTripSkips(T); save(); close(); render(); toast(`🧳 Trip: ${fmtDate(r.from)}–${fmtDate(r.to)}${n?` · odwołane stałe wydarzenia: ${n}`:""}.`); return;
+        } else if(tr){ const n=(tr.skipped||[]).length; removeTrip(tr); save(); close(); render(); toast(`Usunięto trip${n?`, przywrócono ${n} stałe wydarzenia`:""}.`); return; }
+      } else if(tr){ applyTripSkips(tr); }
     }
     save(); close(); render();
     if(data.date>TODAY && !id) toast(`Dodano podróż na ${fmtDate(data.date)}.`);
@@ -1747,6 +1819,61 @@ function clearables(root){
     b.addEventListener("click",e=>{ e.stopPropagation(); inp.value=""; inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true})); upd(); });
   });
 }
+/* ---------- automatyczne kopie (IndexedDB) i przypomnienie o eksporcie ---------- */
+const SNAP = (()=>{
+  let dbp=null;
+  const open=()=>dbp ||= new Promise((res,rej)=>{ try{ const r=indexedDB.open("questlog-backup",1); r.onupgradeneeded=()=>r.result.createObjectStore("snap"); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } });
+  const run=(m,fn)=>open().then(db=>new Promise((res,rej)=>{ const t=db.transaction("snap",m), q=fn(t.objectStore("snap")); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error); }));
+  return { put:(k,v)=>run("readwrite",s=>s.put(v,k)), all:()=>run("readonly",s=>s.getAll()), keys:()=>run("readonly",s=>s.getAllKeys()), del:k=>run("readwrite",s=>s.delete(k)) };
+})();
+const FRESH_START = LOAD_STATE!=="ok";
+let snapT=null;
+function snapshotSoon(){ clearTimeout(snapT); snapT=setTimeout(snapshotNow, 2500); }
+async function snapshotNow(){
+  if(LOAD_STATE!=="ok") return;
+  try{
+    const key = TODAY + (FRESH_START ? "-od-nowa" : "");          // świeży start nigdy nie nadpisze kopii z tego samego dnia
+    await SNAP.put(key,{key,date:TODAY,at:new Date().toISOString(),data:JSON.stringify(S),q:S.quests.length,t:S.tx.length,demo:!!S.demo});
+    const ks=(await SNAP.keys()).sort(); for(const k of ks.slice(0,-14)) await SNAP.del(k);
+  }catch(e){}
+}
+function markExport(){ S.lastExport=TODAY; save(); renderBackupBanner(); }
+function renderBackupBanner(){
+  const box=document.getElementById("d-backup"); if(!box) return;
+  if(S.demo || dayDate!==TODAY){ box.innerHTML=""; return; }
+  const days = S.lastExport ? Math.round((d0-new Date(S.lastExport+"T00:00"))/864e5) : null;
+  box.innerHTML = days===null || days>=7 ? `<div class="demo bkbar"><span>💾 ${days===null?"Nie masz jeszcze kopii danych w pliku.":`Ostatnia kopia do pliku: ${days} dni temu.`} Zrób ją przed aktualizacją apki.</span><button class="mini" id="bk-go">Zrób kopię</button></div>` : "";
+  const b=document.getElementById("bk-go"); if(b) b.onclick=settingsSheet;
+}
+async function snapsSheet(auto){
+  let list=[]; try{ list=(await SNAP.all()).filter(x=>x&&x.data).sort((a,b)=>b.at.localeCompare(a.at)); }catch(e){}
+  if(auto && !list.length) return;
+  const fmtAt=x=>new Date(x.at).toLocaleString("pl-PL",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Automatyczne kopie"><h3>${auto?"Znalazłem kopie Twoich danych":"Automatyczne kopie"}</h3>
+    <p class="hint" style="margin:-6px 0 12px">${auto?"Apka uruchomiła się bez zapisanych danych, ale na tym telefonie są automatyczne kopie. Przywróć najnowszą, jeśli to Twoje dane.":"Apka zapisuje kopię raz dziennie i trzyma 14 ostatnich. Są na tym telefonie, więc nie zastąpią kopii w pliku przy zmianie telefonu."}</p>
+    <div class="snaps">${list.length?list.map((x,i)=>`<div class="snaprow"><div><b>${fmtAt(x)}</b><span class="meta" style="margin:0">${x.q} questów · ${x.t} transakcji${x.demo?" · z przykładami":""}</span></div><button type="button" class="mini" data-snap="${i}">Przywróć</button></div>`).join(""):`<div class="empty">Brak kopii. Pierwsza powstanie po najbliższej zmianie w apce.</div>`}</div>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">${auto?"Nie, zacznij od nowa":"Zamknij"}</button></div></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  ov.querySelectorAll("[data-snap]").forEach(b=>{ let armed=false; b.onclick=e=>{ e.stopPropagation();
+    if(!armed){ armed=true; b.textContent="Na pewno?"; return; }
+    const x=list[+b.dataset.snap];
+    try{ localStorage.setItem(KEY+"-przed-przywroceniem", JSON.stringify(S)); }catch(_){}
+    try{ localStorage.setItem(KEY, x.data); location.reload(); }catch(err){ toast("Nie udało się przywrócić kopii."); } }; });
+}
+function loadErrorSheet(){
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Problem z danymi"><h3>Nie mogę odczytać zapisanych danych</h3>
+    <p class="hint" style="margin:-6px 0 12px">Niczego nie zapisuję, żeby ich nie nadpisać. Spróbuj zamknąć apkę i otworzyć ją ponownie. Jeśli to nie pomoże, przywróć automatyczną kopię albo kopię z pliku (⚙ → Importuj kopię).</p>
+    <div class="stack"><button class="btn primary" id="le-retry">Spróbuj ponownie</button><button class="btn ghost" id="le-snaps">Pokaż automatyczne kopie</button><button class="btn ghost" id="le-imp">Importuj kopię z pliku</button></div></div>`;
+  ov.hidden=false;
+  ov.querySelector("#le-retry").onclick=()=>location.reload();
+  ov.querySelector("#le-snaps").onclick=()=>snapsSheet(false);
+  ov.querySelector("#le-imp").onclick=()=>{ settingsSheet(); document.getElementById("s-import")?.click(); };
+}
+setTimeout(()=>{
+  if(LOAD_STATE==="error") loadErrorSheet();
+  else if(LOAD_STATE==="fresh") snapsSheet(true);
+  else snapshotNow();
+}, 400);
 /* ---------- arkusze ---------- */
 const ov = document.getElementById("overlay");
 function close(){ ov.hidden=true; ov.innerHTML=""; }
@@ -2163,6 +2290,7 @@ function settingsSheet(){
       <button class="btn primary" id="s-export">${IS_PWA?"Eksportuj kopię do pliku":"Kopiuj dane do przeniesienia"}</button>
       ${IS_PWA?`<button class="btn ghost" id="s-copy">Kopiuj kopię jako tekst</button>`:""}
       <button class="btn ghost" id="s-import">Importuj kopię</button>
+      <button class="btn ghost" id="s-snaps">Automatyczne kopie na tym telefonie</button>
       <button class="btn ghost" id="s-wipe" style="color:var(--exp)">Wyczyść wszystkie dane</button>
       <button class="btn ghost" id="s-close">Zamknij</button>
     </div>
@@ -2173,17 +2301,18 @@ function settingsSheet(){
   const showText = (msg) => { out.innerHTML=`<p class="hint" style="margin:0 0 6px">${msg}</p><textarea id="s-txt" readonly rows="5" style="width:100%;font:12px ui-monospace,monospace;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:8px"></textarea>`; const ta=out.querySelector("#s-txt"); ta.value=exportJSON(); ta.focus(); ta.select(); };
   ov.querySelector("#s-export").onclick=async()=>{
     if(!IS_PWA){
-      const ok=await copyText(exportJSON());
+      const ok=await copyText(exportJSON()); if(ok) markExport();
       showText(ok?"✓ Skopiowano do schowka. Otwórz aplikację Questlog na ekranie początkowym → ⚙ → Importuj kopię → Wklej. Na wszelki wypadek tekst jest też tutaj:":"Zaznacz i skopiuj cały tekst poniżej, a potem wklej go w aplikacji: ⚙ → Importuj kopię.");
       return;
     }
     const name=`questlog-kopia-${TODAY}.json`, file=new File([exportJSON()],name,{type:"application/json"});
     try{
-      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:"Kopia Questlog"}); out.innerHTML=`<p class="hint">Zapisz plik np. w aplikacji Pliki (iCloud Drive), żeby kopia przetrwała zmianę telefonu.</p>`; return; }
+      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:"Kopia Questlog"}); markExport(); out.innerHTML=`<p class="hint">Zapisz plik np. w aplikacji Pliki (iCloud Drive), żeby kopia przetrwała zmianę telefonu.</p>`; return; }
     }catch(e){ if(e && e.name==="AbortError") return; }
-    const a=document.createElement("a"); a.href=URL.createObjectURL(file); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+    const a=document.createElement("a"); a.href=URL.createObjectURL(file); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000); markExport();
   };
-  const cp=ov.querySelector("#s-copy"); if(cp) cp.onclick=async()=>{ const ok=await copyText(exportJSON()); if(ok) toast("Skopiowano kopię do schowka."); else showText("Zaznacz i skopiuj tekst:"); };
+  const cp=ov.querySelector("#s-copy"); if(cp) cp.onclick=async()=>{ const ok=await copyText(exportJSON()); if(ok){ markExport(); toast("Skopiowano kopię do schowka."); } else showText("Zaznacz i skopiuj tekst:"); };
+  ov.querySelector("#s-snaps").onclick=()=>snapsSheet(false);
   ov.querySelector("#s-import").onclick=()=>{
     out.innerHTML=`<p class="hint" style="margin:0 0 6px">Wklej skopiowane dane albo wybierz plik kopii. Import zastąpi wszystko, co jest teraz w apce.</p>
       <textarea id="s-in" rows="5" placeholder="Wklej tutaj…" style="width:100%;font:12px ui-monospace,monospace;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:8px"></textarea>
