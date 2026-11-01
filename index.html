@@ -384,6 +384,38 @@ nav button span{white-space:nowrap}
 #in-cat button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .ocrtxt{white-space:pre-wrap;font:11px ui-monospace,Menlo,monospace;margin:6px 0 0;color:var(--muted)}
 header .date{font-size:.8rem;text-align:right}
+
+/* kategorie, czyszczenie pól */
+.catpick button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.catpick .catnew{border-style:dashed;color:var(--accent)}
+.newcatrow{display:flex;gap:8px;margin-top:8px}
+.newcatrow input{flex:1;min-width:0}
+.newcatrow .btn{flex:none;padding:10px 14px}
+.clrwrap{display:flex;gap:6px;align-items:center;min-width:0;width:100%}
+.clrwrap input{flex:1;min-width:0}
+.clrbtn{flex:none;width:38px;height:42px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:10px;font-size:.9rem}
+/* pomiary */
+.ritem.meas{grid-template-columns:auto 1fr auto}
+.mico{width:24px;text-align:center;color:var(--accent);font-size:1rem}
+.rvalw{display:flex;align-items:center;gap:4px}
+.rval{width:76px;text-align:right;padding:8px 8px;font-variant-numeric:tabular-nums}
+.runit{color:var(--muted);font-size:.84rem;min-width:18px}
+.ritem.meas.done .rt{text-decoration:none;color:var(--ink)}
+.ritem.meas.done .rval{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg));font-weight:700}
+.mchart{position:relative;margin:4px 0 8px}
+.mchart svg{width:100%;height:auto;display:block;overflow:visible;touch-action:pan-y}
+.cgrid{stroke:var(--line);stroke-width:1}
+.clab{fill:var(--muted);font-size:10px;font-family:var(--body)}
+.cline{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.carea{fill:var(--accent);fill-opacity:.1;stroke:none}
+.cdot{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.cgoal{stroke:var(--gold);stroke-width:1.5;stroke-dasharray:4 4}
+.ccross{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 3}
+.ctip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:8px;padding:4px 8px;font-size:.78rem;display:flex;flex-direction:column;align-items:center;white-space:nowrap}
+.mtable summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--accent);margin:6px 0}
+.mrows{display:flex;flex-direction:column}
+.mrow{display:grid;grid-template-columns:1fr auto 64px 28px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.mrow .num:first-child{color:var(--muted)}
 </style>
 </head>
 <body>

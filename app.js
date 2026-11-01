@@ -36,9 +36,11 @@ function sample(){
       {id:"r2",title:"Kreatyna 5 g",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"",from:addDays(-14)},
       {id:"r3",title:"2 l wody",pora:"poludnie",days:[1,2,3,4,5,6,7],time:"",note:"",from:addDays(-14)},
       {id:"r4",title:"Rozciąganie 10 min",pora:"wieczor",days:[1,3,5],time:"21:30",note:"",from:addDays(-14)},
-      {id:"r5",title:"Magnez",pora:"wieczor",days:[1,2,3,4,5,6,7],time:"",note:"przed snem",from:addDays(-14)}
+      {id:"r5",title:"Magnez",pora:"wieczor",days:[1,2,3,4,5,6,7],time:"",note:"przed snem",from:addDays(-14)},
+      {id:"r-waga",title:"Waga",type:"measure",unit:"kg",goal:80,pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"rano, na czczo",from:addDays(-60)}
     ],
-    routineLog:(()=>{ const l={}; for(let i=1;i<=6;i++) l[addDays(-i)]=["r1","r2","r5"].concat(i%2?["r3"]:[]); l[addDays(0)]=["r1"]; return l; })(),
+    routineVals:(()=>{ const o={}; let v=83.4; for(let i=45;i>=1;i--){ v+= -0.06 + Math.sin(i*1.7)*0.25; if(i%3!==1) o[addDays(-i)]={"r-waga":Math.round(v*10)/10}; } return o; })(),
+    routineLog:(()=>{ const l={}; for(let i=1;i<=45;i++){ l[addDays(-i)]=(i<=6?["r1","r2","r5"].concat(i%2?["r3"]:[]):[]).concat(i%3!==1?["r-waga"]:[]); if(!l[addDays(-i)].length) delete l[addDays(-i)]; } l[addDays(0)]=["r1"]; return l; })(),
     shop:{lists:DEF_LISTS(), items:[
       {id:uid(),name:"Mleko 3,2%",qty:2,prio:4,list:"l-super",bought:false},
       {id:uid(),name:"Chleb razowy",qty:1,prio:3,list:"l-super",bought:false},
@@ -93,11 +95,14 @@ function sample(){
     ]};
 }
 const DEF_LISTS = () => [{id:"l-super",name:"Supermarket",exp:"Jedzenie"},{id:"l-drog",name:"Drogeria",exp:"Zakupy"},{id:"l-elek",name:"Elektronika",exp:"Zakupy"},{id:"l-hobby",name:"Hobby",exp:"Rozrywka"}];
-const emptyState = () => ({demo:false,v7:true,v8:true,insp:[],inspCats:["Praca","Hobby","Studia","Zakupy"],me:{name:""},jobs:[],workLog:[],travels:[],routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
+const emptyState = () => ({demo:false,v7:true,v8:true,v9:true,routineVals:{},insp:[],inspCats:["Praca","Hobby","Studia","Zakupy"],me:{name:""},jobs:[],workLog:[],travels:[],routines:[],routineLog:{},cats:[...DEF_CATS],quests:[],tx:[],plan:[],events:[],recur:[],shop:{items:[],lists:DEF_LISTS()},prices:{}});
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch(e){ S = sample(); }
 // Aktualizacja NIGDY nie nadpisuje danych. Do starszych danych dokładamy tylko brakujące części.
 if(S.demo && !S.v7 && !(S.shop && S.shop.items)){ const smp=sample(); S.shop=smp.shop; S.prices={...smp.prices,...(S.prices||{})}; }
+S.routineVals ||= {};
+if(!S.v9){ S.routines ||= []; if(!S.routines.some(r=>r.type==="measure")) S.routines.push({id:"r-waga",title:"Waga",type:"measure",unit:"kg",goal:0,pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"rano, na czczo",from:TODAY}); }
+S.v9 = true;
 S.v7 = true; S.v8 = true; S.insp ||= []; S.inspCats ||= ["Praca","Hobby","Studia","Zakupy"]; S.jobs ||= []; S.me ||= {name:""}; S.jobs.forEach(j=>{ if(j.rateType==="session") j.rateType="unit"; j.subs ||= []; }); S.workLog ||= []; S.travels ||= []; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
 S.events.forEach(e=>{ e.skip ||= []; e.over ||= {}; });
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
@@ -264,19 +269,19 @@ function eventSheet(id, pre={}){
     ${workField("e-work", e.work)}
     ${S.jobs.length?`<div class="field"><span class="label">Rodzaj jednostki</span>${seg("ekind",[["T","Trening (T)"],["M","Mecz (M)"]],e.kind||"T")}</div>`:""}
     <div class="field"><span class="label">Dni tygodnia</span><div class="seg dayseg" id="e-days" role="group" aria-label="Dni tygodnia">${WD.map((w,i)=>`<button type="button" data-d="${i+1}" aria-pressed="${e.days.includes(i+1)}">${w}</button>`).join("")}</div></div>
-    <div class="field"><label class="label" for="e-time">Godzina startu</label><input id="e-time" type="time" step="300" value="${e.time}" required></div>
-    <div class="field"><span class="label">Czas trwania</span><div class="durrow"><input id="e-h" type="number" min="0" max="23" inputmode="numeric" value="${h||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="e-m" type="number" min="0" max="59" step="5" inputmode="numeric" value="${m||""}" placeholder="0" aria-label="Minuty"><span>min</span></div></div>
+    <div class="field"><label class="label" for="e-time">Godzina startu</label><input id="e-time" type="time" value="${e.time}" required></div>
+    <div class="field"><span class="label">Czas trwania</span><div class="durrow"><input id="e-h" type="number" min="0" max="23" inputmode="numeric" value="${h||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="e-m" type="number" min="0" max="59" inputmode="numeric" value="${m||""}" placeholder="0" aria-label="Minuty"><span>min</span></div></div>
     <div class="quick" id="e-durq"><button type="button" data-dur="45">45 min</button><button type="button" data-dur="60">1 h</button><button type="button" data-dur="90">1,5 h</button><button type="button" data-dur="120">2 h</button><button type="button" data-dur="180">3 h</button></div>
     <div class="field"><span class="label">Powtarzanie</span>${seg("every",[[1,"Co tydzień"],[2,"Co 2 tygodnie"]],e.every)}</div>
     <div class="row">
       <div class="field"><label class="label" for="e-from">Od</label><input id="e-from" type="date" value="${e.from||TODAY}"></div>
-      <div class="field"><label class="label" for="e-to">Do (opcjonalnie)</label><input id="e-to" type="date" value="${e.to||""}"></div>
+      <div class="field"><label class="label" for="e-to">Do (opcjonalnie)</label><input id="e-to" type="date" data-clear value="${e.to||""}"></div>
     </div>
     <p class="hint" style="margin:0">„Co 2 tygodnie” liczy od tygodnia z datą „Od”. Zmiany pojedynczych terminów zostają zachowane.</p>
     <div class="err" id="err"></div>
     <div class="actions">${id?`<button type="button" class="btn ghost" id="e-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov);
+  ov.hidden=false; bindSeg(ov); clearables(ov);
   ov.querySelector("#e-days").onclick=ev=>{const b=ev.target.closest("button");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");};
   ov.querySelector("#e-durq").onclick=ev=>{const b=ev.target.closest("button");if(!b)return;const d=+b.dataset.dur;ov.querySelector("#e-h").value=Math.floor(d/60)||"";ov.querySelector("#e-m").value=d%60||"";};
   ov.querySelector("#cancel").onclick=close;
@@ -320,10 +325,10 @@ function occSheet(id, orig){
     <p class="hint" style="margin:-6px 0 12px">${esc(e.title)} · zgodnie z serią: ${fmtDate(orig)}, ${e.time}. Reszta serii zostaje bez zmian.</p><form id="f">
     <div class="row">
       <div class="field"><label class="label" for="o-date">Dzień</label><input id="o-date" type="date" value="${date}" required></div>
-      <div class="field"><label class="label" for="o-time">Godzina</label><input id="o-time" type="time" step="300" value="${time}" required></div>
+      <div class="field"><label class="label" for="o-time">Godzina</label><input id="o-time" type="time" value="${time}" required></div>
     </div>
     <div class="row">
-      <div class="field"><label class="label" for="o-dur">Czas (min)</label><input id="o-dur" type="number" min="5" step="5" inputmode="numeric" value="${dur}"></div>
+      <div class="field"><label class="label" for="o-dur">Czas (min)</label><input id="o-dur" type="number" min="5" inputmode="numeric" value="${dur}"></div>
       <div class="field"><label class="label" for="o-place">Miejsce</label><input id="o-place" value="${esc(place||"")}"></div>
     </div>
     <div class="err" id="err"></div>
@@ -423,8 +428,8 @@ function suggestTime(){
 function timeSheet(id, plan){
   const q=S.quests.find(x=>x.id===id);
   ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Ustaw godzinę"><h3>${esc(q.title)}</h3>${plan?`<p class="hint" style="margin:-6px 0 12px">Wrzucasz do planu na ${new Date(dayDate+"T00:00").toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"})}</p>`:""}<form id="f">
-    <div class="row"><div class="field"><label class="label" for="ts-time">Godzina startu</label><input id="ts-time" type="time" step="900" value="${q.time||suggestTime()}" required></div>
-    <div class="field"><label class="label" for="ts-dur">Czas (min)</label><input id="ts-dur" type="number" min="5" step="5" inputmode="numeric" value="${q.dur||30}"></div></div>
+    <div class="row"><div class="field"><label class="label" for="ts-time">Godzina startu</label><input id="ts-time" type="time" value="${q.time||suggestTime()}" required></div>
+    <div class="field"><label class="label" for="ts-dur">Czas (min)</label><input id="ts-dur" type="number" min="5" inputmode="numeric" value="${q.dur||30}"></div></div>
     <div class="err" id="err"></div>
     <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary" id="ts-ok">Wstaw do planu</button></div></form></div>`;
   ov.hidden=false; ov.querySelector("#cancel").onclick=close;
@@ -755,7 +760,7 @@ function shopItemSheet(id){
     <div class="err" id="err"></div>
     <div class="actions">${id?`<button type="button" class="btn ghost" id="si-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov);
+  ov.hidden=false; bindSeg(ov); clearables(ov);
   ov.querySelector("#cancel").onclick=close;
   if(id) confirmBtn(ov.querySelector("#si-del"),()=>{ const l=it.list; S.shop.items=S.shop.items.filter(x=>x.id!==id); save(); syncShopQuest(l); close(); render(); });
   ov.querySelector("#f").onsubmit=e=>{e.preventDefault();
@@ -835,6 +840,10 @@ function renderRoutines(){
   box.innerHTML=`<details class="rcard" ${open?"open":""} id="rout-det"><summary class="rhead"><span><b>Rutyny dnia</b> <span class="rprog num">${n}/${list.length}</span></span><span class="rbar" aria-hidden="true"><i style="width:${pct}%"></i></span></summary>
     ${future?`<p class="hint" style="margin:0 0 6px">To przyszły dzień, odhaczysz je, kiedy przyjdzie.</p>`:""}
     ${groups.map(([l,rs])=>`<div class="rgroup"><span class="label">${l}</span>${rs.map(r=>{ const ok=done.includes(r.id), st=streak(r);
+      if(isMeasure(r)){ const v=valOn(dayDate,r.id);
+        return `<div class="ritem meas ${ok?"done":""}"><span class="mico" aria-hidden="true">⚖</span>
+        <div style="min-width:0" data-editrout="${r.id}"><span class="rt">${esc(r.title)}</span><span class="meta" style="margin:0">${measureTrend(r,dayDate)}</span></div>
+        <span class="rvalw"><input class="rval" data-rval="${r.id}" inputmode="decimal" enterkeyhint="done" value="${v!=null?fmtV(v):""}" placeholder="—" ${future?"disabled":""} aria-label="${esc(r.title)}${r.unit?" w "+esc(r.unit):""}"><span class="runit">${esc(r.unit||"")}</span></span></div>`; }
       return `<div class="ritem ${ok?"done":""}"><button class="check" data-rout="${r.id}" ${future?"disabled":""} aria-label="${ok?"Cofnij":"Odhacz"} ${esc(r.title)}">${ok?"✓":""}</button>
         <div style="min-width:0" data-editrout="${r.id}"><span class="rt">${esc(r.title)}</span>${r.time||r.note?`<span class="meta" style="margin:0">${r.time?r.time:""}${r.time&&r.note?" · ":""}${esc(r.note||"")}</span>`:""}</div>
         ${st>=2?`<span class="streak num" title="Seria dni z rzędu">🔥 ${st}</span>`:""}</div>`; }).join("")}</div>`).join("")}
@@ -842,32 +851,134 @@ function renderRoutines(){
   </details>`;
   document.getElementById("rout-det").addEventListener("toggle",e=>{ routOpen=e.target.open; });
 }
+/* ---------- pomiary (np. waga) ---------- */
+const isMeasure = r => r && r.type==="measure";
+const valOn = (d,id) => { const o=S.routineVals[d]; return o && o[id]!=null ? o[id] : null; };
+const fmtV = v => (Math.round(v*100)/100).toLocaleString("pl-PL",{maximumFractionDigits:2});
+function measurePoints(r){ return Object.entries(S.routineVals).filter(([d,o])=>o && o[r.id]!=null).map(([d,o])=>({d,v:o[r.id]})).sort((a,b)=>a.d.localeCompare(b.d)); }
+function valueBefore(pts, date){ let best=null; for(const p of pts){ if(p.d<=date) best=p; else break; } return best; }
+function measureTrend(r, day){
+  const pts=measurePoints(r), cur=valOn(day,r.id), prev=[...pts].reverse().find(p=>p.d<day);
+  const u=r.unit?` ${esc(r.unit)}`:"";
+  if(cur!=null && prev){ const d=Math.round((cur-prev.v)*100)/100; return d===0?`bez zmian od ${fmtDate(prev.d)}`:`${d<0?"▼":"▲"} ${fmtV(Math.abs(d))}${u} od ${fmtDate(prev.d)}`; }
+  if(cur==null && prev) return `ostatnio ${fmtV(prev.v)}${u} · ${fmtDate(prev.d)}`;
+  return r.note?esc(r.note):"wpisz pierwszy pomiar";
+}
+function setMeasure(id, day, raw){
+  const t=String(raw).trim();
+  const log = S.routineLog[day] ||= [];
+  if(!t){ if(S.routineVals[day]){ delete S.routineVals[day][id]; if(!Object.keys(S.routineVals[day]).length) delete S.routineVals[day]; }
+    const i=log.indexOf(id); if(i>=0) log.splice(i,1); if(!log.length) delete S.routineLog[day]; save(); return true; }
+  const v=parseAmt(t); if(!(v>0) || v>100000) return false;
+  (S.routineVals[day] ||= {})[id]=Math.round(v*100)/100;
+  if(!log.includes(id)) log.push(id);
+  save(); return true;
+}
+let mRange=90;
+function measureBlock(r){
+  const all=measurePoints(r);
+  if(!all.length) return `<p class="hint" style="margin:0 0 12px">Jeszcze brak pomiarów. Wpisuj wartość w rutynach dnia w zakładce Dziś, a tu pojawi się wykres.</p>`;
+  const last=all[all.length-1], u=r.unit?` ${esc(r.unit)}`:"";
+  const from = mRange ? plusDays(last.d,-mRange) : "0000";
+  const pts=all.filter(p=>p.d>=from);
+  const delta=n=>{ const b=valueBefore(all, plusDays(last.d,-n)); if(!b || b.d===last.d) return "—"; const d=Math.round((last.v-b.v)*100)/100; return `${d<0?"−":d>0?"+":"±"}${fmtV(Math.abs(d))}${u}`; };
+  const vs=pts.map(p=>p.v), mn=Math.min(...vs), mx=Math.max(...vs);
+  return `<div class="daysum" style="margin:0 0 10px">
+      <div><span class="label">Ostatni</span><b class="num">${fmtV(last.v)}${u}</b></div>
+      <div><span class="label">7 dni</span><b class="num">${delta(7)}</b></div>
+      <div><span class="label">30 dni</span><b class="num">${delta(30)}</b></div>
+      <div><span class="label">Min – max</span><b class="num">${fmtV(mn)}–${fmtV(mx)}</b></div></div>
+    <div class="quick" id="m-range" style="margin-bottom:6px">${[[30,"30 dni"],[90,"90 dni"],[365,"Rok"],[0,"Wszystko"]].map(([v,l])=>`<button type="button" data-v="${v}" aria-pressed="${v===mRange}">${l}</button>`).join("")}</div>
+    <div class="mchart" id="m-chart">${measureSVG(pts,r)}</div>
+    <details class="mtable"><summary>Wszystkie pomiary (${all.length})</summary><div class="mrows">${[...all].reverse().slice(0,60).map((p,i,arr)=>{ const nx=arr[i+1]; const d=nx?Math.round((p.v-nx.v)*100)/100:null;
+      return `<div class="mrow"><span class="num">${new Date(p.d+"T00:00").toLocaleDateString("pl-PL",{weekday:"short",day:"numeric",month:"short"})}</span><b class="num">${fmtV(p.v)}${u}</b><span class="num" style="color:var(--muted)">${d==null||d===0?"":(d<0?"−":"+")+fmtV(Math.abs(d))}</span><button type="button" class="del" data-delval="${p.d}" aria-label="Usuń pomiar z ${fmtDate(p.d)}">×</button></div>`; }).join("")}</div></details>`;
+}
+function measureSVG(pts, r){
+  if(pts.length<2) return `<p class="hint" style="margin:6px 0">Wykres pojawi się po drugim pomiarze w tym okresie.</p>`;
+  const W=320,H=160,L=40,R=14,T=12,B=26;
+  const t=s=>new Date(s+"T00:00").getTime();
+  const t0=t(pts[0].d), t1=t(pts[pts.length-1].d);
+  let lo=Math.min(...pts.map(p=>p.v)), hi=Math.max(...pts.map(p=>p.v));
+  if(r.goal>0){ lo=Math.min(lo,r.goal); hi=Math.max(hi,r.goal); }
+  const span=Math.max(hi-lo,1); const stepRaw=span/3; const mag=Math.pow(10,Math.floor(Math.log10(stepRaw))); const step=[1,2,2.5,5,10].map(m=>m*mag).find(s=>s>=stepRaw);
+  lo=Math.floor((lo-step*0.25)/step)*step; hi=Math.ceil((hi+step*0.25)/step)*step;
+  const X=d=>L+(t1===t0?0.5:(t(d)-t0)/(t1-t0))*(W-L-R), Y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
+  const ticks=[]; for(let v=lo; v<=hi+1e-9; v+=step) ticks.push(Math.round(v*100)/100);
+  const line=pts.map((p,i)=>`${i?"L":"M"}${X(p.d).toFixed(1)},${Y(p.v).toFixed(1)}`).join("");
+  const area=`${line}L${X(pts[pts.length-1].d).toFixed(1)},${H-B}L${X(pts[0].d).toFixed(1)},${H-B}Z`;
+  const lp=pts[pts.length-1];
+  const lab=d=>new Date(d+"T00:00").toLocaleDateString("pl-PL",{day:"numeric",month:"short"});
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Wykres: ${esc(r.title)} od ${lab(pts[0].d)} do ${lab(lp.d)}, od ${fmtV(pts[0].v)} do ${fmtV(lp.v)}">
+    ${ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="cgrid"/><text x="${L-6}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end" class="clab">${fmtV(v)}</text>`).join("")}
+    ${r.goal>0?`<line x1="${L}" x2="${W-R}" y1="${Y(r.goal).toFixed(1)}" y2="${Y(r.goal).toFixed(1)}" class="cgoal"/><text x="${W-R}" y="${(Y(r.goal)-4).toFixed(1)}" text-anchor="end" class="clab">cel ${fmtV(r.goal)}</text>`:""}
+    <path d="${area}" class="carea"/><path d="${line}" class="cline"/>
+    <circle cx="${X(lp.d).toFixed(1)}" cy="${Y(lp.v).toFixed(1)}" r="4.5" class="cdot"/>
+    <text x="${L}" y="${H-8}" class="clab">${lab(pts[0].d)}</text><text x="${W-R}" y="${H-8}" text-anchor="end" class="clab">${lab(lp.d)}</text>
+    <line id="c-x" x1="0" x2="0" y1="${T}" y2="${H-B}" class="ccross" visibility="hidden"/><circle id="c-hd" r="4.5" class="cdot" visibility="hidden"/>
+    <rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="c-hit"/>
+  </svg><div class="ctip" id="c-tip" hidden></div>`;
+}
+function bindMeasureChart(r){
+  const box=ov.querySelector("#m-chart"); if(!box) return;
+  const svg=box.querySelector("svg"); if(!svg) return;
+  const all=measurePoints(r), last=all[all.length-1], from=mRange?plusDays(last.d,-mRange):"0000", pts=all.filter(p=>p.d>=from);
+  const W=320,H=160,L=40,R=14,T=12,B=26, t=s=>new Date(s+"T00:00").getTime(), t0=t(pts[0].d), t1=t(pts[pts.length-1].d);
+  const ys=[...svg.querySelectorAll(".clab")].length; void ys;
+  const tip=box.querySelector("#c-tip"), cx=svg.querySelector("#c-x"), hd=svg.querySelector("#c-hd");
+  const pathPts=pts.map(p=>({p, x:L+(t1===t0?0.5:(t(p.d)-t0)/(t1-t0))*(W-L-R)}));
+  const lineEl=svg.querySelector(".cline"); const ys2=lineEl.getAttribute("d").match(/-?[\d.]+,-?[\d.]+/g).map(s=>+s.split(",")[1]);
+  const show=e=>{ const rc=svg.getBoundingClientRect(); const x=(e.clientX-rc.left)/rc.width*W;
+    let k=0, bd=1e9; pathPts.forEach((q,i)=>{ const d=Math.abs(q.x-x); if(d<bd){bd=d;k=i;} });
+    const q=pathPts[k], y=ys2[k];
+    cx.setAttribute("x1",q.x); cx.setAttribute("x2",q.x); cx.setAttribute("visibility","visible");
+    hd.setAttribute("cx",q.x); hd.setAttribute("cy",y); hd.setAttribute("visibility","visible");
+    tip.hidden=false; tip.innerHTML=`<b class="num">${fmtV(q.p.v)}${r.unit?" "+esc(r.unit):""}</b><span>${new Date(q.p.d+"T00:00").toLocaleDateString("pl-PL",{weekday:"short",day:"numeric",month:"short"})}</span>`;
+    const px=q.x/W*rc.width; tip.style.left=Math.max(4,Math.min(rc.width-tip.offsetWidth-4, px-tip.offsetWidth/2))+"px"; tip.style.top="0px"; };
+  const hide=()=>{ tip.hidden=true; cx.setAttribute("visibility","hidden"); hd.setAttribute("visibility","hidden"); };
+  const hit=svg.querySelector("#c-hit");
+  hit.addEventListener("pointermove",show); hit.addEventListener("pointerdown",show); hit.addEventListener("pointerleave",hide);
+}
+
 let routOpen = null;
 function routineSheet(id){
-  const r = id ? S.routines.find(x=>x.id===id) : {title:"",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:""};
-  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Rutyna"><h3>${id?"Edytuj rutynę":"Nowa rutyna"}</h3><form id="f">
-    <div class="field"><label class="label" for="r-title">Czynność</label><input id="r-title" required value="${esc(r.title)}" placeholder="np. Kreatyna 5 g, Witamina D, Rozciąganie"></div>
+  const r = id ? S.routines.find(x=>x.id===id) : {title:"",pora:"rano",days:[1,2,3,4,5,6,7],time:"",note:"",type:"check",unit:"kg",goal:0};
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Rutyna"><h3>${id?(isMeasure(r)?esc(r.title):"Edytuj rutynę"):"Nowa rutyna"}</h3>
+    ${id&&isMeasure(r)?measureBlock(r):""}<form id="f">
+    ${id?"":`<div class="field"><span class="label">Rodzaj</span>${seg("rtype",[["check","Odhaczenie"],["measure","Pomiar (liczba)"]],"check")}</div>`}
+    <div class="field"><label class="label" for="r-title">${isMeasure(r)?"Nazwa pomiaru":"Czynność"}</label><input id="r-title" required value="${esc(r.title)}" placeholder="np. Kreatyna 5 g, Witamina D, Rozciąganie, Waga"></div>
+    <div class="row" id="r-mrow" ${isMeasure(r)?"":"hidden"}>
+      <div class="field"><label class="label" for="r-unit">Jednostka</label><input id="r-unit" value="${esc(r.unit||"")}" placeholder="kg"></div>
+      <div class="field"><label class="label" for="r-goal">Cel (opcj.)</label><input id="r-goal" inputmode="decimal" value="${r.goal?fmtV(r.goal):""}" placeholder="np. 80"></div>
+    </div>
     <div class="field"><span class="label">Pora dnia</span>${seg("pora",PORY,r.pora||"any")}</div>
     <div class="field"><span class="label">Dni tygodnia</span><div class="seg dayseg" id="r-days" role="group" aria-label="Dni tygodnia">${WD.map((w,i)=>`<button type="button" data-d="${i+1}" aria-pressed="${r.days.includes(i+1)}">${w}</button>`).join("")}</div>
       <div class="quick" id="r-dq"><button type="button" data-set="1234567">Codziennie</button><button type="button" data-set="12345">Pn–Pt</button><button type="button" data-set="67">Weekend</button></div></div>
     <div class="row">
-      <div class="field"><label class="label" for="r-time">Godzina (opcj.)</label><input id="r-time" type="time" step="300" value="${r.time||""}"></div>
+      <div class="field"><label class="label" for="r-time">Godzina (opcj.)</label><input id="r-time" type="time" data-clear value="${r.time||""}"></div>
       <div class="field"><label class="label" for="r-note">Notatka (opcj.)</label><input id="r-note" value="${esc(r.note||"")}" placeholder="np. po śniadaniu"></div>
     </div>
-    ${id?`<p class="hint" style="margin:0">Seria: ${streak(r)} dni z rzędu. Usunięcie rutyny kasuje też jej historię odhaczeń.</p>`:""}
+    ${id?`<p class="hint" style="margin:0">Seria: ${streak(r)} dni z rzędu. Usunięcie ${isMeasure(r)?"pomiaru kasuje też wszystkie zapisane wartości":"rutyny kasuje też jej historię odhaczeń"}.</p>`:""}
     <div class="err" id="err"></div>
     <div class="actions">${id?`<button type="button" class="btn ghost" id="r-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov);
+  ov.hidden=false; bindSeg(ov); clearables(ov);
   ov.querySelector("#r-days").onclick=e=>{const b=e.target.closest("button");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");};
   ov.querySelector("#r-dq").onclick=e=>{const b=e.target.closest("button");if(!b)return;ov.querySelectorAll("#r-days button").forEach(x=>x.setAttribute("aria-pressed",b.dataset.set.includes(x.dataset.d)));};
+  const rts=ov.querySelector('[data-seg="rtype"]'); if(rts) rts.addEventListener("segchange",()=>{ ov.querySelector("#r-mrow").hidden = segVal(ov,"rtype")!=="measure"; });
+  if(id && isMeasure(r)){ bindMeasureChart(r);
+    const mr=ov.querySelector("#m-range"); if(mr) mr.onclick=e=>{ const b=e.target.closest("button"); if(!b) return; mRange=+b.dataset.v; routineSheet(id); };
+    ov.querySelectorAll("[data-delval]").forEach(b=>b.addEventListener("click",ev=>{ ev.stopPropagation(); setMeasure(id,b.dataset.delval,""); routineSheet(id); renderRoutines(); })); }
   ov.querySelector("#cancel").onclick=close;
-  if(id) confirmBtn(ov.querySelector("#r-del"),()=>{ S.routines=S.routines.filter(x=>x.id!==id); for(const k of Object.keys(S.routineLog)){ S.routineLog[k]=S.routineLog[k].filter(x=>x!==id); if(!S.routineLog[k].length) delete S.routineLog[k]; } save(); close(); render(); });
+  if(id) confirmBtn(ov.querySelector("#r-del"),()=>{ S.routines=S.routines.filter(x=>x.id!==id); for(const k of Object.keys(S.routineLog)){ S.routineLog[k]=S.routineLog[k].filter(x=>x!==id); if(!S.routineLog[k].length) delete S.routineLog[k]; }
+    for(const k of Object.keys(S.routineVals)){ delete S.routineVals[k][id]; if(!Object.keys(S.routineVals[k]).length) delete S.routineVals[k]; } save(); close(); render(); });
   ov.querySelector("#f").onsubmit=e=>{e.preventDefault();
     const err=ov.querySelector("#err");
     const title=ov.querySelector("#r-title").value.trim(); if(!title){err.textContent="Wpisz nazwę czynności.";return;}
     const days=[...ov.querySelectorAll("#r-days button[aria-pressed=true]")].map(b=>+b.dataset.d); if(!days.length){err.textContent="Zaznacz przynajmniej jeden dzień.";return;}
-    const data={title,pora:segVal(ov,"pora"),days,time:ov.querySelector("#r-time").value,note:ov.querySelector("#r-note").value.trim()};
+    const type = id ? (r.type||"check") : segVal(ov,"rtype");
+    const gr=ov.querySelector("#r-goal").value.trim(), goal=gr?parseAmt(gr):0;
+    if(type==="measure" && gr && !(goal>0)){ err.textContent="Cel musi być liczbą, np. 80."; return; }
+    const data={title,pora:segVal(ov,"pora"),days,time:ov.querySelector("#r-time").value,note:ov.querySelector("#r-note").value.trim(),type,unit:type==="measure"?ov.querySelector("#r-unit").value.trim().slice(0,12):"",goal:type==="measure"&&goal>0?Math.round(goal*100)/100:0};
     if(id) Object.assign(r,data); else S.routines.push({id:uid(),from:TODAY,...data});
     routOpen=true; save(); close(); render();
   };
@@ -1002,8 +1113,8 @@ function travelSheet(id, pre={}){
     <div class="field"><span class="label">Czym</span><div class="quick" id="tr-mode">${TMODES.map(m=>`<button type="button" data-v="${m[0]}" aria-pressed="${m[0]===t.mode}">${m[1]} ${m[2]}</button>`).join("")}</div></div>
     <div class="field"><label class="label" for="tr-date">Dzień</label><input id="tr-date" type="date" required value="${t.date}"></div>
     <div class="row">
-      <div class="field"><label class="label" for="tr-dep">Wyjazd</label><input id="tr-dep" type="time" step="300" required value="${t.dep||""}"></div>
-      <div class="field"><label class="label" for="tr-arr">Przyjazd</label><input id="tr-arr" type="time" step="300" value="${t.arr||""}"></div>
+      <div class="field"><label class="label" for="tr-dep">Wyjazd</label><input id="tr-dep" type="time" required value="${t.dep||""}"></div>
+      <div class="field"><label class="label" for="tr-arr">Przyjazd</label><input id="tr-arr" type="time" data-clear value="${t.arr||""}"></div>
     </div>
     <p class="hint" id="tr-durhint" style="margin:0"></p>
     <div class="row">
@@ -1024,8 +1135,8 @@ function travelSheet(id, pre={}){
     <div id="tr-retbox" class="retbox" hidden>
       <div class="field"><label class="label" for="rt-date">Dzień powrotu</label><input id="rt-date" type="date" value="${t.date}"></div>
       <div class="row">
-        <div class="field"><label class="label" for="rt-dep">Wyjazd</label><input id="rt-dep" type="time" step="300"></div>
-        <div class="field"><label class="label" for="rt-arr">Przyjazd</label><input id="rt-arr" type="time" step="300"></div>
+        <div class="field"><label class="label" for="rt-dep">Wyjazd</label><input id="rt-dep" type="time"></div>
+        <div class="field"><label class="label" for="rt-arr">Przyjazd</label><input id="rt-arr" type="time"></div>
       </div>
       <div class="field"><label class="label" for="rt-cost">Koszt powrotu (zł)</label><input id="rt-cost" inputmode="decimal" placeholder="taki sam jak w tamtą stronę"></div>
     </div>`}
@@ -1033,7 +1144,7 @@ function travelSheet(id, pre={}){
     <div class="err" id="err"></div>
     <div class="actions">${id?`<button type="button" class="btn ghost" id="tr-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary" id="tr-ok">${id?"Zapisz":"Dodaj podróż"}</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov);
+  ov.hidden=false; bindSeg(ov); clearables(ov);
   const $=sel=>ov.querySelector(sel);
   let mode=t.mode;
   const tsb=$("#tr-scan"); if(tsb) tsb.onclick=()=>pickImages(false, fs=>scanTicket(fs[0]));
@@ -1247,9 +1358,9 @@ function manualSheet(id){
     <div class="field"><span class="label">Rodzaj</span>${seg("mkind",[["T","Trening"],["M","Mecz / turniej"]],w.kind||"T")}</div>
     <div class="row">
       <div class="field"><label class="label" for="m-date">Dzień</label><input id="m-date" type="date" required value="${w.date}"></div>
-      <div class="field"><label class="label" for="m-time">Od (opcj.)</label><input id="m-time" type="time" step="300" value="${w.time||""}"></div>
+      <div class="field"><label class="label" for="m-time">Od (opcj.)</label><input id="m-time" type="time" value="${w.time||""}"></div>
     </div>
-    <div class="field"><span class="label">Czas trwania</span><div class="durrow"><input id="m-h" type="number" min="0" max="23" inputmode="numeric" value="${h||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="m-m" type="number" min="0" max="59" step="5" inputmode="numeric" value="${m||""}" placeholder="0" aria-label="Minuty"><span>min</span></div></div>
+    <div class="field"><span class="label">Czas trwania</span><div class="durrow"><input id="m-h" type="number" min="0" max="23" inputmode="numeric" value="${h||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="m-m" type="number" min="0" max="59" inputmode="numeric" value="${m||""}" placeholder="0" aria-label="Minuty"><span>min</span></div></div>
     <div class="row">
       <div class="field"><label class="label" for="m-note">Opis</label><input id="m-note" value="${esc(w.note||"")}" placeholder="np. zastępstwo"></div>
       <div class="field"><label class="label" for="m-place">Miejsce / przeciwnik</label><input id="m-place" value="${esc(w.place||"")}" placeholder="np. Marki"></div>
@@ -1258,7 +1369,7 @@ function manualSheet(id){
     <div class="err" id="err"></div>
     <div class="actions">${id?`<button type="button" class="btn ghost" id="m-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj"}</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov); ov.querySelector("#cancel").onclick=close;
+  ov.hidden=false; bindSeg(ov); clearables(ov); ov.querySelector("#cancel").onclick=close;
   if(id) confirmBtn(ov.querySelector("#m-del"),()=>{ S.workLog=S.workLog.filter(x=>x.id!==id); save(); close(); render(); });
   ov.querySelector("#f").onsubmit=e=>{ e.preventDefault();
     const dur=(parseInt(ov.querySelector("#m-h").value)||0)*60+(parseInt(ov.querySelector("#m-m").value)||0);
@@ -1282,10 +1393,10 @@ function matchSheet(id, pre={}){
     <div class="field"><label class="label" for="mt-opp">Przeciwnik / wydarzenie</label><input id="mt-opp" value="${esc(v.opponent||"")}" placeholder="np. KS Ząbki, turniej w Wołominie"></div>
     <div class="row">
       <div class="field"><label class="label" for="mt-date">Dzień</label><input id="mt-date" type="date" required value="${v.date}"></div>
-      <div class="field"><label class="label" for="mt-time">Godzina</label><input id="mt-time" type="time" step="300" required value="${v.time}"></div>
+      <div class="field"><label class="label" for="mt-time">Godzina</label><input id="mt-time" type="time" required value="${v.time}"></div>
     </div>
     <div class="row">
-      <div class="field"><label class="label" for="mt-dur">Czas (min)</label><input id="mt-dur" type="number" min="15" step="15" inputmode="numeric" value="${v.dur}"></div>
+      <div class="field"><label class="label" for="mt-dur">Czas (min)</label><input id="mt-dur" type="number" min="15" inputmode="numeric" value="${v.dur}"></div>
       <div class="field"><label class="label" for="mt-place">Miejsce</label><input id="mt-place" value="${esc(v.place||"")}" placeholder="np. Marki / wyjazd"></div>
     </div>
     <div class="field"><label class="label" for="mt-title">Nazwa w planie</label><input id="mt-title" value="${esc(v.title||"")}" placeholder="Mecz ${esc(sname(v.work))}"></div>
@@ -1406,7 +1517,7 @@ function jobSheet(id){
     <div class="err" id="err"></div>
     <div class="actions">${id?`<button type="button" class="btn ghost" id="j-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${id?"Zapisz":"Dodaj pracę"}</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov);
+  ov.hidden=false; bindSeg(ov); clearables(ov);
   const box=ov.querySelector("#j-subs");
   const read=()=>{ box.querySelectorAll(".subrow").forEach((row,i)=>{ subs[i].name=row.querySelector(".sn").value; subs[i].rateStr=row.querySelector(".sr").value; subs[i].matchStr=row.querySelector(".sm").value; }); };
   const nv=(str,v)=>esc(str!=null?str:(v?String(v).replace(".",","):""));
@@ -1625,6 +1736,17 @@ function handlePasteFiles(dt){
   document.addEventListener("paste",e=>{ if(tab!=="insp" || !ov.hidden || e.target===pz || e.target.closest("input,textarea")) return; if(handlePasteFiles(e.clipboardData)) e.preventDefault(); });
 })();
 
+function clearables(root){
+  root.querySelectorAll("input[data-clear]").forEach(inp=>{
+    if(inp.parentNode.classList.contains("clrwrap")) return;
+    const v=inp.value; inp.removeAttribute("value"); inp.value=v;   // iOS „Wyzeruj” wraca do pustego pola
+    const w=document.createElement("span"); w.className="clrwrap"; inp.parentNode.insertBefore(w,inp); w.appendChild(inp);
+    const b=document.createElement("button"); b.type="button"; b.className="clrbtn"; b.setAttribute("aria-label","Wyczyść pole"); b.textContent="✕"; w.appendChild(b);
+    const upd=()=>{ b.hidden=!inp.value; }; upd();
+    inp.addEventListener("input",upd); inp.addEventListener("change",upd);
+    b.addEventListener("click",e=>{ e.stopPropagation(); inp.value=""; inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true})); upd(); });
+  });
+}
 /* ---------- arkusze ---------- */
 const ov = document.getElementById("overlay");
 function close(){ ov.hidden=true; ov.innerHTML=""; }
@@ -1641,19 +1763,19 @@ function questSheet(o={}){
   ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${q?"Edytuj quest":"Nowy quest"}"><h3>${q?"Edytuj quest":"Nowy quest"}</h3><form id="f">
     <div class="field"><label class="label" for="q-title">Co trzeba zrobić</label><input id="q-title" required value="${esc(v.title)}" placeholder="np. Oddać sprawozdanie"></div>
     <div class="field"><span class="label">Priorytet</span>${seg("prio",[[1,"Niski"],[2,"Średni"],[3,"Wysoki"],[4,"Krytyczny"]],v.prio)}</div>
-    <div class="row">
-      <div class="field"><label class="label" for="q-cat">Kategoria</label><select id="q-cat">${S.cats.map(c=>`<option ${c===v.cat?"selected":""}>${esc(c)}</option>`).join("")}<option value="__new">+ Nowa kategoria…</option></select></div>
-      <div class="field"><label class="label" for="q-deadline">⚑ Deadline</label><input id="q-deadline" type="date" value="${v.deadline||""}"></div>
+    <div class="field"><span class="label">Kategoria</span>
+      <div class="quick catpick" id="q-catp">${[...new Set([...S.cats, v.cat].filter(Boolean))].map(c=>`<button type="button" data-v="${esc(c)}" aria-pressed="${c===v.cat}">${esc(c)}</button>`).join("")}<button type="button" class="catnew" data-newc="1">+ Nowa</button></div>
+      <div class="newcatrow" id="q-newrow" hidden><input id="q-newcat" placeholder="Nazwa nowej kategorii, np. Obóz" autocomplete="off" enterkeyhint="done"><button type="button" class="btn primary" id="q-newok">Dodaj</button></div>
     </div>
-    <div class="field" id="newcat" hidden><label class="label" for="q-newcat">Nazwa nowej kategorii</label><input id="q-newcat" placeholder="np. Obóz"></div>
+    <div class="field"><label class="label" for="q-deadline">⚑ Deadline (opcj.)</label><input id="q-deadline" type="date" data-clear value="${v.deadline||""}"></div>
     ${workField("q-work", v.work)}
     <p class="hint" style="margin:0">Deadline to przypomnienie w kalendarzu. Quest bez ustalonego dnia jest luźny: wrzucasz go w plan dowolnego dnia w zakładce Dziś.</p>
     <div class="row">
-      <div class="field"><label class="label" for="q-date">📅 Ustalony dzień (opcj.)</label><input id="q-date" type="date" value="${v.date||""}"></div>
-      <div class="field"><label class="label" for="q-time">Godzina (opcj.)</label><input id="q-time" type="time" step="900" value="${v.time||""}"></div>
+      <div class="field"><label class="label" for="q-date">📅 Ustalony dzień (opcj.)</label><input id="q-date" type="date" data-clear value="${v.date||""}"></div>
+      <div class="field"><label class="label" for="q-time">Godzina (opcj.)</label><input id="q-time" type="time" data-clear value="${v.time||""}"></div>
     </div>
     <div class="field"><span class="label">Czas trwania (opcjonalnie)</span>
-      <div class="durrow"><input id="q-h" type="number" min="0" max="99" inputmode="numeric" value="${dh||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="q-m" type="number" min="0" max="59" step="5" inputmode="numeric" value="${dm||""}" placeholder="0" aria-label="Minuty"><span>min</span></div>
+      <div class="durrow"><input id="q-h" type="number" min="0" max="99" inputmode="numeric" value="${dh||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="q-m" type="number" min="0" max="59" inputmode="numeric" value="${dm||""}" placeholder="0" aria-label="Minuty"><span>min</span></div>
       <div class="quick" id="dur-quick"><button type="button" data-dur="15">15 min</button><button type="button" data-dur="30">30 min</button><button type="button" data-dur="60">1 h</button><button type="button" data-dur="120">2 h</button><button type="button" data-dur="240">4 h</button></div>
     </div>
     <div class="row">
@@ -1665,19 +1787,28 @@ function questSheet(o={}){
     <div class="err" id="err"></div>
     <div class="actions">${q?`<button type="button" class="btn ghost" id="q-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary" id="q-ok">${q?"Zapisz":"Dodaj quest"}</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov);
+  ov.hidden=false; bindSeg(ov); clearables(ov);
   ov.querySelector("#dur-quick").onclick=e=>{const b=e.target.closest("button");if(!b)return;const m=+b.dataset.dur;ov.querySelector("#q-h").value=Math.floor(m/60)||"";ov.querySelector("#q-m").value=m%60||"";};
-  const sel=ov.querySelector("#q-cat"), expSel=ov.querySelector("#q-expcat");
-  let expTouched = !!(q && q.expCat);
+  const expSel=ov.querySelector("#q-expcat"), cp=ov.querySelector("#q-catp");
+  let expTouched = !!(q && q.expCat), qCat=v.cat;
   expSel.onchange=()=>expTouched=true;
-  sel.onchange=()=>{ ov.querySelector("#newcat").hidden=sel.value!=="__new"; if(!expTouched && CAT_TO_EXP[sel.value]) expSel.value=CAT_TO_EXP[sel.value]; };
+  const setCat=c=>{ qCat=c; cp.querySelectorAll("button[data-v]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===c)); if(!expTouched && CAT_TO_EXP[c]) expSel.value=CAT_TO_EXP[c]; };
+  const addNewCat=()=>{ const inp=ov.querySelector("#q-newcat"), n=inp.value.trim().slice(0,24); if(!n) return false;
+    let b=[...cp.querySelectorAll("button[data-v]")].find(x=>x.dataset.v.toLowerCase()===n.toLowerCase());
+    if(!b){ b=document.createElement("button"); b.type="button"; b.dataset.v=n; b.textContent=n; cp.insertBefore(b, cp.querySelector("[data-newc]")); }
+    setCat(b.dataset.v); inp.value=""; ov.querySelector("#q-newrow").hidden=true; return true; };
+  cp.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; e.stopPropagation();
+    if(b.dataset.newc){ const row=ov.querySelector("#q-newrow"); row.hidden=false; ov.querySelector("#q-newcat").focus(); return; } setCat(b.dataset.v); });
+  ov.querySelector("#q-newok").onclick=addNewCat;
+  ov.querySelector("#q-newcat").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); addNewCat(); } });
   ov.querySelector("#cancel").onclick=close;
   if(q) confirmBtn(ov.querySelector("#q-del"),()=>{ S.quests=S.quests.filter(x=>x.id!==q.id); save();close();render(); });
   let warned=false;
   ov.querySelector("#f").onsubmit=e=>{e.preventDefault();
     const err=ov.querySelector("#err"); err.className="err";
     const title=ov.querySelector("#q-title").value.trim(); if(!title){err.textContent="Wpisz nazwę questa.";return;}
-    let cat=sel.value; if(cat==="__new"){cat=ov.querySelector("#q-newcat").value.trim(); if(!cat){err.textContent="Wpisz nazwę nowej kategorii.";return;}}
+    if(ov.querySelector("#q-newcat").value.trim()) addNewCat();
+    let cat=qCat; if(!cat){ err.textContent="Wybierz kategorię."; return; }
     const costRaw=ov.querySelector("#q-cost").value.trim(); const cost=costRaw?parseAmt(costRaw):0;
     if(costRaw && !(cost>0)){err.textContent="Koszt musi być liczbą większą od zera, np. 79,90.";return;}
     const dur=(parseInt(ov.querySelector("#q-h").value)||0)*60+(parseInt(ov.querySelector("#q-m").value)||0);
@@ -1712,12 +1843,12 @@ function txSheet(id, list, pre){
       <div class="field"><label class="label" for="t-note">Opis</label><input id="t-note" value="${esc(v.note||"")}" placeholder="np. Lidl"></div>
     </div>
     <div class="field"><span class="label">Powtarzaj</span>${seg("freq",[["none","Jednorazowo"],["week","Co tydzień"],["month","Co miesiąc"]],v.freq)}</div>
-    <div class="field" id="g-to"><label class="label" for="t-to">Powtarzaj do (opcjonalnie)</label><input id="t-to" type="date" value="${v.to||""}"></div>
+    <div class="field" id="g-to"><label class="label" for="t-to">Powtarzaj do (opcjonalnie)</label><input id="t-to" type="date" data-clear value="${v.to||""}"></div>
     <p class="hint" style="margin:0" id="t-hint"></p>
     <div class="err" id="err"></div>
     <div class="actions">${src?`<button type="button" class="btn ghost" id="t-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">Zapisz</button></div>
   </form></div>`;
-  ov.hidden=false; bindSeg(ov);
+  ov.hidden=false; bindSeg(ov); clearables(ov);
   const upd=()=>{
     const t=segVal(ov,"type"), f=segVal(ov,"freq");
     ov.querySelector("#g-dir").hidden = t!=="trf";
@@ -1840,7 +1971,9 @@ async function prepCanvas(file){
   const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(bmp,0,0,c.width,c.height); bmp.close && bmp.close();
   // skala szarości + lekkie podbicie kontrastu
   const im=g.getImageData(0,0,c.width,c.height), p=im.data;
-  for(let i=0;i<p.length;i+=4){ let v=0.299*p[i]+0.587*p[i+1]+0.114*p[i+2]; v=Math.max(0,Math.min(255,(v-128)*1.35+128)); p[i]=p[i+1]=p[i+2]=v; }
+  let sum=0; for(let i=0;i<p.length;i+=16) sum+=0.299*p[i]+0.587*p[i+1]+0.114*p[i+2];
+  const dark = sum/(p.length/16) < 110;          // ciemny motyw (np. Koleo): odwróć kolory
+  for(let i=0;i<p.length;i+=4){ let v=0.299*p[i]+0.587*p[i+1]+0.114*p[i+2]; if(dark) v=255-v; v=Math.max(0,Math.min(255,(v-128)*1.35+128)); p[i]=p[i+1]=p[i+2]=v; }
   g.putImageData(im,0,0);
   return c;
 }
@@ -1898,7 +2031,7 @@ document.getElementById("w-scan").hidden=false;
 document.getElementById("w-scan").onclick=pickReceipt;
 
 /* parser biletu: tekst OCR -> {from,to,date,dep,arr,mode,cost,note} */
-const TK_CITIES = ["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Gdynia","Sopot","Szczecin","Katowice","Lublin","Białystok","Bydgoszcz","Toruń","Rzeszów","Kielce","Olsztyn","Opole","Częstochowa","Radom","Zakopane","Gliwice","Zabrze","Bielsko-Biała","Płock","Elbląg","Tarnów","Koszalin","Legnica","Kalisz","Siedlce","Piła","Przemyśl","Zielona Góra","Gorzów Wielkopolski","Nowy Sącz","Suwałki","Łomża","Ostrołęka","Ciechanów","Mińsk Mazowiecki","Modlin","Marki","Wołomin","Legionowo","Pruszków","Piaseczno","Berlin","Praga","Wiedeń","Budapeszt","Wilno"];
+const TK_CITIES = ["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Gdynia","Sopot","Szczecin","Katowice","Lublin","Białystok","Bydgoszcz","Toruń","Rzeszów","Kielce","Olsztyn","Opole","Częstochowa","Radom","Zakopane","Gliwice","Zabrze","Bielsko-Biała","Płock","Elbląg","Tarnów","Koszalin","Legnica","Kalisz","Siedlce","Piła","Przemyśl","Zielona Góra","Gorzów Wielkopolski","Nowy Sącz","Suwałki","Łomża","Ostrołęka","Ciechanów","Mińsk Mazowiecki","Modlin","Marki","Wołomin","Legionowo","Pruszków","Piaseczno","Piotrków Trybunalski","Skierniewice","Koluszki","Żyrardów","Kutno","Łowicz","Tomaszów Mazowiecki","Radomsko","Malbork","Iława","Ostróda","Inowrocław","Gniezno","Leszno","Konin","Włocławek","Chełm","Zamość","Puławy","Dęblin","Sandomierz","Krosno","Jasło","Nowy Targ","Oświęcim","Żywiec","Wisła","Szklarska Poręba","Jelenia Góra","Wałbrzych","Kłodzko","Świnoujście","Kołobrzeg","Ustka","Hel","Władysławowo","Łeba","Augustów","Ełk","Giżycko","Mrągowo","Grodzisk Mazowiecki","Otwock","Sochaczew","Nowy Dwór Mazowiecki","Tłuszcz","Zielonka","Kobyłka","Radzymin","Pilawa","Garwolin","Łuków","Biała Podlaska","Terespol","Ostrów Wielkopolski","Zduńska Wola","Sieradz","Pabianice","Zgierz","Bełchatów","Starachowice","Skarżysko-Kamienna","Ostrowiec Świętokrzyski","Kraśnik","Stalowa Wola","Tarnobrzeg","Dębica","Bochnia","Wieliczka","Rybnik","Tychy","Sosnowiec","Bytom","Chorzów","Dąbrowa Górnicza","Jaworzno","Racibórz","Nysa","Brzeg","Głogów","Lubin","Bolesławiec","Świdnica","Stargard","Szczecinek","Słupsk","Lębork","Wejherowo","Reda","Rumia","Tczew","Kwidzyn","Grudziądz","Chojnice","Brodnica","Działdowo","Mława","Pułtusk","Wyszków","Sokołów Podlaski","Hajnówka","Berlin","Praga","Wiedeń","Budapeszt","Wilno"];
 const TK_MON = {sty:1,lut:2,mar:3,kwi:4,maj:5,cze:6,lip:7,sie:8,wrz:9,"paź":10,paz:10,lis:11,gru:12,jan:1,feb:2,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
 const tkNorm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l").replace(/Ł/g,"L").toLowerCase();
 function tkCity(s){
@@ -1929,7 +2062,8 @@ function parseTicket(raw, today){
   else { const mShort=all.match(/\b(\d{1,2})\.(\d{1,2})\b(?![.\d])/); if(mShort && +mShort[2]<=12) date=`${y0}-${mShort[2].padStart(2,"0")}-${mShort[1].padStart(2,"0")}`; }
   if(date){ const [,m,d]=date.split("-").map(Number); if(m<1||m>12||d<1||d>31) date=null; }
   // godziny (pomijamy godzinę zakupu)
-  const times=[]; lines.forEach(l=>{ if(/ZAKUP|KUPION|WYSTAWION|TRANSAKC|ZAP[ŁL]ACONO|ISSUED|PURCHASE/i.test(l)) return;
+  const isStatusBar = (l,i) => i<2 && /^\s*([01]?\d|2[0-3])[:.][0-5]\d\b/.test(l) && l.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]/g,"").length<8;
+  const times=[]; lines.forEach((l,i)=>{ if(isStatusBar(l,i) || /ZAKUP|KUPION|WYSTAWION|TRANSAKC|ZAP[ŁL]ACONO|ISSUED|PURCHASE/i.test(l)) return;
     for(const m of l.matchAll(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b(?![.:]\d)/g)) times.push(m[1].padStart(2,"0")+":"+m[2]); });
   let dep="", arr="";
   const lineOf = rx => lines.find(l=>rx.test(l));
@@ -1938,6 +2072,8 @@ function parseTicket(raw, today){
   dep = tAfter(/ODJAZD|ODJ\.|WYJAZD|DEPARTURE|WYLOT/i); arr = tAfter(/PRZYJAZD|PRZYJ\.|ARRIVAL|PRZYLOT/i);
   const tLine = l => l ? (l.match(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/g)||[]) : [];
   const odj=lineOf(/ODJAZD|WYJAZD|DEPARTURE/i); if(odj){ const t=tLine(odj); if(t.length>=2 && !arr) arr=t[1].replace(".",":").padStart(5,"0"); }
+  const valid = all.match(/\bOD\s+([01]?\d|2[0-3])[:.]([0-5]\d)\s+DO\s+([01]?\d|2[0-3])[:.]([0-5]\d)(?:\s+W\s+DNIU\s+(\d{1,2})[.\/-](\d{1,2})[.\/-](20\d{2}))?/i);
+  if(valid){ dep=valid[1].padStart(2,"0")+":"+valid[2]; arr=valid[3].padStart(2,"0")+":"+valid[4]; if(valid[7]) date=`${valid[7]}-${valid[6].padStart(2,"0")}-${valid[5].padStart(2,"0")}`; }
   if(!dep && times.length) dep=times[0];
   if(!arr && times.length>1) arr=times.find(t=>t!==dep) || "";
   // trasa
@@ -1963,7 +2099,10 @@ function parseTicket(raw, today){
   else { const c=[]; for(const l of lines) for(const m of l.matchAll(/(\d{1,4}[,.]\d{2})\s*(?:zł|zl|PLN)/gi)) c.push(amt(m[1])); if(c.length) cost=Math.max(...c); }
   // notatka: pociąg, wagon, miejsce
   const bits=[];
-  const tr=all.match(/\b(EIC|EIP|IC|TLK|KM|KD|IR|RE|R|SKM|ŁKA|KS|LS|PR|EC|EN)\s?(\d{2,5})\b/); if(tr) bits.push(`${tr[1]} ${tr[2]}`);
+  const tr=all.match(/\b(EIC|EIP|IC|TLK|KM|KD|IR|RE|R|SKM|ŁKA|KS|LS|PR|EC|EN)\s?(\d{2,5})\b/);
+  if(tr) bits.push(`${tr[1]} ${tr[2]}`);
+  else { const tn=all.match(/\b(\d{4,5})\s+([A-ZĄĆĘŁŃÓŚŹŻ]{4,}(?:\s[A-ZĄĆĘŁŃÓŚŹŻ]{3,})?)\b/); if(tn && mode==="train") bits.push(`pociąg ${tn[1]} ${tn[2][0]}${tn[2].slice(1).toLowerCase()}`); }
+  const tor=all.match(/\bTOR\s*:?\s*(\d{1,2})\b/i); if(tor && mode==="train") bits.push(`tor ${tor[1]}`);
   const fn=all.match(/\b(LO|FR|W6|DY|LH)\s?(\d{2,4})\b/); if(mode==="plane" && fn) bits.push(`lot ${fn[1]}${fn[2]}`);
   const wg=all.match(/\bWAG(?:ON|\.)?\s*(?:NR)?\s*:?\s*(\d{1,3})\b/i); if(wg) bits.push(`wagon ${wg[1]}`);
   const ms=all.match(/\bMIEJSC[EA]\s*(?:NR)?\s*:?\s*(\d{1,3}[A-Z]?)\b/i) || all.match(/\bSEAT\s*:?\s*(\d{1,3}[A-Z]?)\b/i); if(ms) bits.push(`miejsce ${ms[1]}`);
@@ -2151,4 +2290,10 @@ document.addEventListener("click",e=>{
   if(d.skiprec){ const r=S.recur.find(x=>x.id===d.skiprec); r.next=advance(r,r.next); if(r.to && r.next>r.to) S.recur=S.recur.filter(x=>x!==r); save();render(); toast(`Pominięto. Następny termin: ${fmtDate(r.next)}.`); }
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!ov.hidden)close();});
+document.addEventListener("change",e=>{ const inp=e.target.closest && e.target.closest("[data-rval]"); if(!inp) return;
+  if(!setMeasure(inp.dataset.rval, dayDate, inp.value)){ toast("Wpisz liczbę, np. 81,4."); return; }
+  const r=S.routines.find(x=>x.id===inp.dataset.rval); renderRoutines();
+  if(inp.value.trim() && r){ const all=measurePoints(r), cur=valOn(dayDate,r.id), pv=[...all].reverse().find(p=>p.d<dayDate);
+    toast(`Zapisano: ${fmtV(cur)}${r.unit?" "+r.unit:""}${pv?` (${cur-pv.v<0?"−":"+"}${fmtV(Math.abs(cur-pv.v))} od ${fmtDate(pv.d)})`:""}`); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Enter" && e.target.matches && e.target.matches("[data-rval]")){ e.preventDefault(); e.target.blur(); } });
 render();
