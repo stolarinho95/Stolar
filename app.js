@@ -1,4 +1,4 @@
-const PRIO = {1:"Niski",2:"Średni",3:"Wysoki",4:"Krytyczny"};
+const PRIO = {1:"Niska",2:"Średnia",3:"Wysoka",4:"Maksymalna"};
 const Z5_TPL = "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";
 const DEF_CATS = ["Praca","Studia","Trening","Dom","Zdrowie","Inne"];
 const TX_CATS = ["Jedzenie","Transport","Rachunki","Rozrywka","Sport","Zakupy","Zdrowie","Edukacja","Wynagrodzenie","Inne"];
@@ -112,6 +112,12 @@ S.v9 = true;
 S.trips ||= [];
 S.v7 = true; S.v8 = true; S.insp ||= []; S.inspCats ||= ["Praca","Hobby","Studia","Zakupy"]; S.jobs ||= []; S.me ||= {name:""}; S.jobs.forEach(j=>{ if(j.rateType==="session") j.rateType="unit"; j.subs ||= []; }); S.workLog ||= []; S.travels ||= []; S.routines ||= []; S.routineLog ||= {}; S.shop ||= {items:[],lists:DEF_LISTS()}; S.shop.items ||= []; S.shop.lists ||= DEF_LISTS(); S.prices ||= {}; S.events ||= []; S.recur ||= []; S.plan ||= []; S.tx ||= []; S.quests ||= [];
 S.events.forEach(e=>{ e.skip ||= []; e.over ||= {}; });
+S.subs ||= [];
+// v10: Portfel zastąpiony subskrypcjami. Cykliczne wydatki z portfela przechodzą do subskrypcji, stare dane portfela zostają nietknięte.
+if(!S.v10){ (S.recur||[]).filter(r=>r.type==="exp" && r.next).forEach(r=>S.subs.push({id:uid(),name:String(r.note||r.cat||"Płatność").slice(0,60),amount:r.amount,per:r.freq==="week"?"w":"m",start:r.next,note:"",until:r.to||"",paused:false})); }
+S.v10 = true;
+S.lang ||= {}; S.lang.active ||= "sq"; S.lang.p ||= {}; S.lang.off ||= {}; S.lang.custom ||= []; S.lang.log ||= {}; S.lang.newLog ||= {};
+if(!S.lang.newPerDay) S.lang.newPerDay = 10; if(S.lang.typing===undefined) S.lang.typing = false;
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
 S.quests.forEach(q=>{ if("due" in q){ if(q.time){ q.date ||= q.due; } else { q.deadline ||= q.due; } delete q.due; } q.date ||= ""; q.deadline ||= ""; });
 const isLate = q => !q.done && ((q.date && q.date<TODAY) || (!q.date && q.deadline && q.deadline<TODAY));
@@ -221,7 +227,7 @@ function questCard(q, extra=""){
   return `<div class="quest ${q.done?"done":""}">
       <button class="check" data-toggle="${q.id}" aria-label="${q.done?"Przywróć":"Ukończ"} quest">${q.done?"✓":""}</button>
       <div style="min-width:0" data-editq="${q.id}"><div class="qt">${esc(q.title)}</div>
-        <div class="meta">${prioBars(q.prio)}<span>${esc(q.cat)}</span>${q.shopList?`<span>🛒 ${shopOpen(q.shopList).length} do kupienia</span>`:""}${q.dur?`<span class="num">⏳ ${fmtDur(q.dur)}</span>`:""}${q.cost?`<span class="cost num">−${zl(q.cost)}${q.method==="cash"?" · gotówka":""}${q.expCat?" · "+esc(q.expCat):""}</span>`:""}${dueInfo(q)}${extra}</div></div>
+        <div class="meta">${prioBars(q.prio)}<span>${esc(q.cat)}</span>${q.shopList?`<span>🛒 ${shopOpen(q.shopList).length} do kupienia</span>`:""}${q.dur?`<span class="num">⏳ ${fmtDur(q.dur)}</span>`:""}${q.cost?`<span class="cost num">${zl(q.cost)}</span>`:""}${dueInfo(q)}${extra}</div></div>
       <button class="del" data-delq="${q.id}" aria-label="Usuń quest">×</button></div>`;
 }
 const dragCard = (q,extra) => questCard(q,extra).replace('<div class="quest ',`<div data-drag="${q.id}" class="quest drag `).replace('<button class="del"','<span class="grip" aria-hidden="true">⋮⋮</span><button class="del"');
@@ -370,6 +376,7 @@ let dayDate = TODAY;
 function shiftDay(n){ dayDate=plusDays(dayDate,n); renderDay(); }
 function renderDay(){
   renderRoutines(); renderBackupBanner();
+  document.getElementById("d-lang").innerHTML = dayDate===TODAY ? langNudge() : "";
   const dt = new Date(dayDate+"T00:00");
   const rel = dayDate===TODAY?"Dziś":dayDate===addDays(1)?"Jutro":dayDate===addDays(-1)?"Wczoraj":"";
   const wd = dt.toLocaleDateString("pl-PL",{weekday:"long"});
@@ -377,19 +384,18 @@ function renderDay(){
   const qs = S.quests.filter(q=>q.date===dayDate);
   const timed = qs.filter(q=>q.time).sort((a,b)=>a.time.localeCompare(b.time));
   const untimed = qs.filter(q=>!q.time).sort((a,b)=>a.done-b.done||b.prio-a.prio);
-  const ops = opsOn(dayDate).filter(t=>!t.travelId);
+  const ops = subsOn(dayDate);
   const open = qs.filter(q=>!q.done);
   const dur = open.reduce((s,q)=>s+(q.dur||0),0), cost = open.reduce((s,q)=>s+(q.cost||0),0);
   const evs = eventsOn(dayDate), skipped = eventsOn(dayDate,true).filter(e=>e.skipped);
   const trs = travelsOn(dayDate), tCost = trs.filter(t=>!t.paid).reduce((s,t)=>s+(t.cost||0),0);
-  const f = forecast(dayDate);
   document.getElementById("d-sum").innerHTML = `
     <div><span class="label">Zrobione</span><b class="num">${qs.length-open.length}/${qs.length}</b></div>
     <div><span class="label">Czas questów</span><b class="num">${dur?fmtDur(dur):"—"}</b></div>
     <div><span class="label">Stałe</span><b class="num">${evs.length?evs.length+" · "+fmtDur(evs.reduce((s,e)=>s+e.dur,0)):"—"}</b></div>
     ${trs.length?`<div><span class="label">Podróże</span><b class="num">${trs.length} · ${fmtDur(trs.reduce((s,t)=>s+tDur(t),0))||"—"}</b></div>`:""}
     <div><span class="label">Koszty</span><b class="num" style="color:${cost+tCost?"var(--exp)":"inherit"}">${cost+tCost?"−"+zl(round2(cost+tCost)):"—"}</b></div>
-    <div><span class="label">Saldo na koniec dnia</span><b class="num" style="color:${f.total<0?"var(--exp)":"inherit"}">${zl(f.total)}</b></div>`;
+    ${ops.length?`<div><span class="label">Subskrypcje</span><b class="num" style="color:var(--exp)">−${zl(round2(ops.reduce((a,x)=>a+x.amount,0)))}</b></div>`:""}`;
   document.getElementById("d-cancel").innerHTML = tripsOn(dayDate).map(tr=>{ const r=tripRange(tr); return `<div class="tripbar" style="margin-top:8px"><span>🧳 <b>${esc(tripName(tr))}</b> · ${fmtDate(r.from)}–${fmtDate(r.to)}</span><button class="mini" data-travel="${tr.outId}">Edytuj</button></div>`; }).join("") + skipped.map(e=>`<div class="demo" style="margin-top:8px"><span>Odwołane: ${esc(e.title)} (${e.time})</span><button class="mini" data-unskip="${e.id}" data-orig="${e.orig}">Przywróć</button></div>`).join("");
 
   // zaległe (tylko w widoku dzisiejszym)
@@ -429,7 +435,7 @@ function renderDay(){
   document.getElementById("d-looseh").hidden = !loose.length;
   document.getElementById("d-loose").innerHTML = loose.map(q=>dragCard(q,`<button class="mini" data-plan="${q.id}">Wrzuć w plan</button>`)).join("");
   document.getElementById("d-unh").hidden = !(untimed.length||ops.length);
-  document.getElementById("d-un").innerHTML = untimed.map(q=>(q.done?questCard:dragCard)(q,`<button class="mini" data-settime="${q.id}">Ustaw godzinę</button>`)).join("") + ops.map(opRow).join("");
+  document.getElementById("d-un").innerHTML = untimed.map(q=>(q.done?questCard:dragCard)(q,`<button class="mini" data-settime="${q.id}">Ustaw godzinę</button>`)).join("") + ops.map(x=>subRow(x,dayDate)).join("");
 }
 function suggestTime(){
   const busy = [...S.quests.filter(q=>q.date===dayDate&&q.time&&!q.done).map(q=>[toMin(q.time),toMin(q.time)+(q.dur||30)]), ...eventsOn(dayDate).map(e=>[toMin(e.time),toMin(e.time)+e.dur]), ...travelsOn(dayDate).map(t=>[toMin(t.dep),tEnd(t)])];
@@ -489,7 +495,7 @@ function moveDrag(x,y){
 }
 function autoScroll(){
   if(!drag) return;
-  const edge=90, bottomBar=150; let v=0;
+  const edge=90, bottomBar=110; let v=0;
   if(drag.y<edge) v=-Math.ceil((edge-drag.y)/8);
   else if(drag.y>innerHeight-bottomBar) v=Math.ceil((drag.y-(innerHeight-bottomBar))/8);
   if(v){ scrollBy(0,v); moveDrag(drag.x,drag.y); }
@@ -534,9 +540,10 @@ document.addEventListener("mouseup",()=>{ pressCancel(); if(drag) endDrag(); });
 dayView.addEventListener("contextmenu",e=>{ if(e.target.closest("[data-drag]")) e.preventDefault(); });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && drag){ drag.m=null; endDrag(); } });
 
+const EDGE = 28;
 function addSwipe(el, onPrev, onNext){
   let x0=null,y0=null;
-  el.addEventListener("touchstart",e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  el.addEventListener("touchstart",e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY; if(x0<=EDGE) x0=null;},{passive:true});
   el.addEventListener("touchend",e=>{ if(x0===null||document.body.classList.contains("dragmode")){x0=null;return;} const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
     if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.5){ (dx<0?onNext:onPrev)();
       if(el.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) el.animate([{transform:`translateX(${dx<0?24:-24}px)`,opacity:.4},{transform:"none",opacity:1}],{duration:200,easing:"ease-out"}); } },{passive:true});
@@ -552,7 +559,7 @@ function renderCal(){
   const byDay = {};
   const dlByDay = {};
   S.quests.forEach(q=>{ if(q.date) (byDay[q.date] ||= []).push(q); if(q.deadline && !q.done) (dlByDay[q.deadline] ||= []).push(q); });
-  const opDays = new Set([...S.plan.filter(t=>!t.travelId).map(t=>t.date), ...S.recur.flatMap(r=>occurrences(r,gridEnd))]);
+  const opDays = new Set(S.subs.flatMap(x=>subDatesIn(x,iso(start),gridEnd)));
   const trDays = new Set(S.travels.map(t=>t.date));
   const tripDay = {}; S.trips.forEach(tr=>{ const r=tripRange(tr); if(!r) return; for(let d=r.from; d<=r.to; d=plusDays(d,1)) tripDay[d]={first:d===r.from,last:d===r.to,name:tripName(tr)}; });
   let h = WD.map(w=>`<div class="wd">${w}</div>`).join("");
@@ -576,8 +583,7 @@ function renderCal(){
   const dq = (byDay[selDay]||[]);
   const left = dq.filter(q=>!q.done).reduce((s,q)=>s+(q.dur||0),0);
   document.getElementById("c-dayh").innerHTML = `<span style="text-transform:capitalize">${dl}</span><small>${dq.length?dq.length+" quest(y)":""}${left?` · ⏳ ${fmtDur(left)}`:""}</small>`;
-  const cf = forecast(selDay);
-  document.getElementById("c-peek").innerHTML = `<details class="peekline"><summary><span>Przewidywane saldo na ten dzień</span><b class="num ${cf.total<0?"neg":""}">${zl(cf.total)}</b></summary>${breakdownHTML(cf,false)}${itemsHTML(cf)}</details>`;
+  document.getElementById("c-peek").innerHTML = "";
   renderEventsList();
   const de = eventsOn(selDay);
   const dd = dlByDay[selDay]||[];
@@ -585,9 +591,9 @@ function renderCal(){
   document.getElementById("c-day").innerHTML = tsel.map(tr=>{ const r=tripRange(tr); return `<div class="tripbar"><span>🧳 <b>${esc(tripName(tr))}</b> · ${fmtDate(r.from)}–${fmtDate(r.to)}${(tr.skipped||[]).length?` · odwołane stałe: ${tr.skipped.length}`:""}</span><button class="mini" data-travel="${tr.outId}">Edytuj</button></div>`; }).join("") + (dd.length?`<div class="label" style="color:var(--gold)">⚑ Deadline'y tego dnia</div>`+dd.map(q=>questCard(q)).join("")+(dq.length||de.length?`<div class="label" style="margin-top:6px">W planie dnia</div>`:""):"")
     + travelsOn(selDay).map(trRow).join("") + de.map(evRow).join("") + (dq.length ? dq.map(q=>questCard(q)).join("")
     : (de.length||dd.length||travelsOn(selDay).length) ? "" : `<div class="empty">Nic na ten dzień. Kliknij +, żeby dodać quest z deadline'em na ten dzień.</div>`);
-  const pl = opsOn(selDay).filter(t=>!t.travelId);
+  const pl = subsOn(selDay);
   document.getElementById("c-planh").hidden = !pl.length;
-  document.getElementById("c-plan").innerHTML = pl.map(opRow).join("");
+  document.getElementById("c-plan").innerHTML = pl.map(x=>subRow(x,selDay)).join("");
   const nd = S.quests.filter(q=>!q.done && !q.date).sort(byDeadline);
   document.getElementById("c-nodueh").hidden = !nd.length;
   document.getElementById("c-nodue").innerHTML = nd.map(q=>questCard(q,`<button class="mini" data-setdue="${q.id}">Zaplanuj na ${fmtDate(selDay)}</button>`)).join("");
@@ -636,22 +642,505 @@ function renderWallet(){
   document.getElementById("w-hist").innerHTML = hist.length ? hist.slice(0,4).map(txRow).join("") : `<div class="empty">Brak transakcji.</div>`;
   document.getElementById("w-allhist").textContent = hist.length>4 ? `Cała historia (${hist.length}) →` : "Szukaj i filtruj →";
 }
+const SECT = {day:"Dziś",quests:"Questy",cal:"Kalendarz",work:"Praca",workd:"Praca",shop:"Zakupy",subs:"Subskrypcje",lang:"Nauka języka"};
 function render(){
   document.getElementById("v-quests").hidden = tab!=="quests";
-  document.getElementById("v-wallet").hidden = tab!=="wallet";
+  if(tab==="wallet"||tab==="hist") tab="subs"; if(tab==="insp") tab="day";
+  document.getElementById("v-wallet").hidden = true;
+  document.getElementById("v-subs").hidden = tab!=="subs";
+  document.getElementById("v-lang").hidden = tab!=="lang";
   document.getElementById("v-cal").hidden = tab!=="cal";
   document.getElementById("v-day").hidden = tab!=="day";
-  ["day","quests","cal","work","shop","wallet"].forEach(t=>document.getElementById("t-"+t).setAttribute("aria-selected",tab===t));
+  ["day","quests","cal","work","shop","subs","lang"].forEach(t=>document.getElementById("t-"+t).setAttribute("aria-selected",tab===t));
+  document.getElementById("sect").textContent = SECT[tab] || "";
+  { const ld=langDue().length, lt=S.quests.filter(isLate).length;
+    document.getElementById("b-lang").textContent = ld||""; document.getElementById("b-quests").textContent = lt||""; }
   document.getElementById("demo").hidden = !S.demo;
   document.getElementById("v-shop").hidden = tab!=="shop";
-  document.getElementById("v-hist").hidden = tab!=="hist";
-  if(tab==="hist") document.getElementById("t-wallet").setAttribute("aria-selected","true");
-  document.getElementById("v-insp").hidden = tab!=="insp";
-  document.getElementById("insp-btn").setAttribute("aria-pressed", tab==="insp");
+  document.getElementById("v-hist").hidden = true;
+  document.getElementById("v-insp").hidden = true;
   document.getElementById("v-work").hidden = tab!=="work";
   document.getElementById("v-workd").hidden = tab!=="workd";
   if(tab==="workd") document.getElementById("t-work").setAttribute("aria-selected","true");
-  renderDay(); renderQuests(); renderWallet(); renderCal(); renderShop(); renderHist(); renderWork(); renderWorkDetail(); renderInsp();
+  renderDay(); renderQuests(); renderSubs(); renderCal(); renderShop(); renderWork(); renderWorkDetail(); renderLang();
+}
+
+/* ---------- nauka języka ---------- */
+// Metoda: powtórki w odstępach (algorytm w stylu SM-2) + aktywne przypominanie, oba kierunki.
+// Nowe słowo: najpierw pokaz (oba języki), po chwili sprawdzenie. Kierunek PL→SQ odblokowuje się, gdy rozpoznajesz zwrot.
+// Karta: [id, po albańsku, po polsku, wymowa po polsku, notatka]
+const SQ_DECKS = [
+ {id:"pow", name:"Powitania i grzeczność", cards:[
+  ["a01","Përshëndetje","Cześć / Dzień dobry","pyrszyndetje","uniwersalne powitanie, o każdej porze"],
+  ["a02","Tungjatjeta","Dzień dobry (uprzejmie)","tundźatjeta","dosłownie „długiego życia”"],
+  ["a03","Mirëmëngjes","Dzień dobry (rano)","mirymyndźes",""],
+  ["a04","Mirëdita","Dzień dobry (w ciągu dnia)","mirydita",""],
+  ["a05","Mirëmbrëma","Dobry wieczór","mirymbryma",""],
+  ["a06","Natën e mirë","Dobranoc","natyn e miry",""],
+  ["a07","Mirupafshim","Do widzenia","mirupafszim",""],
+  ["a08","Shihemi!","Do zobaczenia!","szihemi",""],
+  ["a09","Faleminderit","Dziękuję","faleminderit","akcent na „de”"],
+  ["a10","Ju lutem","Proszę","ju lutem","przy prośbie i przy podawaniu czegoś"],
+  ["a11","S'ka përse","Nie ma za co","s-ka pyrse",""],
+  ["a12","Më falni","Przepraszam","my falni","do kolegi: Më fal"],
+  ["a13","Po","Tak","po","uwaga: „po” znaczy TAK"],
+  ["a14","Jo","Nie","jo",""],
+  ["a15","Në rregull","W porządku / OK","ny rreguł","rr wyraźnie zawibrowane"],
+  ["a16","Gëzuar!","Na zdrowie!","gyzuar","toast przy stole"]]},
+ {id:"roz", name:"Pierwsza rozmowa", cards:[
+  ["b01","Si jeni?","Jak się Pan/Pani ma?","si jeni","grzecznościowo albo do kilku osób"],
+  ["b02","Si je?","Jak się masz?","si je",""],
+  ["b03","Mirë, faleminderit. Po ju?","Dobrze, dziękuję. A Pan/Pani?","miry, faleminderit. po ju",""],
+  ["b04","Si quheni?","Jak się Pan/Pani nazywa?","si ćuheni","do kolegi: Si quhesh?"],
+  ["b05","Unë quhem Jakub","Nazywam się Jakub","uny ćuhem jakub",""],
+  ["b06","Gëzohem","Miło mi","gyzohem",""],
+  ["b07","Nga jeni?","Skąd Pan/Pani jest?","nga jeni",""],
+  ["b08","Jam nga Polonia","Jestem z Polski","jam nga polonia",""],
+  ["b09","A flisni anglisht?","Czy mówi Pan/Pani po angielsku?","a flisni angliszt",""],
+  ["b10","Flas pak shqip","Mówię trochę po albańsku","flas pak szćip","shqip = po albańsku"],
+  ["b11","Nuk kuptoj","Nie rozumiem","nuk kuptoj",""],
+  ["b12","Nuk e di","Nie wiem","nuk e di",""],
+  ["b13","Flisni më ngadalë, ju lutem","Proszę mówić wolniej","flisni my ngadaly, ju lutem",""],
+  ["b14","Si thuhet … shqip?","Jak się mówi … po albańsku?","si thuhet … szćip","th jak w ang. „think”"]]},
+ {id:"pyt", name:"Pytania i zaimki", cards:[
+  ["c01","Çfarë?","Co?","czfary",""],
+  ["c02","Kush?","Kto?","kusz",""],
+  ["c03","Ku?","Gdzie?","ku",""],
+  ["c04","Kur?","Kiedy?","kur",""],
+  ["c05","Pse?","Dlaczego?","pse",""],
+  ["c06","Si?","Jak?","si",""],
+  ["c07","Sa?","Ile?","sa",""],
+  ["c08","unë","ja","uny",""],
+  ["c09","ti","ty","ti",""],
+  ["c10","ai / ajo","on / ona","ai / ajo",""],
+  ["c11","ne","my","ne",""],
+  ["c12","ju","wy / Pan, Pani","ju","też forma grzecznościowa"],
+  ["c13","ata / ato","oni / one","ata / ato",""]]},
+ {id:"lic", name:"Liczby", cards:[
+  ["d01","një","jeden (1)","ńy",""],
+  ["d02","dy","dwa (2)","dü","y czyta się jak niemieckie ü"],
+  ["d03","tre","trzy (3)","tre",""],
+  ["d04","katër","cztery (4)","katyr",""],
+  ["d05","pesë","pięć (5)","pes(y)",""],
+  ["d06","gjashtë","sześć (6)","dźaszt(y)",""],
+  ["d07","shtatë","siedem (7)","sztat(y)",""],
+  ["d08","tetë","osiem (8)","tet(y)",""],
+  ["d09","nëntë","dziewięć (9)","nynt(y)",""],
+  ["d10","dhjetë","dziesięć (10)","dhjet(y)","dh jak w ang. „this”"],
+  ["d11","njëzet","dwadzieścia (20)","ńyzet",""],
+  ["d12","pesëdhjetë","pięćdziesiąt (50)","pesydhjet(y)",""],
+  ["d13","njëqind","sto (100)","ńyćind",""],
+  ["d14","një mijë","tysiąc (1000)","ńy mij(y)",""]]},
+ {id:"cza", name:"Czas i dni tygodnia", cards:[
+  ["e01","sot","dziś","sot",""],
+  ["e02","nesër","jutro","nesyr",""],
+  ["e03","dje","wczoraj","dje",""],
+  ["e04","tani","teraz","tani",""],
+  ["e05","më vonë","później","my vony",""],
+  ["e06","e hënë","poniedziałek","e hyny",""],
+  ["e07","e martë","wtorek","e mart(y)",""],
+  ["e08","e mërkurë","środa","e myrkury",""],
+  ["e09","e enjte","czwartek","e eńte",""],
+  ["e10","e premte","piątek","e premte",""],
+  ["e11","e shtunë","sobota","e sztuny",""],
+  ["e12","e diel","niedziela","e diel",""],
+  ["e13","Sa është ora?","Która godzina?","sa yszty ora",""]]},
+ {id:"pod", name:"W mieście i w podróży", cards:[
+  ["f01","Ku është …?","Gdzie jest …?","ku yszty …",""],
+  ["f02","Ku është tualeti?","Gdzie jest toaleta?","ku yszty tualeti",""],
+  ["f03","majtas","w lewo","majtas",""],
+  ["f04","djathtas","w prawo","djathtas","th jak w ang. „think”"],
+  ["f05","drejt","prosto","drejt",""],
+  ["f06","afër","blisko","afyr",""],
+  ["f07","larg","daleko","larg",""],
+  ["f08","Sa larg është?","Jak daleko to jest?","sa larg yszty",""],
+  ["f09","stacioni i autobusit","dworzec autobusowy","stacioni i autobusit",""],
+  ["f10","aeroporti","lotnisko","aeroporti",""],
+  ["f11","plazhi","plaża","plażi",""],
+  ["f12","Një biletë për …, ju lutem","Jeden bilet do …, proszę","ńy bilet pyr …, ju lutem",""]]},
+ {id:"jed", name:"Jedzenie i zakupy", cards:[
+  ["g01","Sa kushton?","Ile kosztuje?","sa kuszton",""],
+  ["g02","Shumë shtrenjtë","Bardzo drogo","szumy sztreńt(y)",""],
+  ["g03","Dua këtë","Chcę to","dua kyty",""],
+  ["g04","Do të doja …","Chciałbym …","do ty doja …","grzeczniej niż „dua”"],
+  ["g05","Një kafe, ju lutem","Jedną kawę, proszę","ńy kafe, ju lutem",""],
+  ["g06","Llogarinë, ju lutem","Rachunek, proszę","łogariny, ju lutem",""],
+  ["g07","ujë","woda","uj(y)",""],
+  ["g08","bukë","chleb","buk(y)",""],
+  ["g09","qumësht","mleko","ćumyszt",""],
+  ["g10","çaj","herbata","czaj",""],
+  ["g11","birrë","piwo","birr(y)",""],
+  ["g12","mish","mięso","misz",""],
+  ["g13","peshk","ryba","peszk",""],
+  ["g14","djathë","ser","djath(y)","th jak w ang. „think”"],
+  ["g15","Shumë e shijshme!","Bardzo smaczne!","szumy e szijszme",""]]},
+ {id:"spo", name:"Sport i trening", cards:[
+  ["h01","stërvitje","trening","styrvitje",""],
+  ["h02","ndeshje","mecz","ndeszje",""],
+  ["h03","trajner","trener","trajner",""],
+  ["h04","lojtar","zawodnik","lojtar",""],
+  ["h05","ekip","drużyna","ekip",""],
+  ["h06","top","piłka","top",""],
+  ["h07","not","pływanie","not",""],
+  ["h08","pishinë","basen","piszin(y)",""],
+  ["h09","fitore","zwycięstwo","fitore",""],
+  ["h10","Shpejt!","Szybko!","szpejt",""],
+  ["h11","Edhe një herë!","Jeszcze raz!","edhe ńy hery","dh jak w ang. „this”"]]},
+ {id:"rod", name:"Rodzina", cards:[
+  ["j01","familje","rodzina","familje","„familja” = ta rodzina"],
+  ["j02","nënë","matka, mama","nyn(y)","potocznie: mami"],
+  ["j03","baba","ojciec, tata","baba",""],
+  ["j04","vëlla","brat","vyła","ll jak ł"],
+  ["j05","motër","siostra","motyr",""],
+  ["j06","djalë","syn / chłopak","djal(y)",""],
+  ["j07","vajzë","córka / dziewczyna","vajz(y)",""],
+  ["j08","gjysh","dziadek","dźüsz",""],
+  ["j09","gjyshe","babcia","dźüsze",""],
+  ["j10","burrë","mąż / mężczyzna","burr(y)",""],
+  ["j11","grua","żona / kobieta","grua",""],
+  ["j12","fëmijë","dziecko, dzieci","fymij(y)",""],
+  ["j13","xhaxha","wujek","dżadza","brat ojca"],
+  ["j14","kushëri / kushërirë","kuzyn / kuzynka","kuszyri / kuszyriry",""],
+  ["j15","Kam një vëlla dhe një motër","Mam brata i siostrę","kam ńy vyła dhe ńy motyr","dhe = i"],
+  ["j16","Kam dy fëmijë","Mam dwoje dzieci","kam dü fymij(y)",""],
+  ["j17","Kjo është nëna ime","To jest moja mama","kjo yszty nyna ime",""],
+  ["j18","A je i martuar?","Jesteś żonaty?","a je i martuar","do kobiety: A je e martuar?"]]},
+ {id:"tow", name:"Życie towarzyskie", cards:[
+  ["k01","shok / shoqe","kolega / koleżanka","szok / szoće",""],
+  ["k02","mik","przyjaciel","mik","też: gość"],
+  ["k03","Çfarë bën?","Co robisz? / Co słychać?","czfary byn",""],
+  ["k04","Çfarë bën sonte?","Co robisz dziś wieczorem?","czfary byn sonte","sonte = dziś wieczorem"],
+  ["k05","A pimë një kafe?","Wyskoczymy na kawę?","a pimy ńy kafe","najczęstsze zaproszenie w Albanii"],
+  ["k06","Me kënaqësi!","Z przyjemnością!","me kynaćysi",""],
+  ["k07","Sot nuk mundem","Dziś nie mogę","sot nuk mundem",""],
+  ["k08","Ku takohemi?","Gdzie się spotykamy?","ku takohemi",""],
+  ["k09","Në çfarë ore?","O której godzinie?","ny czfary ore",""],
+  ["k10","Mirë se erdhe!","Witaj! (gdy ktoś przychodzi)","miry se erdhe","do kilku osób: Mirë se erdhët!"],
+  ["k11","Uluni, ju lutem","Proszę usiąść","uluni, ju lutem",""],
+  ["k12","Urime!","Gratulacje!","urime","też ogólne życzenia"],
+  ["k13","Gëzuar ditëlindjen!","Wszystkiego najlepszego z okazji urodzin!","gyzuar ditylindjen",""],
+  ["k14","Më pëlqen shumë","Bardzo mi się podoba","my pylćen szumy",""],
+  ["k15","Ishte shumë bukur","Było bardzo fajnie","iszte szumy bukur",""],
+  ["k16","Shihemi nesër!","Do zobaczenia jutro!","szihemi nesyr",""],
+  ["k17","Më shkruaj","Napisz do mnie","my szkruaj",""],
+  ["k18","Cili është numri yt?","Jaki masz numer?","cili yszty numri üt",""],
+  ["k19","Më mungon","Tęsknię za tobą","my mungon","dosłownie „brakuje mi ciebie”"],
+  ["k20","Të dua","Kocham cię","ty dua","to samo słowo co „chcę” (dua)"]]},
+ {id:"pom", name:"Pomoc i nagłe sytuacje", cards:[
+  ["i01","Ndihmë!","Pomocy!","ndihmy",""],
+  ["i02","Më ndihmoni, ju lutem","Proszę mi pomóc","my ndihmoni, ju lutem",""],
+  ["i03","Thirrni një mjek!","Proszę wezwać lekarza!","thirrni ńy mjek",""],
+  ["i04","Kam humbur rrugën","Zgubiłem się","kam humbur rrugyn","dosłownie „zgubiłem drogę”"],
+  ["i05","farmacia","apteka","farmacia",""],
+  ["i06","spitali","szpital","spitali",""],
+  ["i07","policia","policja","policia",""]]}
+];
+const SQ_GUIDE = [
+  ["ë","jak polskie „y”, na końcu słowa prawie nieme","bukë → buk(y)"],
+  ["ç","jak „cz”","çaj → czaj"],
+  ["c","jak „c”","farmacia"],
+  ["q","miękko, jak „ć”","qumësht → ćumyszt"],
+  ["gj","miękko, jak „dź”","gjashtë → dźaszt(y)"],
+  ["x","jak „dz”","xhaxha (wujek) → dżadza"],
+  ["xh","jak „dż”","xhami (meczet)"],
+  ["sh","jak „sz”","shumë → szumy"],
+  ["zh","jak „ż”","plazhi → plażi"],
+  ["nj","jak „ń”","një → ńy"],
+  ["th","jak w ang. „think” (język między zęby)","djathtas"],
+  ["dh","jak w ang. „this” (dźwięczne th)","dhjetë"],
+  ["ll","twardo, jak „ł” bez zaokrąglania ust","Llogarinë"],
+  ["l","jak lekko zmiękczone „l”","lutem"],
+  ["rr","mocno wibrowane „r”","rregull"],
+  ["y","jak niemieckie „ü”: usta do „u”, mów „i”","dy → dü"],
+  ["j","jak polskie „j”","ju"]
+];
+const LANG = {sq:{name:"Albański",flag:"🇦🇱",decks:SQ_DECKS,guide:SQ_GUIDE}};
+const LSTEP_NEW = [5,10,20];
+const L = () => S.lang;
+const langCode = () => L().active || "sq";
+function langDecks(){
+  const base = LANG[langCode()].decks;
+  const mine = (L().custom||[]).filter(c=>c.lang===langCode()).map(c=>[c.id,c.sq,c.pl,c.pron||"",c.note||""]);
+  return mine.length ? [...base, {id:"wl", name:"Moje fiszki", cards:mine}] : base;
+}
+const deckOn = id => !L().off[id];
+function cardMap(){ const m={}; langDecks().forEach(d=>d.cards.forEach(c=>m[c[0]]={c,d:d.id})); return m; }
+const lkey = (id,dir) => `${langCode()}:${id}|${dir}`;
+const lst = (id,dir) => L().p[lkey(id,dir)];
+function langDue(){
+  const m=cardMap(), out=[];
+  Object.entries(L().p).forEach(([k,s])=>{ const [lc,rest]=k.split(":"); if(lc!==langCode()) return; const [id,dir]=rest.split("|"); const e=m[id];
+    if(e && deckOn(e.d) && s.due<=TODAY) out.push({id,dir,card:e.c,isNew:false}); });
+  return out.sort((a,b)=>lst(a.id,a.dir).due.localeCompare(lst(b.id,b.dir).due));
+}
+const newToday = () => (L().newLog[langCode()+":"+TODAY]||0);
+const newLeft = () => Math.max(0, L().newPerDay - newToday());
+function langNew(n){
+  const out=[];
+  for(const d of langDecks()){ if(!deckOn(d.id)) continue;
+    for(const c of d.cards){ if(out.length>=n) return out;
+      const r=lst(c[0],"r"), p=lst(c[0],"p");
+      if(!r) out.push({id:c[0],dir:"r",card:c,isNew:true});
+      else if(!p && r.reps>=1) out.push({id:c[0],dir:"p",card:c,isNew:true}); } }
+  return out;
+}
+function langStreak(){ let n=0, d=TODAY; if(!L().log[langCode()+":"+d]) d=addDays(-1); while(L().log[langCode()+":"+d]){ n++; d=plusDays(d,-1); } return n; }
+// planowanie: 1 = nie pamiętam, 2 = trudne, 3 = dobrze, 4 = łatwe
+function lnext(s, g){
+  s = s ? {...s} : {ivl:0, ease:2.5, reps:0, lapses:0, due:TODAY};
+  if(s.ivl===0){                       // nauka (nowa albo po pomyłce)
+    if(g<=2) return {s, again:true};
+    s.ivl = g===4 ? 4 : 1;
+  } else {
+    if(g===1){ s.lapses++; s.ease=Math.max(1.3, s.ease-0.2); s.ivl=0; return {s, again:true}; }
+    if(g===2){ s.ivl=Math.max(s.ivl+1, Math.round(s.ivl*1.2)); s.ease=Math.max(1.3, s.ease-0.15); }
+    if(g===3) s.ivl=Math.max(s.ivl+1, Math.round(s.ivl*s.ease));
+    if(g===4){ s.ivl=Math.max(s.ivl+2, Math.round(s.ivl*s.ease*1.3)); s.ease+=0.15; }
+  }
+  s.ivl=Math.min(s.ivl,365); s.reps++; s.due=addDays(s.ivl);
+  return {s, again:false};
+}
+const ivlTxt = n => n<1?"za chwilę":n===1?"jutro":n<30?`${n} dni`:n<365?`${Math.round(n/30)} mies.`:"rok";
+function lgrade(item, g){
+  const k=lkey(item.id,item.dir), before=L().p[k];
+  const r=lnext(before, g);
+  if(r.again){ r.s.due=TODAY; }
+  L().p[k]=r.s;
+  if(!before){ const nk=langCode()+":"+TODAY; L().newLog[nk]=(L().newLog[nk]||0)+1; }
+  const lk=langCode()+":"+TODAY; L().log[lk]=(L().log[lk]||0)+1;
+  save();
+  return r.again;
+}
+const lnorm = s => String(s).toLowerCase().replace(/[.,!?¿¡'’"„”…()]/g," ").replace(/\s+/g," ").trim();
+const lplain = s => lnorm(s).normalize("NFD").replace(/[̀-ͯ]/g,"");
+function lcheck(typed, answer){
+  const opts=String(answer).split("/").map(x=>x.trim());
+  const full=[lnorm(answer), ...opts.map(lnorm)];
+  if(full.includes(lnorm(typed))) return "ok";
+  if(full.map(lplain).includes(lplain(typed))) return "almost";
+  return "bad";
+}
+function sqVoice(){ try{ return (speechSynthesis.getVoices()||[]).find(v=>/^sq/i.test(v.lang)) || null; }catch(e){ return null; } }
+function speak(t){ const v=sqVoice(); if(!v) return; try{ const u=new SpeechSynthesisUtterance(String(t).replace(/…/g,"")); u.voice=v; u.lang=v.lang; u.rate=.85; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){} }
+try{ speechSynthesis.onvoiceschanged=()=>{ if(tab==="lang") renderLang(); }; }catch(e){}
+const spkBtn = t => sqVoice() ? `<button type="button" class="spk" data-speak="${esc(t)}" aria-label="Posłuchaj wymowy">🔊</button>` : "";
+function langStats(){
+  const m=cardMap(); let seen=0, known=0, total=0;
+  langDecks().forEach(d=>d.cards.forEach(c=>{ total++; const r=lst(c[0],"r"); if(r) seen++; if(r && r.ivl>=21) known++; }));
+  return {seen,known,total};
+}
+function langNudge(){
+  if(!Object.keys(L().p).length) return "";
+  const due=langDue().length, nw=Math.min(newLeft(), langNew(newLeft()).length);
+  const lg=LANG[langCode()];
+  return `<div class="langnudge"><span>${lg.flag} <b>${lg.name}</b> · ${due||nw?`${due} do powtórki${nw?` · ${nw} nowych`:""}`:"na dziś zrobione ✓"}</span>${due||nw?`<button class="mini" data-langgo="1">Ucz się</button>`:""}</div>`;
+}
+function renderLang(){
+  const root=document.getElementById("lg-root"); if(!root) return;
+  const lg=LANG[langCode()], due=langDue().length, nl=Math.min(newLeft(), langNew(newLeft()).length), st=langStats(), sk=langStreak();
+  root.innerHTML=`
+    <div class="lhero"><span class="lflag" aria-hidden="true">${lg.flag}</span><div><b>${lg.name}</b><span>${st.seen} z ${st.total} zwrotów poznanych · ${st.known} opanowanych</span></div></div>
+    <div class="daysum">
+      <div><span class="label">Do powtórki</span><b class="num">${due}</b></div>
+      <div><span class="label">Nowe dziś</span><b class="num">${nl}</b></div>
+      <div><span class="label">Seria</span><b class="num">${sk?`🔥 ${sk} ${sk===1?"dzień":"dni"}`:"—"}</b></div>
+    </div>
+    <button class="btn primary lgo" data-langgo="1" ${due+nl?"":"disabled"}>${due+nl?`Ucz się · ${due+nl} ${due+nl===1?"karta":due+nl<5?"karty":"kart"}`:"Na dziś wszystko zrobione ✓"}</button>
+    <div class="lset">
+      <div><span class="label">Nowych dziennie</span>${seg("lnew",LSTEP_NEW.map(n=>[n,String(n)]),L().newPerDay)}</div>
+      <div><span class="label">Odpowiedź PL → AL</span>${seg("ltype",[["0","Odkrywam"],["1","Wpisuję"]],L().typing?"1":"0")}</div>
+    </div>
+    <h2>Talie <small>stuknij, żeby przejrzeć zwroty</small></h2>
+    <div class="list">${langDecks().map(d=>{ const n=d.cards.length, s=d.cards.filter(c=>lst(c[0],"r")).length, on=deckOn(d.id);
+      return `<div class="ldeck ${on?"":"off"}"><button type="button" class="ldname" data-ldeck="${d.id}"><b>${esc(d.name)}</b><span class="num">${s}/${n} poznane</span><span class="rbar" aria-hidden="true"><i style="width:${Math.round(s/n*100)}%"></i></span></button>
+        <button type="button" class="mini" data-ldtoggle="${d.id}" aria-pressed="${on}">${on?"W nauce":"Wyłączona"}</button></div>`; }).join("")}</div>
+    <button class="btn ghost" data-lnewcard="1" style="width:100%;margin-top:10px">+ Własna fiszka</button>
+    <details class="rcard lguide"><summary class="rhead"><b>Wymowa: jak czytać po albańsku</b></summary>
+      <p class="hint" style="margin:0 0 6px">Albański czyta się tak, jak się pisze. Akcent pada zwykle na przedostatnią sylabę. W fiszkach wymowa jest zapisana po polsku, w nawiasie głoska prawie nieme.</p>
+      <div class="lgrid">${lg.guide.map(([a,b,c])=>`<b>${a}</b><span>${b}<small>${esc(c)}</small></span>`).join("")}</div></details>
+    <p class="hint">Jak to działa: nowy zwrot najpierw widzisz w całości, a po kilku kartach apka sprawdza, czy go pamiętasz. Potem wraca coraz rzadziej: jutro, za kilka dni, za kilka tygodni. Najpierw uczysz się rozumieć (AL → PL), a gdy zwrot siedzi, dochodzi mówienie (PL → AL). Najlepiej robić krótką sesję codziennie, 5–10 minut wystarczy.</p>`;
+  bindSeg(root);
+}
+function langClick(e){
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.speak!==undefined){ speak(b.dataset.speak); return; }
+  if(b.dataset.ldtoggle){ L().off[b.dataset.ldtoggle]=deckOn(b.dataset.ldtoggle); save(); renderLang(); return; }
+  if(b.dataset.ldeck){ deckSheet(b.dataset.ldeck); return; }
+  if(b.dataset.lnewcard){ langCardSheet(); return; }
+  const sg=b.closest(".seg[data-seg]");
+  if(sg && sg.dataset.seg==="lnew"){ L().newPerDay=+b.dataset.v; save(); renderLang(); renderDay(); }
+  if(sg && sg.dataset.seg==="ltype"){ L().typing=b.dataset.v==="1"; save(); }
+}
+function deckSheet(id){
+  const d=langDecks().find(x=>x.id===id); if(!d) return;
+  const stat = c => { const r=lst(c[0],"r"); return !r?"":r.ivl>=21?`<span class="lchip ok">opanowane</span>`:`<span class="lchip">w nauce</span>`; };
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-label="${esc(d.name)}"><h3>${esc(d.name)}</h3>
+    <div class="lrows">${d.cards.map(c=>`<div class="lrow" ${id==="wl"?`data-leditc="${c[0]}"`:""}><div><b>${esc(c[1])}</b><span>${esc(c[2])}</span><small>[${esc(c[3]||"—")}]${c[4]?" · "+esc(c[4]):""}</small></div><div class="lrowr">${stat(c)}${spkBtn(c[1])}</div></div>`).join("")}</div>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">Zamknij</button></div></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  ov.querySelector(".lrows").onclick=e=>{ const sb=e.target.closest("[data-speak]"); if(sb){ speak(sb.dataset.speak); return; } const r=e.target.closest("[data-leditc]"); if(r) langCardSheet(r.dataset.leditc); };
+}
+function langCardSheet(id){
+  const c = id ? L().custom.find(x=>x.id===id) : null;
+  const v = c || {sq:"",pl:"",pron:"",note:""};
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-label="${c?"Edytuj fiszkę":"Nowa fiszka"}"><h3>${c?"Edytuj fiszkę":"Nowa fiszka"}</h3><form id="f">
+    <div class="field"><label class="label" for="lc-sq">Po albańsku</label><input id="lc-sq" value="${esc(v.sq)}" placeholder="np. Kënaqësi" autocomplete="off" autocapitalize="off"></div>
+    <div class="field"><label class="label" for="lc-pl">Po polsku</label><input id="lc-pl" value="${esc(v.pl)}" placeholder="np. Przyjemność" autocomplete="off"></div>
+    <div class="field"><label class="label" for="lc-pr">Wymowa (opcjonalnie)</label><input id="lc-pr" value="${esc(v.pron)}" placeholder="np. kynaćysi" autocomplete="off" autocapitalize="off"></div>
+    <div class="field"><label class="label" for="lc-no">Notatka (opcjonalnie)</label><input id="lc-no" value="${esc(v.note)}" placeholder="kiedy tego używać" autocomplete="off"></div>
+    <div class="quick lkeys" aria-label="Albańskie litery">${["ë","ç","Ë","Ç"].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join("")}</div>
+    <div class="err" id="err"></div>
+    <div class="actions">${c?`<button type="button" class="btn ghost" id="lc-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${c?"Zapisz":"Dodaj"}</button></div>
+  </form></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  let last=ov.querySelector("#lc-sq");
+  ov.querySelectorAll("input").forEach(i=>i.addEventListener("focus",()=>last=i));
+  ov.querySelector(".lkeys").addEventListener("pointerdown",e=>{ const k=e.target.closest("[data-k]"); if(!k) return; e.preventDefault(); const p=last.selectionStart??last.value.length; last.value=last.value.slice(0,p)+k.dataset.k+last.value.slice(last.selectionEnd??p); last.focus(); last.setSelectionRange(p+1,p+1); });
+  if(c) confirmBtn(ov.querySelector("#lc-del"),()=>{ L().custom=L().custom.filter(x=>x!==c); ["r","p"].forEach(d=>delete L().p[lkey(c.id,d)]); save(); close(); render(); });
+  ov.querySelector("#f").onsubmit=e=>{ e.preventDefault();
+    const sq=ov.querySelector("#lc-sq").value.trim().slice(0,80), pl=ov.querySelector("#lc-pl").value.trim().slice(0,80);
+    if(!sq||!pl){ ov.querySelector("#err").textContent="Wpisz zwrot po albańsku i po polsku."; return; }
+    const data={sq,pl,pron:ov.querySelector("#lc-pr").value.trim().slice(0,80),note:ov.querySelector("#lc-no").value.trim().slice(0,80)};
+    if(c) Object.assign(c,data); else L().custom.push({id:"u"+uid(),lang:langCode(),...data});
+    save(); close(); render(); toast(c?"Zapisano fiszkę.":"Dodano do talii „Moje fiszki”."); };
+  if(!c) setTimeout(()=>ov.querySelector("#lc-sq")?.focus(),50);
+}
+function langSession(){
+  const due=langDue(), fresh=langNew(newLeft());
+  const q=[]; let di=0, ni=0;
+  while(di<due.length || ni<fresh.length){ for(let k=0;k<2 && di<due.length;k++) q.push(due[di++]); if(ni<fresh.length) q.push(fresh[ni++]); }
+  if(!q.length){ toast("Na dziś wszystko zrobione. Wróć jutro albo zwiększ limit nowych."); return; }
+  const seenIntro=new Set(); let i=0, ok=0, again=0, shown=false, res=null;
+  const total0=q.length;
+  ov.innerHTML=`<div class="sheet lsess" role="dialog" aria-label="Nauka"><div class="lstop"><button type="button" class="mini" id="ls-back" disabled>‹ Poprzednia</button><span id="ls-prog" class="num"></span><button type="button" class="mini" id="ls-end">Zakończ</button></div><div id="ls-card"></div></div>`;
+  ov.hidden=false;
+  const box=ov.querySelector("#ls-card"), backBtn=ov.querySelector("#ls-back");
+  ov.querySelector("#ls-end").onclick=()=>{ close(); render(); };
+  const hist=[]; let peek=null;
+  const remember=it=>{ if(hist[hist.length-1]!==it.card) hist.push(it.card); backBtn.disabled=false; };
+  const drawPeek=()=>{ const c=hist[peek];
+    box.innerHTML=`<div class="lcard"><span class="lbadge">${hist.length-peek===1?"Poprzedni zwrot":`${hist.length-peek} ${hist.length-peek<5?"zwroty":"zwrotów"} wstecz`}</span><div class="lq">${esc(c[1])} ${spkBtn(c[1])}</div><div class="lpron">[${esc(c[3])}]</div><div class="la">${esc(c[2])}</div>${c[4]?`<div class="lnote">${esc(c[4])}</div>`:""}</div>
+      <div class="lbtns2"><button type="button" class="btn ghost" id="ls-pprev" ${peek>0?"":"disabled"}>‹ Wcześniejszy</button><button type="button" class="btn primary" id="ls-resume">Wróć do nauki</button></div>`;
+    backBtn.disabled=peek<=0;
+    box.querySelector("#ls-pprev").onclick=()=>{ if(peek>0){ peek--; drawPeek(); } };
+    box.querySelector("#ls-resume").onclick=()=>{ peek=null; backBtn.disabled=!hist.length; draw(); }; };
+  backBtn.onclick=()=>{ if(!hist.length) return; peek = peek===null ? hist.length-1 : Math.max(0,peek-1); drawPeek(); };
+  const finish=()=>{ const sk=langStreak();
+    box.innerHTML=`<div class="ldone"><span aria-hidden="true">🎉</span><b>Koniec na dziś</b><p>Zaliczone karty: ${ok}${again?`, powtórzone w trakcie: ${again}`:""}.${sk?` Seria: ${sk} ${sk===1?"dzień":"dni"}.`:""}</p><button type="button" class="btn primary" id="ls-close">Gotowe</button></div>`;
+    ov.querySelector("#ls-prog").textContent=""; backBtn.hidden=true; box.querySelector("#ls-close").onclick=()=>{ close(); render(); }; };
+  const grades = it => { const s=lst(it.id,it.dir);
+    return [[1,"Nie pamiętam","teraz"],[2,"Trudne",lnext(s,2).again?"za chwilę":ivlTxt(lnext(s,2).s.ivl)],[3,"Dobrze",ivlTxt(lnext(s,3).s.ivl)],[4,"Łatwe",ivlTxt(lnext(s,4).s.ivl)]]
+      .map(([g,l,t])=>`<button type="button" class="lg lg${g} ${res&&((res==="ok"&&g===3)||(res==="bad"&&g===1)||(res==="almost"&&g===2))?"sug":""}" data-g="${g}"><b>${l}</b><small>${t}</small></button>`).join(""); };
+  const draw=()=>{
+    if(i>=q.length){ finish(); return; }
+    const it=q[i], c=it.card, sq=c[1], pl=c[2], pron=c[3], note=c[4];
+    ov.querySelector("#ls-prog").textContent=`${Math.min(i+1,q.length)} / ${q.length}`;
+    const intro = it.isNew && it.dir==="r" && !seenIntro.has(it.id);
+    if(intro){
+      box.innerHTML=`<div class="lcard"><span class="lbadge">Nowy zwrot</span><div class="lq">${esc(sq)} ${spkBtn(sq)}</div><div class="lpron">[${esc(pron)}]</div><div class="la">${esc(pl)}</div>${note?`<div class="lnote">${esc(note)}</div>`:""}
+        <p class="hint" style="text-align:center">Przeczytaj na głos. Za kilka kart sprawdzę, czy pamiętasz.</p></div>
+        <div class="lbtns2"><button type="button" class="btn ghost" id="ls-know">Już to znam</button><button type="button" class="btn primary" id="ls-next">Dalej</button></div>`;
+      if(sqVoice()) speak(sq);
+      box.querySelector("#ls-next").onclick=()=>{ remember(it); seenIntro.add(it.id); q.splice(Math.min(i+4,q.length),0,it); i++; draw(); };
+      box.querySelector("#ls-know").onclick=()=>{ remember(it); lgrade(it,4); ok++; i++; draw(); };
+      return;
+    }
+    const prod = it.dir==="p";
+    const front = prod ? pl : sq, back = prod ? sq : pl;
+    const label = prod ? "Jak to powiedzieć po albańsku?" : "Co to znaczy?";
+    if(!shown){
+      box.innerHTML=`<div class="lcard"><span class="lbadge ${prod?"p":""}">${prod?"PL → AL":"AL → PL"}</span><div class="lhint">${label}</div><div class="lq">${esc(front)} ${prod?"":spkBtn(sq)}</div>${prod?"":`<div class="lpron">[${esc(pron)}]</div>`}
+        ${prod && L().typing?`<form id="ls-f" class="ltype"><input id="ls-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Wpisz po albańsku"><div class="quick lkeys">${["ë","ç"].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join("")}</div></form>`:""}</div>
+        <div class="lbtns2">${prod && L().typing?`<button type="button" class="btn ghost" id="ls-idk">Nie wiem</button><button type="button" class="btn primary" id="ls-chk">Sprawdź</button>`:`<button type="button" class="btn primary" id="ls-show" style="grid-column:1/-1">Pokaż odpowiedź</button>`}</div>`;
+      const reveal=r=>{ res=r; shown=true; draw(); };
+      if(prod && L().typing){
+        const inp=box.querySelector("#ls-in"); setTimeout(()=>inp.focus(),60);
+        box.querySelector(".lkeys").addEventListener("pointerdown",e=>{ const k=e.target.closest("[data-k]"); if(!k) return; e.preventDefault(); const p=inp.selectionStart??inp.value.length; inp.value=inp.value.slice(0,p)+k.dataset.k+inp.value.slice(inp.selectionEnd??p); inp.focus(); inp.setSelectionRange(p+1,p+1); });
+        const chk=()=>{ const t=inp.value.trim(); if(!t){ reveal("bad"); return; } res=lcheck(t, sq); box.dataset.typed=t; reveal(res); };
+        box.querySelector("#ls-f").onsubmit=e=>{ e.preventDefault(); chk(); };
+        box.querySelector("#ls-chk").onclick=chk;
+        box.querySelector("#ls-idk").onclick=()=>{ box.dataset.typed=""; reveal("bad"); };
+      } else box.querySelector("#ls-show").onclick=()=>reveal(null);
+      return;
+    }
+    const typed=box.dataset.typed;
+    const verdict = res==="ok"?`<div class="lres ok">✓ Dobrze</div>`:res==="almost"?`<div class="lres almost">Prawie: uważaj na znaki ë i ç</div>`:res==="bad"&&typed?`<div class="lres bad">✗ Wpisałeś: ${esc(typed)}</div>`:"";
+    box.innerHTML=`<div class="lcard"><span class="lbadge ${prod?"p":""}">${prod?"PL → AL":"AL → PL"}</span><div class="lq sm">${esc(front)}</div>${verdict}<div class="la">${esc(back)} ${spkBtn(sq)}</div><div class="lpron">[${esc(pron)}]</div>${note?`<div class="lnote">${esc(note)}</div>`:""}</div>
+      <div class="lgrades">${grades(it)}</div>`;
+    if(prod && sqVoice()) speak(sq);
+    box.querySelector(".lgrades").onclick=e=>{ const b=e.target.closest("[data-g]"); if(!b) return;
+      remember(it); const ag=lgrade(it,+b.dataset.g);
+      if(ag){ again++; q.splice(Math.min(i+4,q.length),0,{...it,isNew:false}); } else ok++;
+      i++; shown=false; res=null; delete box.dataset.typed; draw(); };
+  };
+  box.addEventListener("click",e=>{ const s=e.target.closest("[data-speak]"); if(s){ e.stopPropagation(); speak(s.dataset.speak); } });
+  draw();
+}
+
+/* ---------- subskrypcje ---------- */
+const SUB_PER = {w:"co tydzień",m:"co miesiąc",q:"co 3 miesiące",y:"co rok"};
+const SUB_M = {m:1,q:3,y:12};
+function subOcc(x,k){
+  if(x.per==="w") return plusDays(x.start,7*k);
+  const d=new Date(x.start+"T00:00"), day=d.getDate(), mm=d.getMonth()+k*SUB_M[x.per||"m"];
+  const last=new Date(d.getFullYear(),mm+1,0).getDate();
+  return iso(new Date(d.getFullYear(),mm,Math.min(day,last)));
+}
+function subDatesIn(x,a,b){ const out=[]; if(x.paused||!x.start) return out;
+  for(let k=0;k<5000;k++){ const d=subOcc(x,k); if(d>b || (x.until && d>x.until)) break; if(d>=a) out.push(d); } return out; }
+function subNext(x){ if(x.paused||!x.start) return null; for(let k=0;k<5000;k++){ const d=subOcc(x,k); if(x.until && d>x.until) return null; if(d>=TODAY) return d; } return null; }
+const subMonthly = x => x.per==="w" ? x.amount*52/12 : x.amount/SUB_M[x.per||"m"];
+const subsOn = d => S.subs.filter(x=>subDatesIn(x,d,d).length);
+function subWhen(d){ const n=Math.round((new Date(d+"T00:00")-d0)/864e5); return n===0?"dziś":n===1?"jutro":n<7?`za ${n} dni`:fmtDate(d); }
+function subRow(x, on){
+  const nx = on || subNext(x), soon = nx && nx<=addDays(3);
+  const when = x.paused ? "wstrzymana" : !nx ? `zakończona${x.until?" "+fmtDate(x.until):""}` : on ? SUB_PER[x.per] : `${SUB_PER[x.per]} · <span class="${soon?"dl soon":""}">${subWhen(nx)}${nx>addDays(6)?"":" · "+fmtDate(nx)}</span>`;
+  return `<div class="tx ${x.paused||!nx?"subsoff":""}" data-sub="${x.id}"><div class="t"><strong>${esc(x.name)}</strong>
+    <span class="meta" style="margin:0">${when}${x.note?" · "+esc(x.note):""}</span></div><span class="amt num exp">−${zl(x.amount)}</span></div>`;
+}
+function renderSubs(){
+  const act=S.subs.filter(x=>subNext(x)).sort((a,b)=>subNext(a).localeCompare(subNext(b))||a.name.localeCompare(b.name,"pl"));
+  const off=S.subs.filter(x=>!act.includes(x));
+  const m=act.reduce((a,x)=>a+subMonthly(x),0);
+  const in30=act.flatMap(x=>subDatesIn(x,TODAY,addDays(29)).map(()=>x.amount)).reduce((a,v)=>a+v,0);
+  document.getElementById("sb-sum").innerHTML=`<div><span class="label">Miesięcznie</span><b class="num">${zl(round2(m))}</b></div>
+    <div><span class="label">Rocznie</span><b class="num">${zl(round2(m*12))}</b></div>
+    <div><span class="label">Najbliższe 30 dni</span><b class="num">${zl(round2(in30))}</b></div>`;
+  document.getElementById("sb-list").innerHTML = act.length ? act.map(x=>subRow(x)).join("") : `<div class="empty">Brak subskrypcji. Stuknij +, żeby dopisać np. Spotify, iCloud albo karnet na siłownię.</div>`;
+  document.getElementById("sb-offh").hidden = !off.length;
+  document.getElementById("sb-off").innerHTML = off.map(x=>subRow(x)).join("");
+}
+function subSheet(id){
+  const x = id ? S.subs.find(y=>y.id===id) : null;
+  const v = x || {name:"",amount:0,per:"m",start:"",note:"",paused:false,until:""};
+  const nx = x ? (subNext(x) || x.start) : TODAY;
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${x?"Edytuj subskrypcję":"Nowa subskrypcja"}"><h3>${x?"Edytuj subskrypcję":"Nowa subskrypcja"}</h3><form id="f">
+    <div class="field"><label class="label" for="sb-name">Za co</label><input id="sb-name" required value="${esc(v.name)}" placeholder="np. Spotify, iCloud, siłownia" autocomplete="off"></div>
+    <div class="row">
+      <div class="field"><label class="label" for="sb-amt">Ile (zł)</label><input id="sb-amt" inputmode="decimal" value="${v.amount?String(v.amount).replace(".",","):""}" placeholder="0,00"></div>
+      <div class="field"><label class="label" for="sb-date">Najbliższa płatność</label><input id="sb-date" type="date" value="${nx}"></div>
+    </div>
+    <div class="field"><span class="label">Jak często</span>${seg("sbper",[["w","Tydzień"],["m","Miesiąc"],["q","3 mies."],["y","Rok"]],v.per)}</div>
+    <div class="field"><label class="label" for="sb-note">Notatka (opcjonalnie)</label><input id="sb-note" value="${esc(v.note||"")}" placeholder="np. karta mBank, konto rodzinne" autocomplete="off"></div>
+    <div class="field"><label class="label" for="sb-until">Kończy się (opcjonalnie)</label><input id="sb-until" type="date" data-clear value="${v.until||""}"></div>
+    <div class="err" id="err"></div>
+    <div class="actions">${x?`<button type="button" class="btn ghost" id="sb-del" style="color:var(--exp)">Usuń</button><button type="button" class="btn ghost" id="sb-pause">${x.paused?"Wznów":"Wstrzymaj"}</button>`:`<button type="button" class="btn ghost" id="cancel">Anuluj</button>`}<button class="btn primary">${x?"Zapisz":"Dodaj"}</button></div>
+  </form></div>`;
+  ov.hidden=false; bindSeg(ov); clearables(ov);
+  ov.querySelector("#cancel")?.addEventListener("click",close);
+  if(x){ confirmBtn(ov.querySelector("#sb-del"),()=>{ S.subs=S.subs.filter(y=>y!==x); save(); close(); render(); });
+    ov.querySelector("#sb-pause").onclick=()=>{ x.paused=!x.paused; save(); close(); render(); toast(x.paused?"Wstrzymano. Nie liczy się do sum.":"Wznowiono."); }; }
+  ov.querySelector("#f").onsubmit=e=>{ e.preventDefault();
+    const err=ov.querySelector("#err");
+    const name=ov.querySelector("#sb-name").value.trim().slice(0,60); if(!name){ err.textContent="Wpisz, za co płacisz."; return; }
+    const amount=parseAmt(ov.querySelector("#sb-amt").value); if(!(amount>0)){ err.textContent="Wpisz kwotę, np. 23,99."; return; }
+    const start=ov.querySelector("#sb-date").value; if(!start){ err.textContent="Wybierz datę najbliższej płatności."; return; }
+    const until=ov.querySelector("#sb-until").value;
+    if(until && until<start){ err.textContent="Data końca jest przed najbliższą płatnością."; return; }
+    const data={name,amount:round2(amount),per:segVal(ov,"sbper"),start,note:ov.querySelector("#sb-note").value.trim().slice(0,60),until};
+    if(x) Object.assign(x,data); else S.subs.push({id:uid(),paused:false,...data});
+    save(); close(); render(); };
+  if(!x) setTimeout(()=>ov.querySelector("#sb-name")?.focus(),50);
 }
 
 /* ---------- zakupy ---------- */
@@ -1276,7 +1765,6 @@ function addChooser(o={}){
       <button type="button" class="chbtn" data-chq="travel"><span aria-hidden="true">🚆</span><b>Podróż</b><small>przejazd między miastami</small></button>
       <button type="button" class="chbtn" data-chq="event"><span aria-hidden="true">⟳</span><b>Stałe wydarzenie</b><small>trening, praca, zajęcia</small></button>
       <button type="button" class="chbtn" data-chq="rout"><span aria-hidden="true">☀</span><b>Rutyna</b><small>codzienna czynność</small></button>
-      <button type="button" class="chbtn" data-chq="insp"><span aria-hidden="true">💡</span><b>Inspiracja</b><small>zrzut, link, pomysł</small></button>
     </div>
     <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button></div></div>`;
   ov.hidden=false;
@@ -1797,7 +2285,6 @@ function handlePasteFiles(dt){
   return false;
 }
 (function wireInsp(){
-  document.getElementById("insp-btn").onclick=()=> tab==="insp" ? (tab=inspBack, render()) : openInsp();
   document.getElementById("in-back").onclick=()=>{ tab=inspBack||"day"; render(); scrollTo(0,0); };
   document.getElementById("in-add").onclick=()=>pickImages(true, fs=>addInspFiles(fs));
   document.getElementById("in-note-add").onclick=()=>inspSheet(null,{});
@@ -1889,7 +2376,7 @@ function questSheet(o={}){
   const dh=Math.floor((v.dur||0)/60), dm=(v.dur||0)%60;
   ov.innerHTML = `<div class="sheet" role="dialog" aria-label="${q?"Edytuj quest":"Nowy quest"}"><h3>${q?"Edytuj quest":"Nowy quest"}</h3><form id="f">
     <div class="field"><label class="label" for="q-title">Co trzeba zrobić</label><input id="q-title" required value="${esc(v.title)}" placeholder="np. Oddać sprawozdanie"></div>
-    <div class="field"><span class="label">Priorytet</span>${seg("prio",[[1,"Niski"],[2,"Średni"],[3,"Wysoki"],[4,"Krytyczny"]],v.prio)}</div>
+    <div class="field"><span class="label">Intensywność</span>${seg("prio",[[1,"Niska"],[2,"Średnia"],[3,"Wysoka"],[4,"Maksymalna"]],v.prio)}</div>
     <div class="field"><span class="label">Kategoria</span>
       <div class="quick catpick" id="q-catp">${[...new Set([...S.cats, v.cat].filter(Boolean))].map(c=>`<button type="button" data-v="${esc(c)}" aria-pressed="${c===v.cat}">${esc(c)}</button>`).join("")}<button type="button" class="catnew" data-newc="1">+ Nowa</button></div>
       <div class="newcatrow" id="q-newrow" hidden><input id="q-newcat" placeholder="Nazwa nowej kategorii, np. Obóz" autocomplete="off" enterkeyhint="done"><button type="button" class="btn primary" id="q-newok">Dodaj</button></div>
@@ -1905,21 +2392,15 @@ function questSheet(o={}){
       <div class="durrow"><input id="q-h" type="number" min="0" max="99" inputmode="numeric" value="${dh||""}" placeholder="0" aria-label="Godziny"><span>h</span><input id="q-m" type="number" min="0" max="59" inputmode="numeric" value="${dm||""}" placeholder="0" aria-label="Minuty"><span>min</span></div>
       <div class="quick" id="dur-quick"><button type="button" data-dur="15">15 min</button><button type="button" data-dur="30">30 min</button><button type="button" data-dur="60">1 h</button><button type="button" data-dur="120">2 h</button><button type="button" data-dur="240">4 h</button></div>
     </div>
-    <div class="row">
-      <div class="field"><label class="label" for="q-cost">Koszt (zł, opcjonalnie)</label><input id="q-cost" inputmode="decimal" value="${v.cost?String(v.cost).replace(".",","):""}" placeholder="0,00"></div>
-      <div class="field"><label class="label" for="q-expcat">Kategoria wydatku</label><select id="q-expcat">${TX_CATS.filter(c=>c!=="Wynagrodzenie").map(c=>`<option ${c===(v.expCat||CAT_TO_EXP[v.cat]||"Inne")?"selected":""}>${c}</option>`).join("")}</select></div>
-    </div>
-    <div class="field"><span class="label">Płatność</span>${seg("qmethod",[["card","Karta / przelew"],["cash","Gotówka"]],v.method||"card")}</div>
-    <p class="hint" style="margin:0">Koszt liczy się w prognozie od ustalonego dnia, a jeśli go nie ma, od deadline'u. Po odhaczeniu questa wydatek trafia do historii w Portfelu z wybraną kategorią.</p>
+    <div class="field"><label class="label" for="q-cost">Kwota (zł, opcjonalnie)</label><input id="q-cost" inputmode="decimal" value="${v.cost?String(v.cost).replace(".",","):""}" placeholder="0,00"></div>
     <div class="err" id="err"></div>
     <div class="actions">${q?`<button type="button" class="btn ghost" id="q-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary" id="q-ok">${q?"Zapisz":"Dodaj quest"}</button></div>
   </form></div>`;
   ov.hidden=false; bindSeg(ov); clearables(ov);
   ov.querySelector("#dur-quick").onclick=e=>{const b=e.target.closest("button");if(!b)return;const m=+b.dataset.dur;ov.querySelector("#q-h").value=Math.floor(m/60)||"";ov.querySelector("#q-m").value=m%60||"";};
-  const expSel=ov.querySelector("#q-expcat"), cp=ov.querySelector("#q-catp");
-  let expTouched = !!(q && q.expCat), qCat=v.cat;
-  expSel.onchange=()=>expTouched=true;
-  const setCat=c=>{ qCat=c; cp.querySelectorAll("button[data-v]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===c)); if(!expTouched && CAT_TO_EXP[c]) expSel.value=CAT_TO_EXP[c]; };
+  const cp=ov.querySelector("#q-catp");
+  let qCat=v.cat;
+  const setCat=c=>{ qCat=c; cp.querySelectorAll("button[data-v]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===c)); };
   const addNewCat=()=>{ const inp=ov.querySelector("#q-newcat"), n=inp.value.trim().slice(0,24); if(!n) return false;
     let b=[...cp.querySelectorAll("button[data-v]")].find(x=>x.dataset.v.toLowerCase()===n.toLowerCase());
     if(!b){ b=document.createElement("button"); b.type="button"; b.dataset.v=n; b.textContent=n; cp.insertBefore(b, cp.querySelector("[data-newc]")); }
@@ -1937,7 +2418,7 @@ function questSheet(o={}){
     if(ov.querySelector("#q-newcat").value.trim()) addNewCat();
     let cat=qCat; if(!cat){ err.textContent="Wybierz kategorię."; return; }
     const costRaw=ov.querySelector("#q-cost").value.trim(); const cost=costRaw?parseAmt(costRaw):0;
-    if(costRaw && !(cost>0)){err.textContent="Koszt musi być liczbą większą od zera, np. 79,90.";return;}
+    if(costRaw && !(cost>0)){err.textContent="Kwota musi być liczbą większą od zera, np. 79,90.";return;}
     const dur=(parseInt(ov.querySelector("#q-h").value)||0)*60+(parseInt(ov.querySelector("#q-m").value)||0);
     const time=ov.querySelector("#q-time").value, deadline=ov.querySelector("#q-deadline").value;
     const date=ov.querySelector("#q-date").value||(time?(o.date||TODAY):"");
@@ -1946,7 +2427,7 @@ function questSheet(o={}){
       err.textContent=[c.length?`⚠ Koliduje z: ${c.join(", ")}.`:"", afterDl?`⚠ Ustalony dzień wypada po deadlinie.`:""].filter(Boolean).join(" ")+" Zapisz jeszcze raz, jeśli tak ma być.";
       ov.querySelector("#q-ok").textContent="Zapisz mimo to"; return; }
     if(!S.cats.includes(cat)) S.cats.push(cat);
-    const data={title,cat,prio:+segVal(ov,"prio"),date,deadline,time:date?time:"",cost:round2(cost),method:segVal(ov,"qmethod"),expCat:expSel.value,dur,work:ov.querySelector("#q-work")?.value ?? (q&&q.work||"")};
+    const data={title,cat,prio:+segVal(ov,"prio"),date,deadline,time:date?time:"",cost:round2(cost),method:v.method||"card",expCat:v.expCat||"",dur,work:ov.querySelector("#q-work")?.value ?? (q&&q.work||"")};
     if(q){ Object.assign(q,data); syncQuestTx(q); } else S.quests.push({id:uid(),done:false,...data});
     save();close();render();};
   if(!q) setTimeout(()=>ov.querySelector("#q-title")?.focus(),50);
@@ -2278,14 +2759,14 @@ const SCAN_DESC = () => false;
 
 /* ---------- ustawienia i kopia zapasowa ---------- */
 const IS_PWA = !!window.__PWA__;
-const counts = () => `${S.quests.length} questów · ${S.tx.length} transakcji · ${S.plan.length+S.recur.length} zaplanowanych · ${S.events.length} stałych wydarzeń`;
+const counts = () => `${S.quests.length} questów · ${S.subs.length} subskrypcji · ${S.events.length} stałych wydarzeń`;
 function exportJSON(){ return JSON.stringify({app:"questlog", exported:new Date().toISOString(), data:S}); }
 async function copyText(txt){
   try{ await navigator.clipboard.writeText(txt); return true; }catch(e){ return false; }
 }
 function settingsSheet(){
   ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Ustawienia"><h3>Dane i kopia zapasowa</h3>
-    <p class="hint" style="margin:-6px 0 14px">Masz teraz: ${counts()}. Dane są zapisane tylko na tym urządzeniu, w tej ${IS_PWA?"aplikacji":"przeglądarce"}. Zdjęcia inspiracji nie wchodzą do kopii, przenoszą się tylko opisy i linki.</p>
+    <p class="hint" style="margin:-6px 0 14px">Masz teraz: ${counts()}. Dane są zapisane tylko na tym urządzeniu, w tej ${IS_PWA?"aplikacji":"przeglądarce"}.</p>
     <div class="stack">
       <button class="btn primary" id="s-export">${IS_PWA?"Eksportuj kopię do pliku":"Kopiuj dane do przeniesienia"}</button>
       ${IS_PWA?`<button class="btn ghost" id="s-copy">Kopiuj kopię jako tekst</button>`:""}
@@ -2336,11 +2817,55 @@ document.getElementById("settings").onclick=settingsSheet;
 if(IS_PWA && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 
 /* ---------- zdarzenia ---------- */
-document.getElementById("fab").onclick=()=> tab==="insp"?pickImages(true, fs=>addInspFiles(fs)):tab==="work"?(S.jobs.length?manualSheet():jobSheet()):tab==="workd"?addWorkChooser():tab==="day"?addChooser({date:dayDate}):tab==="cal"?addChooser({date:selDay,cal:true}):tab==="hist"?txSheet():tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
+document.getElementById("fab").onclick=()=> tab==="lang"?langCardSheet():tab==="subs"?subSheet():tab==="work"?(S.jobs.length?manualSheet():jobSheet()):tab==="workd"?addWorkChooser():tab==="day"?addChooser({date:dayDate}):tab==="cal"?addChooser({date:selDay,cal:true}):tab==="hist"?txSheet():tab==="shop"?shopItemSheet():tab==="quests"?questSheet():tab==="cal"?questSheet({deadline:selDay}):tab==="day"?questSheet({date:dayDate}):txSheet();
 document.getElementById("t-quests").onclick=()=>{tab="quests";render();};
 document.getElementById("t-cal").onclick=()=>{tab="cal";render();};
 document.getElementById("t-day").onclick=()=>{tab="day";render();};
-document.getElementById("t-wallet").onclick=()=>{tab="wallet";render();};
+document.getElementById("t-subs").onclick=()=>{tab="subs";render();};
+document.getElementById("t-lang").onclick=()=>{tab="lang";render();};
+document.getElementById("lg-root").addEventListener("click",langClick);
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-langgo]"); if(b && !b.disabled) langSession(); });
+/* ---------- boczne menu ---------- */
+const DR = document.getElementById("drawer"), SCRIM = document.getElementById("scrim"), MBTN = document.getElementById("menu-btn");
+function openDrawer(){ DR.classList.add("open"); DR.inert=false; SCRIM.hidden=false; requestAnimationFrame(()=>SCRIM.classList.add("show")); MBTN.setAttribute("aria-expanded","true"); }
+function closeDrawer(){ DR.classList.remove("open"); DR.inert=true; SCRIM.classList.remove("show"); setTimeout(()=>{ if(!DR.classList.contains("open")) SCRIM.hidden=true; },260); MBTN.setAttribute("aria-expanded","false"); }
+MBTN.onclick=()=> DR.classList.contains("open") ? closeDrawer() : openDrawer();
+SCRIM.onclick=closeDrawer;
+document.getElementById("dr-tabs").addEventListener("click",e=>{ if(e.target.closest("[role=tab]")){ closeDrawer(); scrollTo(0,0); } });
+document.getElementById("settings").addEventListener("click",closeDrawer);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && DR.classList.contains("open")) closeDrawer(); });
+(function drawerSwipe(){
+  let sx=0, sy=0, mode=null, moving=false, dx=0;
+  const W=()=>DR.offsetWidth||280;
+  document.addEventListener("touchstart",e=>{
+    mode=null; moving=false; dx=0;
+    if(!ov.hidden || document.body.classList.contains("dragmode") || e.touches.length>1) return;
+    const t=e.touches[0], open=DR.classList.contains("open");
+    if(open) mode="close"; else if(t.clientX<=EDGE) mode="open"; else return;
+    sx=t.clientX; sy=t.clientY;
+  },{passive:true});
+  document.addEventListener("touchmove",e=>{
+    if(!mode) return;
+    const t=e.touches[0]; dx=t.clientX-sx; const dy=t.clientY-sy;
+    if(!moving){
+      if(Math.abs(dx)<8 && Math.abs(dy)<8) return;
+      if(Math.abs(dy)>Math.abs(dx)){ mode=null; return; }
+      moving=true; DR.style.transition="none"; SCRIM.style.transition="none"; SCRIM.hidden=false;
+    }
+    const x = mode==="open" ? Math.min(0,-W()+dx) : Math.min(0,dx);
+    DR.style.transform=`translateX(${x}px)`; SCRIM.style.opacity=String(Math.max(0,1+x/W()));
+  },{passive:true});
+  const end=()=>{
+    if(!mode) return; const m=mode; mode=null;
+    if(!moving) return; moving=false;
+    DR.style.transition=""; SCRIM.style.transition=""; DR.style.transform=""; SCRIM.style.opacity="";
+    if(m==="open") (dx>W()*0.3 ? openDrawer : closeDrawer)();
+    else (dx<-W()*0.25 ? closeDrawer : openDrawer)();
+  };
+  document.addEventListener("touchend",end,{passive:true});
+  document.addEventListener("touchcancel",end,{passive:true});
+})();
+
 document.getElementById("t-work").onclick=()=>{tab="work";render();};
 (function(){ const dc=document.getElementById("done-clear"); let armed=false, t;
   dc.onclick=()=>{ if(!armed){ armed=true; dc.textContent="Na pewno? Stuknij jeszcze raz"; t=setTimeout(()=>{armed=false;dc.textContent="Usuń ukończone starsze niż 30 dni";},4000); return; }
@@ -2368,6 +2893,7 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("button");
   if(!b){
     const eq=e.target.closest("[data-editq]"); if(eq){ questSheet({id:eq.dataset.editq}); return; }
+    const sbr=e.target.closest("[data-sub]"); if(sbr){ subSheet(sbr.dataset.sub); return; }
     const et=e.target.closest("[data-edittx]"); if(et){ const it=[...S.tx,...S.plan].find(x=>x.id===et.dataset.edittx); if(it && it.travelId && S.travels.some(t=>t.id===it.travelId)){ travelSheet(it.travelId); return; } txSheet(et.dataset.edittx, et.dataset.list); return; }
     const es=e.target.closest("[data-editshop]"); if(es){ shopItemSheet(es.dataset.editshop); return; }
     const er=e.target.closest("[data-editrout]"); if(er){ routineSheet(er.dataset.editrout); return; }
