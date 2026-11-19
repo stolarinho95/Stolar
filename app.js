@@ -116,7 +116,7 @@ S.subs ||= [];
 // v10: Portfel zastąpiony subskrypcjami. Cykliczne wydatki z portfela przechodzą do subskrypcji, stare dane portfela zostają nietknięte.
 if(!S.v10){ (S.recur||[]).filter(r=>r.type==="exp" && r.next).forEach(r=>S.subs.push({id:uid(),name:String(r.note||r.cat||"Płatność").slice(0,60),amount:r.amount,per:r.freq==="week"?"w":"m",start:r.next,note:"",until:r.to||"",paused:false})); }
 S.v10 = true;
-S.lang ||= {}; S.lang.active ||= "sq"; S.lang.p ||= {}; S.lang.off ||= {}; S.lang.custom ||= []; S.lang.log ||= {}; S.lang.newLog ||= {};
+S.lang ||= {}; S.lang.active ||= "es"; if(!S.v12){ S.lang.active="es"; } S.v12 = true; S.lang.p ||= {}; S.lang.off ||= {}; S.lang.custom ||= []; S.lang.log ||= {}; S.lang.newLog ||= {};
 if(!S.lang.newPerDay) S.lang.newPerDay = 10; if(S.lang.typing===undefined) S.lang.typing = false;
 // migracja: stare "due" -> dzień w planie (gdy jest godzina) albo deadline
 S.quests.forEach(q=>{ if("due" in q){ if(q.time){ q.date ||= q.due; } else { q.deadline ||= q.due; } delete q.due; } q.date ||= ""; q.deadline ||= ""; });
@@ -668,196 +668,201 @@ function render(){
 /* ---------- nauka języka ---------- */
 // Metoda: powtórki w odstępach (algorytm w stylu SM-2) + aktywne przypominanie, oba kierunki.
 // Nowe słowo: najpierw pokaz (oba języki), po chwili sprawdzenie. Kierunek PL→SQ odblokowuje się, gdy rozpoznajesz zwrot.
-// Karta: [id, po albańsku, po polsku, wymowa po polsku, notatka]
-const SQ_DECKS = [
+// Karta: [id, po hiszpańsku, po polsku, wymowa po polsku, notatka]
+const ES_DECKS = [
  {id:"pow", name:"Powitania i grzeczność", cards:[
-  ["a01","Përshëndetje","Cześć / Dzień dobry","pyrszyndetje","uniwersalne powitanie, o każdej porze"],
-  ["a02","Tungjatjeta","Dzień dobry (uprzejmie)","tundźatjeta","dosłownie „długiego życia”"],
-  ["a03","Mirëmëngjes","Dzień dobry (rano)","mirymyndźes",""],
-  ["a04","Mirëdita","Dzień dobry (w ciągu dnia)","mirydita",""],
-  ["a05","Mirëmbrëma","Dobry wieczór","mirymbryma",""],
-  ["a06","Natën e mirë","Dobranoc","natyn e miry",""],
-  ["a07","Mirupafshim","Do widzenia","mirupafszim",""],
-  ["a08","Shihemi!","Do zobaczenia!","szihemi",""],
-  ["a09","Faleminderit","Dziękuję","faleminderit","akcent na „de”"],
-  ["a10","Ju lutem","Proszę","ju lutem","przy prośbie i przy podawaniu czegoś"],
-  ["a11","S'ka përse","Nie ma za co","s-ka pyrse",""],
-  ["a12","Më falni","Przepraszam","my falni","do kolegi: Më fal"],
-  ["a13","Po","Tak","po","uwaga: „po” znaczy TAK"],
-  ["a14","Jo","Nie","jo",""],
-  ["a15","Në rregull","W porządku / OK","ny rreguł","rr wyraźnie zawibrowane"],
-  ["a16","Gëzuar!","Na zdrowie!","gyzuar","toast przy stole"]]},
+  ["a01","¡Hola!","Cześć!","ola","h jest nieme"],
+  ["a02","Buenos días","Dzień dobry (do południa)","buenos dias",""],
+  ["a03","Buenas tardes","Dzień dobry (po południu)","buenas tardes","mniej więcej od obiadu do zmroku"],
+  ["a04","Buenas noches","Dobry wieczór / Dobranoc","buenas nocze",""],
+  ["a05","Adiós","Do widzenia","adjos",""],
+  ["a06","Hasta luego","Na razie / Do zobaczenia","asta luego","najczęstsze pożegnanie"],
+  ["a07","Hasta mañana","Do jutra","asta mańana",""],
+  ["a08","Gracias","Dziękuję","grasjas","w Hiszpanii: grathjas"],
+  ["a09","Muchas gracias","Bardzo dziękuję","muczas grasjas",""],
+  ["a10","Por favor","Proszę (prosząc o coś)","por fabor","v czyta się jak b"],
+  ["a11","De nada","Nie ma za co","de nada",""],
+  ["a12","Perdón","Przepraszam","perdon","np. gdy na kogoś wpadniesz"],
+  ["a13","Lo siento","Przykro mi / Przepraszam","lo sjento","gdy naprawdę żałujesz"],
+  ["a14","Sí","Tak","si",""],
+  ["a15","No","Nie","no",""],
+  ["a16","Vale","OK / W porządku","bale","bardzo częste w Hiszpanii"],
+  ["a17","¡Salud!","Na zdrowie!","salud","toast i po kichnięciu"]]},
  {id:"roz", name:"Pierwsza rozmowa", cards:[
-  ["b01","Si jeni?","Jak się Pan/Pani ma?","si jeni","grzecznościowo albo do kilku osób"],
-  ["b02","Si je?","Jak się masz?","si je",""],
-  ["b03","Mirë, faleminderit. Po ju?","Dobrze, dziękuję. A Pan/Pani?","miry, faleminderit. po ju",""],
-  ["b04","Si quheni?","Jak się Pan/Pani nazywa?","si ćuheni","do kolegi: Si quhesh?"],
-  ["b05","Unë quhem Jakub","Nazywam się Jakub","uny ćuhem jakub",""],
-  ["b06","Gëzohem","Miło mi","gyzohem",""],
-  ["b07","Nga jeni?","Skąd Pan/Pani jest?","nga jeni",""],
-  ["b08","Jam nga Polonia","Jestem z Polski","jam nga polonia",""],
-  ["b09","A flisni anglisht?","Czy mówi Pan/Pani po angielsku?","a flisni angliszt",""],
-  ["b10","Flas pak shqip","Mówię trochę po albańsku","flas pak szćip","shqip = po albańsku"],
-  ["b11","Nuk kuptoj","Nie rozumiem","nuk kuptoj",""],
-  ["b12","Nuk e di","Nie wiem","nuk e di",""],
-  ["b13","Flisni më ngadalë, ju lutem","Proszę mówić wolniej","flisni my ngadaly, ju lutem",""],
-  ["b14","Si thuhet … shqip?","Jak się mówi … po albańsku?","si thuhet … szćip","th jak w ang. „think”"]]},
+  ["b01","¿Qué tal?","Co słychać?","ke tal",""],
+  ["b02","¿Cómo estás?","Jak się masz?","komo estas",""],
+  ["b03","¿Cómo está usted?","Jak się Pan/Pani ma?","komo esta usted",""],
+  ["b04","Bien, gracias. ¿Y tú?","Dobrze, dziękuję. A ty?","bjen, grasjas. i tu",""],
+  ["b05","¿Cómo te llamas?","Jak masz na imię?","komo te jamas","ll czyta się jak j"],
+  ["b06","Me llamo Jakub","Mam na imię Jakub","me jamo jakub",""],
+  ["b07","Encantado","Miło mi","enkantado","kobieta mówi: Encantada"],
+  ["b08","¿De dónde eres?","Skąd jesteś?","de donde eres",""],
+  ["b09","Soy de Polonia","Jestem z Polski","soj de polonja",""],
+  ["b10","¿Hablas inglés?","Mówisz po angielsku?","ablas ingles",""],
+  ["b11","Hablo un poco de español","Mówię trochę po hiszpańsku","ablo un poko de espańol",""],
+  ["b12","No entiendo","Nie rozumiem","no entjendo",""],
+  ["b13","No lo sé","Nie wiem","no lo se",""],
+  ["b14","Más despacio, por favor","Wolniej, proszę","mas despasjo, por fabor",""],
+  ["b15","¿Puedes repetirlo?","Możesz powtórzyć?","puedes repetirlo",""],
+  ["b16","¿Cómo se dice … en español?","Jak się mówi … po hiszpańsku?","komo se dise … en espańol",""]]},
  {id:"pyt", name:"Pytania i zaimki", cards:[
-  ["c01","Çfarë?","Co?","czfary",""],
-  ["c02","Kush?","Kto?","kusz",""],
-  ["c03","Ku?","Gdzie?","ku",""],
-  ["c04","Kur?","Kiedy?","kur",""],
-  ["c05","Pse?","Dlaczego?","pse",""],
-  ["c06","Si?","Jak?","si",""],
-  ["c07","Sa?","Ile?","sa",""],
-  ["c08","unë","ja","uny",""],
-  ["c09","ti","ty","ti",""],
-  ["c10","ai / ajo","on / ona","ai / ajo",""],
-  ["c11","ne","my","ne",""],
-  ["c12","ju","wy / Pan, Pani","ju","też forma grzecznościowa"],
-  ["c13","ata / ato","oni / one","ata / ato",""]]},
+  ["c01","¿Qué?","Co?","ke",""],
+  ["c02","¿Quién?","Kto?","kjen",""],
+  ["c03","¿Dónde?","Gdzie?","donde",""],
+  ["c04","¿Cuándo?","Kiedy?","kuando",""],
+  ["c05","¿Por qué?","Dlaczego?","por ke","odpowiedź: porque (bo)"],
+  ["c06","¿Cómo?","Jak?","komo",""],
+  ["c07","¿Cuánto?","Ile?","kuanto",""],
+  ["c08","yo","ja","jo",""],
+  ["c09","tú","ty","tu",""],
+  ["c10","él / ella","on / ona","el / eja",""],
+  ["c11","nosotros","my","nosotros",""],
+  ["c12","vosotros","wy","bosotros","używane w Hiszpanii"],
+  ["c13","usted","Pan / Pani","usted","forma grzecznościowa"],
+  ["c14","ellos / ellas","oni / one","ejos / ejas",""]]},
  {id:"lic", name:"Liczby", cards:[
-  ["d01","një","jeden (1)","ńy",""],
-  ["d02","dy","dwa (2)","dü","y czyta się jak niemieckie ü"],
-  ["d03","tre","trzy (3)","tre",""],
-  ["d04","katër","cztery (4)","katyr",""],
-  ["d05","pesë","pięć (5)","pes(y)",""],
-  ["d06","gjashtë","sześć (6)","dźaszt(y)",""],
-  ["d07","shtatë","siedem (7)","sztat(y)",""],
-  ["d08","tetë","osiem (8)","tet(y)",""],
-  ["d09","nëntë","dziewięć (9)","nynt(y)",""],
-  ["d10","dhjetë","dziesięć (10)","dhjet(y)","dh jak w ang. „this”"],
-  ["d11","njëzet","dwadzieścia (20)","ńyzet",""],
-  ["d12","pesëdhjetë","pięćdziesiąt (50)","pesydhjet(y)",""],
-  ["d13","njëqind","sto (100)","ńyćind",""],
-  ["d14","një mijë","tysiąc (1000)","ńy mij(y)",""]]},
+  ["d01","uno","jeden (1)","uno",""],
+  ["d02","dos","dwa (2)","dos",""],
+  ["d03","tres","trzy (3)","tres",""],
+  ["d04","cuatro","cztery (4)","kuatro",""],
+  ["d05","cinco","pięć (5)","sinko",""],
+  ["d06","seis","sześć (6)","sejs",""],
+  ["d07","siete","siedem (7)","sjete",""],
+  ["d08","ocho","osiem (8)","oczo",""],
+  ["d09","nueve","dziewięć (9)","nuebe",""],
+  ["d10","diez","dziesięć (10)","djes",""],
+  ["d11","veinte","dwadzieścia (20)","bejnte",""],
+  ["d12","cincuenta","pięćdziesiąt (50)","sinkuenta",""],
+  ["d13","cien","sto (100)","sjen",""],
+  ["d14","mil","tysiąc (1000)","mil",""]]},
  {id:"cza", name:"Czas i dni tygodnia", cards:[
-  ["e01","sot","dziś","sot",""],
-  ["e02","nesër","jutro","nesyr",""],
-  ["e03","dje","wczoraj","dje",""],
-  ["e04","tani","teraz","tani",""],
-  ["e05","më vonë","później","my vony",""],
-  ["e06","e hënë","poniedziałek","e hyny",""],
-  ["e07","e martë","wtorek","e mart(y)",""],
-  ["e08","e mërkurë","środa","e myrkury",""],
-  ["e09","e enjte","czwartek","e eńte",""],
-  ["e10","e premte","piątek","e premte",""],
-  ["e11","e shtunë","sobota","e sztuny",""],
-  ["e12","e diel","niedziela","e diel",""],
-  ["e13","Sa është ora?","Która godzina?","sa yszty ora",""]]},
+  ["e01","hoy","dziś","oj",""],
+  ["e02","mañana","jutro","mańana","też: rano (por la mañana)"],
+  ["e03","ayer","wczoraj","ajer",""],
+  ["e04","ahora","teraz","aora",""],
+  ["e05","más tarde","później","mas tarde",""],
+  ["e06","lunes","poniedziałek","lunes",""],
+  ["e07","martes","wtorek","martes",""],
+  ["e08","miércoles","środa","mjerkoles",""],
+  ["e09","jueves","czwartek","chuebes",""],
+  ["e10","viernes","piątek","bjernes",""],
+  ["e11","sábado","sobota","sabado",""],
+  ["e12","domingo","niedziela","domingo",""],
+  ["e13","¿Qué hora es?","Która godzina?","ke ora es",""]]},
  {id:"pod", name:"W mieście i w podróży", cards:[
-  ["f01","Ku është …?","Gdzie jest …?","ku yszty …",""],
-  ["f02","Ku është tualeti?","Gdzie jest toaleta?","ku yszty tualeti",""],
-  ["f03","majtas","w lewo","majtas",""],
-  ["f04","djathtas","w prawo","djathtas","th jak w ang. „think”"],
-  ["f05","drejt","prosto","drejt",""],
-  ["f06","afër","blisko","afyr",""],
-  ["f07","larg","daleko","larg",""],
-  ["f08","Sa larg është?","Jak daleko to jest?","sa larg yszty",""],
-  ["f09","stacioni i autobusit","dworzec autobusowy","stacioni i autobusit",""],
-  ["f10","aeroporti","lotnisko","aeroporti",""],
-  ["f11","plazhi","plaża","plażi",""],
-  ["f12","Një biletë për …, ju lutem","Jeden bilet do …, proszę","ńy bilet pyr …, ju lutem",""]]},
+  ["f01","¿Dónde está …?","Gdzie jest …?","donde esta …",""],
+  ["f02","¿Dónde está el baño?","Gdzie jest toaleta?","donde esta el bańo",""],
+  ["f03","a la izquierda","w lewo","a la iskjerda",""],
+  ["f04","a la derecha","w prawo","a la derecza",""],
+  ["f05","todo recto","prosto","todo rekto",""],
+  ["f06","cerca","blisko","serka",""],
+  ["f07","lejos","daleko","lechos","j czyta się jak ch"],
+  ["f08","¿Está lejos?","Czy to daleko?","esta lechos",""],
+  ["f09","la estación de autobuses","dworzec autobusowy","la estasjon de autobuses",""],
+  ["f10","el aeropuerto","lotnisko","el aeropuerto",""],
+  ["f11","la playa","plaża","la plaja",""],
+  ["f12","Un billete para …, por favor","Jeden bilet do …, proszę","un bijete para …, por fabor",""]]},
  {id:"jed", name:"Jedzenie i zakupy", cards:[
-  ["g01","Sa kushton?","Ile kosztuje?","sa kuszton",""],
-  ["g02","Shumë shtrenjtë","Bardzo drogo","szumy sztreńt(y)",""],
-  ["g03","Dua këtë","Chcę to","dua kyty",""],
-  ["g04","Do të doja …","Chciałbym …","do ty doja …","grzeczniej niż „dua”"],
-  ["g05","Një kafe, ju lutem","Jedną kawę, proszę","ńy kafe, ju lutem",""],
-  ["g06","Llogarinë, ju lutem","Rachunek, proszę","łogariny, ju lutem",""],
-  ["g07","ujë","woda","uj(y)",""],
-  ["g08","bukë","chleb","buk(y)",""],
-  ["g09","qumësht","mleko","ćumyszt",""],
-  ["g10","çaj","herbata","czaj",""],
-  ["g11","birrë","piwo","birr(y)",""],
-  ["g12","mish","mięso","misz",""],
-  ["g13","peshk","ryba","peszk",""],
-  ["g14","djathë","ser","djath(y)","th jak w ang. „think”"],
-  ["g15","Shumë e shijshme!","Bardzo smaczne!","szumy e szijszme",""]]},
+  ["g01","¿Cuánto cuesta?","Ile kosztuje?","kuanto kuesta",""],
+  ["g02","Es muy caro","To bardzo drogie","es muj karo",""],
+  ["g03","Quiero esto","Chcę to","kjero esto",""],
+  ["g04","Quisiera …","Chciałbym …","kisjera …","grzeczniej niż „quiero”"],
+  ["g05","Un café, por favor","Jedną kawę, proszę","un kafe, por fabor",""],
+  ["g06","La cuenta, por favor","Rachunek, proszę","la kuenta, por fabor",""],
+  ["g07","agua","woda","agua",""],
+  ["g08","pan","chleb","pan",""],
+  ["g09","leche","mleko","lecze",""],
+  ["g10","té","herbata","te",""],
+  ["g11","cerveza","piwo","serbesa",""],
+  ["g12","carne","mięso","karne",""],
+  ["g13","pescado","ryba","peskado","jako jedzenie"],
+  ["g14","queso","ser","keso",""],
+  ["g15","¡Está muy rico!","Bardzo smaczne!","esta muj riko",""]]},
  {id:"spo", name:"Sport i trening", cards:[
-  ["h01","stërvitje","trening","styrvitje",""],
-  ["h02","ndeshje","mecz","ndeszje",""],
-  ["h03","trajner","trener","trajner",""],
-  ["h04","lojtar","zawodnik","lojtar",""],
-  ["h05","ekip","drużyna","ekip",""],
-  ["h06","top","piłka","top",""],
-  ["h07","not","pływanie","not",""],
-  ["h08","pishinë","basen","piszin(y)",""],
-  ["h09","fitore","zwycięstwo","fitore",""],
-  ["h10","Shpejt!","Szybko!","szpejt",""],
-  ["h11","Edhe një herë!","Jeszcze raz!","edhe ńy hery","dh jak w ang. „this”"]]},
+  ["h01","entrenamiento","trening","entrenamjento",""],
+  ["h02","partido","mecz","partido",""],
+  ["h03","entrenador","trener","entrenador",""],
+  ["h04","jugador","zawodnik","chugador",""],
+  ["h05","equipo","drużyna","ekipo",""],
+  ["h06","balón","piłka","balon",""],
+  ["h07","natación","pływanie","natasjon",""],
+  ["h08","piscina","basen","pisina",""],
+  ["h09","victoria","zwycięstwo","biktorja",""],
+  ["h10","¡Rápido!","Szybko!","rapido",""],
+  ["h11","¡Otra vez!","Jeszcze raz!","otra bes",""]]},
  {id:"rod", name:"Rodzina", cards:[
-  ["j01","familje","rodzina","familje","„familja” = ta rodzina"],
-  ["j02","nënë","matka, mama","nyn(y)","potocznie: mami"],
-  ["j03","baba","ojciec, tata","baba",""],
-  ["j04","vëlla","brat","vyła","ll jak ł"],
-  ["j05","motër","siostra","motyr",""],
-  ["j06","djalë","syn / chłopak","djal(y)",""],
-  ["j07","vajzë","córka / dziewczyna","vajz(y)",""],
-  ["j08","gjysh","dziadek","dźüsz",""],
-  ["j09","gjyshe","babcia","dźüsze",""],
-  ["j10","burrë","mąż / mężczyzna","burr(y)",""],
-  ["j11","grua","żona / kobieta","grua",""],
-  ["j12","fëmijë","dziecko, dzieci","fymij(y)",""],
-  ["j13","xhaxha","wujek","dżadza","brat ojca"],
-  ["j14","kushëri / kushërirë","kuzyn / kuzynka","kuszyri / kuszyriry",""],
-  ["j15","Kam një vëlla dhe një motër","Mam brata i siostrę","kam ńy vyła dhe ńy motyr","dhe = i"],
-  ["j16","Kam dy fëmijë","Mam dwoje dzieci","kam dü fymij(y)",""],
-  ["j17","Kjo është nëna ime","To jest moja mama","kjo yszty nyna ime",""],
-  ["j18","A je i martuar?","Jesteś żonaty?","a je i martuar","do kobiety: A je e martuar?"]]},
+  ["j01","la familia","rodzina","la familja",""],
+  ["j02","la madre","matka","la madre","potocznie: mamá"],
+  ["j03","el padre","ojciec","el padre","potocznie: papá"],
+  ["j04","el hermano","brat","el ermano",""],
+  ["j05","la hermana","siostra","la ermana",""],
+  ["j06","el hijo","syn","el icho",""],
+  ["j07","la hija","córka","la icha",""],
+  ["j08","el abuelo","dziadek","el abuelo",""],
+  ["j09","la abuela","babcia","la abuela",""],
+  ["j10","el marido","mąż","el marido",""],
+  ["j11","la mujer","żona / kobieta","la mucher",""],
+  ["j12","el niño / la niña","dziecko (chłopiec / dziewczynka)","el nińo / la nińa",""],
+  ["j13","el tío / la tía","wujek / ciocia","el tio / la tia",""],
+  ["j14","el primo / la prima","kuzyn / kuzynka","el primo / la prima",""],
+  ["j15","Tengo un hermano y una hermana","Mam brata i siostrę","tengo un ermano i una ermana",""],
+  ["j16","Tengo dos hijos","Mam dwoje dzieci","tengo dos ichos","hijos = dzieci (synowie i córki)"],
+  ["j17","Esta es mi madre","To jest moja mama","esta es mi madre",""],
+  ["j18","¿Estás casado?","Jesteś żonaty?","estas kasado","do kobiety: ¿Estás casada?"]]},
  {id:"tow", name:"Życie towarzyskie", cards:[
-  ["k01","shok / shoqe","kolega / koleżanka","szok / szoće",""],
-  ["k02","mik","przyjaciel","mik","też: gość"],
-  ["k03","Çfarë bën?","Co robisz? / Co słychać?","czfary byn",""],
-  ["k04","Çfarë bën sonte?","Co robisz dziś wieczorem?","czfary byn sonte","sonte = dziś wieczorem"],
-  ["k05","A pimë një kafe?","Wyskoczymy na kawę?","a pimy ńy kafe","najczęstsze zaproszenie w Albanii"],
-  ["k06","Me kënaqësi!","Z przyjemnością!","me kynaćysi",""],
-  ["k07","Sot nuk mundem","Dziś nie mogę","sot nuk mundem",""],
-  ["k08","Ku takohemi?","Gdzie się spotykamy?","ku takohemi",""],
-  ["k09","Në çfarë ore?","O której godzinie?","ny czfary ore",""],
-  ["k10","Mirë se erdhe!","Witaj! (gdy ktoś przychodzi)","miry se erdhe","do kilku osób: Mirë se erdhët!"],
-  ["k11","Uluni, ju lutem","Proszę usiąść","uluni, ju lutem",""],
-  ["k12","Urime!","Gratulacje!","urime","też ogólne życzenia"],
-  ["k13","Gëzuar ditëlindjen!","Wszystkiego najlepszego z okazji urodzin!","gyzuar ditylindjen",""],
-  ["k14","Më pëlqen shumë","Bardzo mi się podoba","my pylćen szumy",""],
-  ["k15","Ishte shumë bukur","Było bardzo fajnie","iszte szumy bukur",""],
-  ["k16","Shihemi nesër!","Do zobaczenia jutro!","szihemi nesyr",""],
-  ["k17","Më shkruaj","Napisz do mnie","my szkruaj",""],
-  ["k18","Cili është numri yt?","Jaki masz numer?","cili yszty numri üt",""],
-  ["k19","Më mungon","Tęsknię za tobą","my mungon","dosłownie „brakuje mi ciebie”"],
-  ["k20","Të dua","Kocham cię","ty dua","to samo słowo co „chcę” (dua)"]]},
+  ["k01","el amigo / la amiga","przyjaciel / przyjaciółka","el amigo / la amiga","też: kolega"],
+  ["k02","¿Qué haces?","Co robisz?","ke ases",""],
+  ["k03","¿Qué haces esta noche?","Co robisz dziś wieczorem?","ke ases esta nocze",""],
+  ["k04","¿Tomamos un café?","Wyskoczymy na kawę?","tomamos un kafe",""],
+  ["k05","¡Claro, con mucho gusto!","Jasne, z przyjemnością!","klaro, kon muczo gusto",""],
+  ["k06","Hoy no puedo","Dziś nie mogę","oj no puedo",""],
+  ["k07","¿Dónde quedamos?","Gdzie się spotykamy?","donde kedamos","quedar = umówić się"],
+  ["k08","¿A qué hora?","O której?","a ke ora",""],
+  ["k09","¿Quedamos mañana?","Spotkamy się jutro?","kedamos mańana",""],
+  ["k10","¡Bienvenido!","Witaj!","bjenbenido","do kobiety: ¡Bienvenida!"],
+  ["k11","Siéntate, por favor","Usiądź, proszę","sjentate, por fabor",""],
+  ["k12","¡Enhorabuena!","Gratulacje!","enorabuena",""],
+  ["k13","¡Feliz cumpleaños!","Wszystkiego najlepszego z okazji urodzin!","felis kumpleańos",""],
+  ["k14","Me gusta mucho","Bardzo mi się podoba","me gusta muczo",""],
+  ["k15","Lo he pasado muy bien","Świetnie się bawiłem","lo e pasado muj bjen",""],
+  ["k16","Escríbeme","Napisz do mnie","eskribeme",""],
+  ["k17","¿Me das tu número?","Dasz mi swój numer?","me das tu numero",""],
+  ["k18","Te echo de menos","Tęsknię za tobą","te eczo de menos","w Ameryce Łac.: Te extraño"],
+  ["k19","Te quiero","Kocham cię","te kjero","to samo słowo co „chcę” (querer)"]]},
  {id:"pom", name:"Pomoc i nagłe sytuacje", cards:[
-  ["i01","Ndihmë!","Pomocy!","ndihmy",""],
-  ["i02","Më ndihmoni, ju lutem","Proszę mi pomóc","my ndihmoni, ju lutem",""],
-  ["i03","Thirrni një mjek!","Proszę wezwać lekarza!","thirrni ńy mjek",""],
-  ["i04","Kam humbur rrugën","Zgubiłem się","kam humbur rrugyn","dosłownie „zgubiłem drogę”"],
-  ["i05","farmacia","apteka","farmacia",""],
-  ["i06","spitali","szpital","spitali",""],
-  ["i07","policia","policja","policia",""]]}
+  ["i01","¡Socorro!","Pomocy!","sokorro",""],
+  ["i02","¿Me puede ayudar?","Może mi Pan/Pani pomóc?","me puede ajudar",""],
+  ["i03","¡Llame a un médico!","Proszę wezwać lekarza!","jame a un mediko",""],
+  ["i04","Estoy perdido","Zgubiłem się","estoj perdido","kobieta: Estoy perdida"],
+  ["i05","la farmacia","apteka","la farmasja",""],
+  ["i06","el hospital","szpital","el ospital",""],
+  ["i07","la policía","policja","la polisia",""]]}
 ];
-const SQ_GUIDE = [
-  ["ë","jak polskie „y”, na końcu słowa prawie nieme","bukë → buk(y)"],
-  ["ç","jak „cz”","çaj → czaj"],
-  ["c","jak „c”","farmacia"],
-  ["q","miękko, jak „ć”","qumësht → ćumyszt"],
-  ["gj","miękko, jak „dź”","gjashtë → dźaszt(y)"],
-  ["x","jak „dz”","xhaxha (wujek) → dżadza"],
-  ["xh","jak „dż”","xhami (meczet)"],
-  ["sh","jak „sz”","shumë → szumy"],
-  ["zh","jak „ż”","plazhi → plażi"],
-  ["nj","jak „ń”","një → ńy"],
-  ["th","jak w ang. „think” (język między zęby)","djathtas"],
-  ["dh","jak w ang. „this” (dźwięczne th)","dhjetë"],
-  ["ll","twardo, jak „ł” bez zaokrąglania ust","Llogarinë"],
-  ["l","jak lekko zmiękczone „l”","lutem"],
-  ["rr","mocno wibrowane „r”","rregull"],
-  ["y","jak niemieckie „ü”: usta do „u”, mów „i”","dy → dü"],
-  ["j","jak polskie „j”","ju"]
+const ES_GUIDE = [
+  ["h","nieme","hola → ola"],
+  ["j","jak „ch”","jueves → chuebes"],
+  ["ge, gi","jak „che”, „chi”","gente → chente"],
+  ["gue, gui","jak „ge”, „gi” (u nieme)","guitarra → gitarra"],
+  ["ll","jak „j”","llamo → jamo"],
+  ["y","jak „j”","yo → jo"],
+  ["ñ","jak „ń”","mañana → mańana"],
+  ["ch","jak „cz”","noche → nocze"],
+  ["ce, ci, z","w Hiszpanii jak ang. „th”, w Ameryce Łacińskiej jak „s”","gracias, cerveza"],
+  ["c, qu","jak „k”","queso → keso"],
+  ["v","jak „b”","vale → bale"],
+  ["rr","mocno wibrowane „r” (też r na początku słowa)","perro, Roma"],
+  ["d na końcu","bardzo miękkie, prawie nieme","usted, Madrid"],
+  ["á é í ó ú","kreska pokazuje akcent","miércoles"],
+  ["¿ ¡","znak na początku pytania i wykrzyknienia","¿Qué tal?"]
 ];
-const LANG = {sq:{name:"Albański",flag:"🇦🇱",decks:SQ_DECKS,guide:SQ_GUIDE}};
+const LANG = {es:{name:"Hiszpański",flag:"🇪🇸",po:"po hiszpańsku",ab:"ES",voice:/^es/i,voicePref:/^es[-_]ES/i,keys:["á","é","í","ó","ú","ñ","¿","¡"],
+  marks:"akcenty i ñ",example:"np. Encantado",pronEx:"np. enkantado",
+  intro:"Hiszpański czyta się prawie tak, jak się pisze. Akcent pada zwykle na przedostatnią sylabę, a kreska nad literą pokazuje wyjątki. W fiszkach wymowa jest zapisana po polsku, w wariancie, który rozumieją wszyscy (z „s”).",
+  decks:ES_DECKS, guide:ES_GUIDE}};
 const LSTEP_NEW = [5,10,20];
 const L = () => S.lang;
-const langCode = () => L().active || "sq";
+const langCode = () => LANG[L().active] ? L().active : "es";
+const LG = () => LANG[langCode()];
 function langDecks(){
   const base = LANG[langCode()].decks;
   const mine = (L().custom||[]).filter(c=>c.lang===langCode()).map(c=>[c.id,c.sq,c.pl,c.pron||"",c.note||""]);
@@ -920,7 +925,7 @@ function lcheck(typed, answer){
   if(full.map(lplain).includes(lplain(typed))) return "almost";
   return "bad";
 }
-function sqVoice(){ try{ return (speechSynthesis.getVoices()||[]).find(v=>/^sq/i.test(v.lang)) || null; }catch(e){ return null; } }
+function sqVoice(){ try{ const vs=speechSynthesis.getVoices()||[], g=LG(); return vs.find(v=>g.voicePref.test(v.lang)) || vs.find(v=>g.voice.test(v.lang)) || null; }catch(e){ return null; } }
 function speak(t){ const v=sqVoice(); if(!v) return; try{ const u=new SpeechSynthesisUtterance(String(t).replace(/…/g,"")); u.voice=v; u.lang=v.lang; u.rate=.85; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){} }
 try{ speechSynthesis.onvoiceschanged=()=>{ if(tab==="lang") renderLang(); }; }catch(e){}
 const spkBtn = t => sqVoice() ? `<button type="button" class="spk" data-speak="${esc(t)}" aria-label="Posłuchaj wymowy">🔊</button>` : "";
@@ -948,17 +953,17 @@ function renderLang(){
     <button class="btn primary lgo" data-langgo="1" ${due+nl?"":"disabled"}>${due+nl?`Ucz się · ${due+nl} ${due+nl===1?"karta":due+nl<5?"karty":"kart"}`:"Na dziś wszystko zrobione ✓"}</button>
     <div class="lset">
       <div><span class="label">Nowych dziennie</span>${seg("lnew",LSTEP_NEW.map(n=>[n,String(n)]),L().newPerDay)}</div>
-      <div><span class="label">Odpowiedź PL → AL</span>${seg("ltype",[["0","Odkrywam"],["1","Wpisuję"]],L().typing?"1":"0")}</div>
+      <div><span class="label">Odpowiedź PL → ${LG().ab}</span>${seg("ltype",[["0","Odkrywam"],["1","Wpisuję"]],L().typing?"1":"0")}</div>
     </div>
     <h2>Talie <small>stuknij, żeby przejrzeć zwroty</small></h2>
     <div class="list">${langDecks().map(d=>{ const n=d.cards.length, s=d.cards.filter(c=>lst(c[0],"r")).length, on=deckOn(d.id);
       return `<div class="ldeck ${on?"":"off"}"><button type="button" class="ldname" data-ldeck="${d.id}"><b>${esc(d.name)}</b><span class="num">${s}/${n} poznane</span><span class="rbar" aria-hidden="true"><i style="width:${Math.round(s/n*100)}%"></i></span></button>
         <button type="button" class="mini" data-ldtoggle="${d.id}" aria-pressed="${on}">${on?"W nauce":"Wyłączona"}</button></div>`; }).join("")}</div>
     <button class="btn ghost" data-lnewcard="1" style="width:100%;margin-top:10px">+ Własna fiszka</button>
-    <details class="rcard lguide"><summary class="rhead"><b>Wymowa: jak czytać po albańsku</b></summary>
-      <p class="hint" style="margin:0 0 6px">Albański czyta się tak, jak się pisze. Akcent pada zwykle na przedostatnią sylabę. W fiszkach wymowa jest zapisana po polsku, w nawiasie głoska prawie nieme.</p>
+    <details class="rcard lguide"><summary class="rhead"><b>Wymowa: jak czytać ${LG().po}</b></summary>
+      <p class="hint" style="margin:0 0 6px">${LG().intro}</p>
       <div class="lgrid">${lg.guide.map(([a,b,c])=>`<b>${a}</b><span>${b}<small>${esc(c)}</small></span>`).join("")}</div></details>
-    <p class="hint">Jak to działa: nowy zwrot najpierw widzisz w całości, a po kilku kartach apka sprawdza, czy go pamiętasz. Potem wraca coraz rzadziej: jutro, za kilka dni, za kilka tygodni. Najpierw uczysz się rozumieć (AL → PL), a gdy zwrot siedzi, dochodzi mówienie (PL → AL). Najlepiej robić krótką sesję codziennie, 5–10 minut wystarczy.</p>`;
+    <p class="hint">Jak to działa: nowy zwrot najpierw widzisz w całości, a po kilku kartach apka sprawdza, czy go pamiętasz. Potem wraca coraz rzadziej: jutro, za kilka dni, za kilka tygodni. Najpierw uczysz się rozumieć (${LG().ab} → PL), a gdy zwrot siedzi, dochodzi mówienie (PL → ${LG().ab}). Najlepiej robić krótką sesję codziennie, 5–10 minut wystarczy.</p>`;
   bindSeg(root);
 }
 function langClick(e){
@@ -984,11 +989,11 @@ function langCardSheet(id){
   const c = id ? L().custom.find(x=>x.id===id) : null;
   const v = c || {sq:"",pl:"",pron:"",note:""};
   ov.innerHTML=`<div class="sheet" role="dialog" aria-label="${c?"Edytuj fiszkę":"Nowa fiszka"}"><h3>${c?"Edytuj fiszkę":"Nowa fiszka"}</h3><form id="f">
-    <div class="field"><label class="label" for="lc-sq">Po albańsku</label><input id="lc-sq" value="${esc(v.sq)}" placeholder="np. Kënaqësi" autocomplete="off" autocapitalize="off"></div>
+    <div class="field"><label class="label" for="lc-sq">${LG().po[0].toUpperCase()+LG().po.slice(1)}</label><input id="lc-sq" value="${esc(v.sq)}" placeholder="${LG().example}" autocomplete="off" autocapitalize="off"></div>
     <div class="field"><label class="label" for="lc-pl">Po polsku</label><input id="lc-pl" value="${esc(v.pl)}" placeholder="np. Przyjemność" autocomplete="off"></div>
-    <div class="field"><label class="label" for="lc-pr">Wymowa (opcjonalnie)</label><input id="lc-pr" value="${esc(v.pron)}" placeholder="np. kynaćysi" autocomplete="off" autocapitalize="off"></div>
+    <div class="field"><label class="label" for="lc-pr">Wymowa (opcjonalnie)</label><input id="lc-pr" value="${esc(v.pron)}" placeholder="${LG().pronEx}" autocomplete="off" autocapitalize="off"></div>
     <div class="field"><label class="label" for="lc-no">Notatka (opcjonalnie)</label><input id="lc-no" value="${esc(v.note)}" placeholder="kiedy tego używać" autocomplete="off"></div>
-    <div class="quick lkeys" aria-label="Albańskie litery">${["ë","ç","Ë","Ç"].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join("")}</div>
+    <div class="quick lkeys" aria-label="Litery specjalne">${LG().keys.map(k=>`<button type="button" data-k="${k}">${k}</button>`).join("")}</div>
     <div class="err" id="err"></div>
     <div class="actions">${c?`<button type="button" class="btn ghost" id="lc-del" style="color:var(--exp)">Usuń</button>`:""}<button type="button" class="btn ghost" id="cancel">Anuluj</button><button class="btn primary">${c?"Zapisz":"Dodaj"}</button></div>
   </form></div>`;
@@ -999,7 +1004,7 @@ function langCardSheet(id){
   if(c) confirmBtn(ov.querySelector("#lc-del"),()=>{ L().custom=L().custom.filter(x=>x!==c); ["r","p"].forEach(d=>delete L().p[lkey(c.id,d)]); save(); close(); render(); });
   ov.querySelector("#f").onsubmit=e=>{ e.preventDefault();
     const sq=ov.querySelector("#lc-sq").value.trim().slice(0,80), pl=ov.querySelector("#lc-pl").value.trim().slice(0,80);
-    if(!sq||!pl){ ov.querySelector("#err").textContent="Wpisz zwrot po albańsku i po polsku."; return; }
+    if(!sq||!pl){ ov.querySelector("#err").textContent=`Wpisz zwrot ${LG().po} i po polsku.`; return; }
     const data={sq,pl,pron:ov.querySelector("#lc-pr").value.trim().slice(0,80),note:ov.querySelector("#lc-no").value.trim().slice(0,80)};
     if(c) Object.assign(c,data); else L().custom.push({id:"u"+uid(),lang:langCode(),...data});
     save(); close(); render(); toast(c?"Zapisano fiszkę.":"Dodano do talii „Moje fiszki”."); };
@@ -1047,10 +1052,10 @@ function langSession(){
     }
     const prod = it.dir==="p";
     const front = prod ? pl : sq, back = prod ? sq : pl;
-    const label = prod ? "Jak to powiedzieć po albańsku?" : "Co to znaczy?";
+    const label = prod ? `Jak to powiedzieć ${LG().po}?` : "Co to znaczy?";
     if(!shown){
-      box.innerHTML=`<div class="lcard"><span class="lbadge ${prod?"p":""}">${prod?"PL → AL":"AL → PL"}</span><div class="lhint">${label}</div><div class="lq">${esc(front)} ${prod?"":spkBtn(sq)}</div>${prod?"":`<div class="lpron">[${esc(pron)}]</div>`}
-        ${prod && L().typing?`<form id="ls-f" class="ltype"><input id="ls-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Wpisz po albańsku"><div class="quick lkeys">${["ë","ç"].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join("")}</div></form>`:""}</div>
+      box.innerHTML=`<div class="lcard"><span class="lbadge ${prod?"p":""}">${prod?"PL → "+LG().ab:LG().ab+" → PL"}</span><div class="lhint">${label}</div><div class="lq">${esc(front)} ${prod?"":spkBtn(sq)}</div>${prod?"":`<div class="lpron">[${esc(pron)}]</div>`}
+        ${prod && L().typing?`<form id="ls-f" class="ltype"><input id="ls-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Wpisz ${LG().po}"><div class="quick lkeys">${LG().keys.slice(0,6).map(k=>`<button type="button" data-k="${k}">${k}</button>`).join("")}</div></form>`:""}</div>
         <div class="lbtns2">${prod && L().typing?`<button type="button" class="btn ghost" id="ls-idk">Nie wiem</button><button type="button" class="btn primary" id="ls-chk">Sprawdź</button>`:`<button type="button" class="btn primary" id="ls-show" style="grid-column:1/-1">Pokaż odpowiedź</button>`}</div>`;
       const reveal=r=>{ res=r; shown=true; draw(); };
       if(prod && L().typing){
@@ -1064,8 +1069,8 @@ function langSession(){
       return;
     }
     const typed=box.dataset.typed;
-    const verdict = res==="ok"?`<div class="lres ok">✓ Dobrze</div>`:res==="almost"?`<div class="lres almost">Prawie: uważaj na znaki ë i ç</div>`:res==="bad"&&typed?`<div class="lres bad">✗ Wpisałeś: ${esc(typed)}</div>`:"";
-    box.innerHTML=`<div class="lcard"><span class="lbadge ${prod?"p":""}">${prod?"PL → AL":"AL → PL"}</span><div class="lq sm">${esc(front)}</div>${verdict}<div class="la">${esc(back)} ${spkBtn(sq)}</div><div class="lpron">[${esc(pron)}]</div>${note?`<div class="lnote">${esc(note)}</div>`:""}</div>
+    const verdict = res==="ok"?`<div class="lres ok">✓ Dobrze</div>`:res==="almost"?`<div class="lres almost">Prawie: uważaj na ${LG().marks}</div>`:res==="bad"&&typed?`<div class="lres bad">✗ Wpisałeś: ${esc(typed)}</div>`:"";
+    box.innerHTML=`<div class="lcard"><span class="lbadge ${prod?"p":""}">${prod?"PL → "+LG().ab:LG().ab+" → PL"}</span><div class="lq sm">${esc(front)}</div>${verdict}<div class="la">${esc(back)} ${spkBtn(sq)}</div><div class="lpron">[${esc(pron)}]</div>${note?`<div class="lnote">${esc(note)}</div>`:""}</div>
       <div class="lgrades">${grades(it)}</div>`;
     if(prod && sqVoice()) speak(sq);
     box.querySelector(".lgrades").onclick=e=>{ const b=e.target.closest("[data-g]"); if(!b) return;
@@ -1075,6 +1080,190 @@ function langSession(){
   };
   box.addEventListener("click",e=>{ const s=e.target.closest("[data-speak]"); if(s){ e.stopPropagation(); speak(s.dataset.speak); } });
   draw();
+}
+
+/* ---------- plan zajęć ze zrzutu / tekstu ---------- */
+const PL_DAYS = {poniedzialek:1,pon:1,pn:1,wtorek:2,wt:2,wto:2,sroda:3,sr:3,sro:3,czwartek:4,czw:4,cz:4,piatek:5,pt:5,pia:5,sobota:6,sob:6,so:6,niedziela:7,niedz:7,nd:7,ndz:7,
+  monday:1,mon:1,tuesday:2,tue:2,wednesday:3,wed:3,thursday:4,thu:4,friday:5,fri:5,saturday:6,sat:6,sunday:7,sun:7};
+const plainPL = s => String(s).toLowerCase().replace(/ł/g,"l").normalize("NFD").replace(/[̀-ͯ]/g,"");
+const dayOfWord = w => PL_DAYS[plainPL(w).replace(/[^a-z]/g,"")] || null;
+const P_TIME = "([01]?\\d|2[0-3])[:.]([0-5]\\d)";
+const P_RANGE = new RegExp(P_TIME+"\\s*(?:[-–—~]+|do)\\s*"+P_TIME);
+const P_TWO = new RegExp("^\\s*"+P_TIME+"\\s+"+P_TIME+"\\b");
+const P_ONE = new RegExp("^\\s*"+P_TIME+"\\s*$");
+const P_TYPE = /^(wyk(ład|lad)?\.?|w|ćw(iczenia)?\.?|cw(iczenia)?\.?|ć|c|konw(ersatorium)?\.?|lab(oratorium)?|sem(inarium)?\.?|lektorat|lek\.?|projekt|proj\.?|zaj(ęcia)?\.? prakt(yczne)?\.?|warsztaty|wf)$/i;
+const P_PLACE = /^((s\.|sala\b|aula\b|bud\.|budynek\b|lab\.|hala\b|pok\.|pokój\b|room\b)\s*.*|pływalnia.*|plywalnia.*|basen.*|stadion.*|boisko.*|online|zdalnie|ms teams|teams|zoom|\d{1,4}[a-z]?)$/i;
+const hm = (h,m) => String(h).padStart(2,"0")+":"+m;
+function headDay(t){ const w=String(t).trim().split(/[\s,]+/)[0]; return w ? dayOfWord(w) : null; }
+function planCleanPart(s){ return String(s).replace(/^[^\p{L}\d(]+|[^\p{L}\d).]+$/gu,"").trim(); }
+function planFinalize(ev){
+  let title="", place="", type="";
+  const TYPES="wyk|wykład|ćw|cw|ćwiczenia|konw|lab|sem|w|c|ć";
+  const isSp = p => P_TYPE.test(p)||P_PLACE.test(p);
+  for(const raw of ev.extra.slice(0,4)){
+    let line = String(raw).replace(new RegExp(P_TIME,"g")," ").replace(new RegExp("\\s*\\(("+TYPES+")\\.?\\)\\s*","i")," | $1 | ").replace(/\s+/g," ").trim(); if(!line) continue;
+    // ciąg dalszy nazwy z poprzedniej linii (wąska kolumna): zaczyna się małą literą
+    if(title && !place && /^\p{Ll}/u.test(line) && !isSp(line)){ title += " "+planCleanPart(line); continue; }
+    const parts=[];
+    line.split(/\s*[,;·•|]\s*|\s+:-?\s+/).map(planCleanPart).filter(Boolean).forEach(sp=>{
+      const weak=sp.split(/\s+[-–—]+\s+/).map(planCleanPart).filter(Boolean);
+      if(weak.length>1 && weak.some(isSp)) parts.push(...weak); else parts.push(sp.replace(/\s+[-–—]+\s+/g," – ")); });
+    for(const p of parts){
+      if(!p) continue;
+      const tw = p.match(/^(.*?)\s*\((wyk|wykład|ćw|cw|ćwiczenia|konw|lab|sem|w|c|ć)\.?\)$/i);
+      if(tw){ if(!title) title=tw[1]; if(!type) type=tw[2]; continue; }
+      if(P_TYPE.test(p)){ if(!type) type=p; continue; }
+      if(P_PLACE.test(p) && (title || /^(s|sala|aula|lab|bud|hala)\b/i.test(p))){ if(!place) place=p; continue; }
+      if(!title && (p.match(/\p{L}/gu)||[]).length>=3){ title=p; continue; }
+      if(title && !place && (p.match(/\p{L}|\d/gu)||[]).length>=2) place=p;
+    }
+  }
+  const tmap={w:"wykład",wyk:"wykład","wyk.":"wykład",c:"ćwiczenia","ć":"ćwiczenia","ćw":"ćwiczenia","ćw.":"ćwiczenia",cw:"ćwiczenia",konw:"konwersatorium",lab:"laboratorium",sem:"seminarium"};
+  type = type ? (tmap[type.toLowerCase()] || type.toLowerCase()) : "";
+  if(title && type && !plainPL(title).includes(plainPL(type))) title = `${title} – ${type}`;
+  return {title:title.slice(0,60), day:ev.day, start:ev.start, end:ev.end, place:place.slice(0,40), every:1, include:true};
+}
+function planParseColumn(L, colDay){
+  const out=[]; let curDay=colDay, cur=null;
+  for(let i=0;i<L.length;i++){
+    let t=String(L[i].text||"").replace(/[|]/g," ").replace(/\s+/g," ").trim(); if(!t) continue;
+    // dwie godziny w osobnych liniach: 8:00 / 9:30
+    const nx = L[i+1] ? String(L[i+1].text).trim() : "";
+    if(P_ONE.test(t) && P_ONE.test(nx)){ t = t+" - "+nx; i++; }
+    else if(new RegExp(P_TIME+"\\s*[-–—]+\\s*$").test(t) && new RegExp("^"+P_TIME).test(nx)){ t = t+" "+nx; i++; }
+    const r = t.match(P_RANGE) || t.match(P_TWO);
+    if(!r){
+      const hd=headDay(t);
+      if(hd && !colDay && t.length<45 && !/\d{1,2}[:.]\d{2}/.test(t)){ curDay=hd; cur=null; continue; }
+      if(cur && cur.extra.length<4) cur.extra.push(t);
+      continue;
+    }
+    let rest=(t.slice(0,r.index)+" "+t.slice(r.index+r[0].length)).trim();
+    let day=curDay;
+    if(!colDay){ const hd=headDay(rest); if(hd){ day=hd; rest=rest.replace(/^\S+[\s,]*/,""); } }
+    const start=hm(r[1],r[2]), end=hm(r[3],r[4]);
+    if(end<=start){ cur=null; continue; }
+    cur={day, start, end, extra: rest?[rest]:[]};
+    out.push(cur);
+  }
+  return out.map(planFinalize);
+}
+// lines: [{text, bbox:{x0,y0,x1,y1}, words:[{text,bbox}]}] (z OCR) albo [{text}] (wklejony tekst)
+function planFromLines(lines){
+  let grid=null;
+  for(const ln of lines){
+    const hs=(ln.words||[]).map(w=>({d:dayOfWord(w.text), x:(w.bbox.x0+w.bbox.x1)/2})).filter(h=>h.d);
+    if(hs.length>=3 && new Set(hs.map(h=>h.d)).size>=3){ grid={heads:hs.sort((a,b)=>a.x-b.x), y:ln.bbox.y1}; break; }
+  }
+  let res;
+  if(grid){
+    const H=grid.heads, span=H.length>1?(H[H.length-1].x-H[0].x)/(H.length-1):200;
+    const cols=H.map(h=>({d:h.d, lines:[]}));
+    for(const ln of lines){
+      if(!ln.bbox || ln.bbox.y0<=grid.y) continue;
+      const per=new Map();
+      for(const w of (ln.words||[])){
+        const cx=(w.bbox.x0+w.bbox.x1)/2;
+        if(cx < H[0].x - span*0.55) continue;            // kolumna z godzinami
+        let k=0, bd=1e9; H.forEach((h,i)=>{ const d=Math.abs(h.x-cx); if(d<bd){ bd=d; k=i; } });
+        if(bd>span*0.8) continue;
+        if(!per.has(k)) per.set(k,[]); per.get(k).push(w);
+      }
+      per.forEach((ws,k)=>cols[k].lines.push({text:ws.map(w=>w.text).join(" "), y:ln.bbox.y0}));
+    }
+    res=cols.flatMap(c=>planParseColumn(c.lines.sort((a,b)=>a.y-b.y), c.d));
+  } else res=planParseColumn(lines, null);
+  const seen=new Set();
+  return res.filter(x=>{ const k=`${x.day}|${x.start}|${plainPL(x.title)}`; if(seen.has(k)) return false; seen.add(k); return true; });
+}
+const planTextLines = txt => String(txt).split(/\r?\n/).map(t=>({text:t}));
+let PLAN_FILE=null;
+function planImportStart(){
+  const can = typeof planScanOn==="function" && planScanOn();
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-label="Wczytaj plan zajęć"><h3>Wczytaj plan zajęć</h3>
+    <p class="hint" style="margin:0 0 12px">Zajęcia trafią do stałych wydarzeń. Przed zapisem zobaczysz listę i poprawisz to, co się nie zgadza.</p>
+    <div class="choose">
+      ${can?`<button type="button" class="chbtn" id="pi-shot"><span aria-hidden="true">📷</span><b>Zrzut ekranu</b><small>z USOS, PDF albo strony uczelni</small></button>`:""}
+      <button type="button" class="chbtn" id="pi-text"><span aria-hidden="true">📋</span><b>Wklej tekst</b><small>skopiowany plan</small></button>
+    </div>
+    <p class="hint" style="margin:0">Najdokładniej na iPhonie: otwórz zrzut w Zdjęciach, przytrzymaj palec na tekście, wybierz „Zaznacz wszystko” → „Kopiuj” i wklej przez „Wklej tekst”.</p>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button></div></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=close;
+  ov.querySelector("#pi-text").onclick=planPasteSheet;
+  const sb=ov.querySelector("#pi-shot");
+  if(sb) sb.onclick=()=>{ if(!PLAN_FILE){ PLAN_FILE=document.createElement("input"); PLAN_FILE.type="file"; PLAN_FILE.accept="image/*"; PLAN_FILE.hidden=true; document.body.appendChild(PLAN_FILE);
+      PLAN_FILE.addEventListener("change",()=>{ const f=PLAN_FILE.files&&PLAN_FILE.files[0]; PLAN_FILE.value=""; if(f) readPlanImage(f); }); }
+    PLAN_FILE.click(); };
+}
+function planPasteSheet(){
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-label="Wklej plan zajęć"><h3>Wklej plan zajęć</h3><form id="f">
+    <textarea id="pi-txt" class="ta" rows="9" placeholder="np.&#10;Poniedziałek&#10;08:00 – 09:30 Anatomia, wykład, s. 102&#10;Wtorek&#10;12:15 – 13:45 Biomechanika, sala 112"></textarea>
+    <p class="hint" style="margin:0">Każde zajęcia muszą mieć godziny od–do. Dzień może być nagłówkiem nad zajęciami albo na początku linii.</p>
+    <div class="err" id="err"></div>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">Wróć</button><button class="btn primary">Dalej</button></div></form></div>`;
+  ov.hidden=false; ov.querySelector("#cancel").onclick=planImportStart;
+  ov.querySelector("#f").onsubmit=e=>{ e.preventDefault();
+    const txt=ov.querySelector("#pi-txt").value; const items=planFromLines(planTextLines(txt));
+    if(!items.length){ ov.querySelector("#err").textContent="Nie znalazłem zajęć. Sprawdź, czy przy każdych są godziny, np. 08:00 – 09:30."; return; }
+    planReview(items, `<b>Znalazłem ${items.length} ${items.length===1?"zajęcia":"zajęć"}.</b> Sprawdź i popraw przed zapisem.`); };
+  setTimeout(()=>ov.querySelector("#pi-txt")?.focus(),50);
+}
+function planReview(items, info){
+  items = items.map(x=>({...x}));
+  const cat = S.cats.includes("Studia") ? "Studia" : S.cats[0];
+  const mins = t => { const [h,m]=String(t||"").split(":").map(Number); return h*60+m; };
+  const row=(x,i)=>`<div class="pirow ${x.include?"":"off"}" data-i="${i}">
+      <label class="pichk"><input type="checkbox" data-f="include" ${x.include?"checked":""} aria-label="Dodaj te zajęcia"><span class="tbx" aria-hidden="true"></span></label>
+      <input class="pititle" data-f="title" value="${esc(x.title)}" placeholder="Nazwa zajęć" aria-label="Nazwa zajęć">
+      <div class="pigrid">
+        ${x.date?`<input type="date" data-f="date" value="${x.date}" aria-label="Data">`:`<select data-f="day" aria-label="Dzień tygodnia">${WD.map((w,k)=>`<option value="${k+1}" ${x.day===k+1?"selected":""}>${w}</option>`).join("")}${x.day?"":`<option value="" selected>dzień?</option>`}</select>`}
+        <input type="time" data-f="start" value="${x.start||""}" aria-label="Początek"><input type="time" data-f="end" value="${x.end||""}" aria-label="Koniec">
+      </div>
+      <div class="pigrid2"><input data-f="place" value="${esc(x.place||"")}" placeholder="Sala (opcjonalnie)" aria-label="Sala">
+        ${x.date?"":`<select data-f="every" aria-label="Powtarzanie"><option value="1" ${x.every!==2?"selected":""}>co tydzień</option><option value="2" ${x.every===2?"selected":""}>co 2 tyg.</option></select>`}</div>
+    </div>`;
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-label="Sprawdź plan zajęć"><h3>Sprawdź plan zajęć</h3>
+    <div class="receipt-info">${info}</div>
+    <div class="row" style="margin-bottom:10px">
+      <div class="field"><label class="label" for="pi-from">Od</label><input id="pi-from" type="date" value="${TODAY}"></div>
+      <div class="field"><label class="label" for="pi-to">Do (koniec semestru)</label><input id="pi-to" type="date" data-clear value=""></div>
+    </div>
+    <div class="field" style="margin-bottom:10px"><label class="label" for="pi-cat">Kategoria</label><select id="pi-cat">${S.cats.map(c=>`<option ${c===cat?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
+    <div class="pilist" id="pi-list">${items.map(row).join("")}</div>
+    <button type="button" class="mini" id="pi-add" style="margin-top:8px">+ Dodaj zajęcia ręcznie</button>
+    <div class="err" id="err"></div>
+    <div class="actions"><button type="button" class="btn ghost" id="cancel">Anuluj</button><button type="button" class="btn primary" id="pi-save">Zapisz</button></div></div>`;
+  ov.hidden=false; clearables(ov);
+  const list=ov.querySelector("#pi-list");
+  const sync=()=>{ list.querySelectorAll(".pirow").forEach(r=>{ const x=items[+r.dataset.i];
+    r.querySelectorAll("[data-f]").forEach(inp=>{ const f=inp.dataset.f;
+      x[f] = f==="include" ? inp.checked : (f==="day"||f==="every") ? (+inp.value||null) : inp.value.trim(); });
+    r.classList.toggle("off", !x.include); }); };
+  const cnt=()=>{ sync(); const n=items.filter(x=>x.include).length; ov.querySelector("#pi-save").textContent = n?`Zapisz ${n}`:"Zapisz"; };
+  list.addEventListener("change",cnt); cnt();
+  ov.querySelector("#pi-add").onclick=()=>{ sync(); items.push({title:"",day:1,start:"08:00",end:"09:30",place:"",every:1,include:true}); list.insertAdjacentHTML("beforeend",row(items[items.length-1],items.length-1)); cnt(); list.lastElementChild.querySelector(".pititle").focus(); };
+  ov.querySelector("#cancel").onclick=close;
+  ov.querySelector("#pi-save").onclick=()=>{ sync();
+    const err=ov.querySelector("#err"), from=ov.querySelector("#pi-from").value||TODAY, to=ov.querySelector("#pi-to").value, cat=ov.querySelector("#pi-cat").value;
+    if(to && to<from){ err.textContent="Data „Do” musi być po dacie „Od”."; return; }
+    const ok=items.filter(x=>x.include);
+    const bad=ok.find(x=>!x.title || !(x.day||x.date) || !x.start || !x.end || mins(x.end)<=mins(x.start));
+    if(bad){ err.textContent=`Uzupełnij nazwę, dzień i godziny${bad.title?` („${bad.title}”)`:""}. Koniec musi być po początku.`; return; }
+    if(!ok.length){ err.textContent="Zaznacz przynajmniej jedne zajęcia."; return; }
+    const groups=new Map();
+    ok.forEach(x=>{ const dur=mins(x.end)-mins(x.start);
+      if(x.date){ groups.set("d"+x.date+x.start+x.title,{title:x.title,place:x.place,time:x.start,dur,every:1,days:[wdOf(x.date)],from:x.date,to:x.date}); return; }
+      const k=[plainPL(x.title),x.start,dur,plainPL(x.place),x.every||1].join("|");
+      const g=groups.get(k); if(g){ if(!g.days.includes(x.day)) g.days.push(x.day); }
+      else groups.set(k,{title:x.title,place:x.place,time:x.start,dur,every:x.every||1,days:[x.day],from,to}); });
+    let added=0, dup=0;
+    groups.forEach(g=>{
+      const same=S.events.find(e=>plainPL(e.title)===plainPL(g.title) && e.time===g.time && e.days.some(d=>g.days.includes(d)) && (!e.to || e.to>=g.from));
+      if(same){ dup++; return; }
+      S.events.push({id:uid(),skip:[],over:{},cat,work:"",...g, days:g.days.sort((a,b)=>a-b)}); added++; });
+    save(); close(); render();
+    toast(added?`Dodano ${added} ${added===1?"stałe wydarzenie":added<5?"stałe wydarzenia":"stałych wydarzeń"}${dup?`, pominięto ${dup} już zapisanych`:""}.`:"Te zajęcia już są w stałych wydarzeniach.");
+  };
 }
 
 /* ---------- subskrypcje ---------- */
@@ -2757,6 +2946,42 @@ async function scanTicket(file){
 
 const SCAN_DESC = () => false;
 
+/* ---------- plan zajęć ze zrzutu: OCR na telefonie ---------- */
+const planScanOn = () => true;
+async function readPlanImage(file){
+  scanAbort=false;
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="Czytam plan"><h3>Czytam plan zajęć…</h3>
+    <div class="scanbox"><div class="spinner" aria-hidden="true"></div><p>${localStorage.getItem("questlog-ocr-ready")?"Rozpoznaję tekst na zrzucie…":"Pierwszy raz pobieram pakiet rozpoznawania tekstu (ok. 10 MB). Kolejne odczyty działają bez internetu."}</p></div>
+    <div class="bar"><i id="scan-bar"></i></div>
+    <div class="actions"><button type="button" class="btn ghost" id="scan-stop">Przerwij</button></div></div>`;
+  ov.hidden=false;
+  let worker=null;
+  ov.querySelector("#scan-stop").onclick=()=>{ scanAbort=true; worker && worker.terminate(); close(); };
+  const bar=v=>{ const b=document.getElementById("scan-bar"); if(b) b.style.width=Math.round(v*100)+"%"; };
+  try{
+    await loadTesseract();
+    let canvas = await prepCanvas(file); file=null;
+    const base = new URL("./", location.href).href;
+    worker = await Tesseract.createWorker("pol", 1, { workerPath: base+"worker.min.js", corePath: base, langPath: base, workerBlobURL:false, gzip:true,
+      logger: m=>{ if(m.status==="recognizing text") bar(0.25+m.progress*0.75); else if(typeof m.progress==="number") bar(m.progress*0.25); } });
+    if(scanAbort) return;
+    try{ localStorage.setItem("questlog-ocr-ready","1"); }catch(e){}
+    const { data } = await worker.recognize(canvas, {}, {blocks:true, text:true});
+    await worker.terminate(); worker=null; canvas.width=canvas.height=0; canvas=null;
+    if(scanAbort) return;
+    const lines=(data.blocks||[]).flatMap(b=>b.paragraphs.flatMap(p=>p.lines.map(l=>({text:l.text.trim(), bbox:l.bbox, words:l.words.map(w=>({text:w.text,bbox:w.bbox}))}))));
+    const items=planFromLines(lines);
+    const raw=`<details><summary>Odczytany tekst</summary><pre class="ocrtxt">${esc(String(data.text||"").slice(0,3000))}</pre></details>`;
+    if(!items.length){ planReview([{title:"",day:1,start:"08:00",end:"09:30",place:"",every:1,include:true}],
+      `<b>Nie znalazłem zajęć na tym zrzucie.</b> Dopisz je ręcznie albo spróbuj „Wklej tekst” (Tekst na żywo w Zdjęciach czyta dokładniej).${raw}`); return; }
+    planReview(items, `<b>Znalazłem ${items.length} ${items.length===1?"zajęcia":"zajęć"}.</b> Odczyt na telefonie bywa niedokładny: sprawdź nazwy, dni i godziny.${raw}`);
+  }catch(e){
+    if(worker) try{ await worker.terminate(); }catch(_){}
+    if(scanAbort) return;
+    close(); toast("Nie udało się odczytać zrzutu. Spróbuj jeszcze raz albo wklej tekst planu.");
+  }
+}
+
 /* ---------- ustawienia i kopia zapasowa ---------- */
 const IS_PWA = !!window.__PWA__;
 const counts = () => `${S.quests.length} questów · ${S.subs.length} subskrypcji · ${S.events.length} stałych wydarzeń`;
@@ -2874,6 +3099,7 @@ document.getElementById("t-work").onclick=()=>{tab="work";render();};
 })();
 document.getElementById("t-shop").onclick=()=>{tab="shop";render();};
 document.getElementById("c-addev").onclick=()=>eventSheet();
+document.getElementById("c-plan-imp").onclick=planImportStart;
 document.getElementById("d-addev").onclick=()=>eventSheet();
 document.getElementById("d-prev").onclick=()=>shiftDay(-1);
 document.getElementById("d-next").onclick=()=>shiftDay(1);
